@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 코치 · 파코</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+  :root{
+    --bg:#f3f8ff; --panel:#ffffff; --panel-soft:#eef3ff; --ink:#232a48; --ink-soft:#707aa0; --line:#e2e9fb;
+    --green:#2ec98a; --green-soft:#e2f9ee; --pink:#ff6fa0; --pink-soft:#ffe9f1;
+    --yellow:#ffc846; --yellow-soft:#fff6e0; --purple:#7c6bff; --purple-soft:#efecff;
+    --radius:24px; --mono:'JetBrains Mono', ui-monospace, monospace; --display:'Jua', sans-serif;
+    --sans:'Pretendard Variable', Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--purple); outline-offset:3px; border-radius:8px}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+  .mono{font-family:var(--mono)}
+  .display{font-family:var(--display); letter-spacing:-.01em}
+
+  header{position:sticky; top:0; z-index:50; background:rgba(243,248,255,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  .nav{display:flex; align-items:center; gap:14px; height:72px}
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--display); font-size:20px}
+  .logo .mark{width:38px; height:38px}
+  .nav-links{display:flex; gap:4px; margin-left:20px}
+  .nav-links a{padding:9px 14px; border-radius:12px; font-size:14.5px; font-weight:700; color:var(--ink-soft); text-decoration:none; transition:background .15s, color .15s}
+  .nav-links a:hover, .nav-links a.on{background:var(--panel-soft); color:var(--ink)}
+
+  .page-head{padding:34px 0 18px}
+  .page-head .eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12.5px; font-weight:700; color:#b8790c; background:var(--yellow-soft); border:1.5px solid #ffe2a3; padding:7px 13px; border-radius:999px}
+  .page-head .dot{width:7px; height:7px; border-radius:50%; background:var(--yellow)}
+  .page-head h1{font-family:var(--display); font-weight:400; font-size:clamp(24px,3vw,32px); margin:14px 0 6px}
+  .page-head p{color:var(--ink-soft); font-size:15px; margin:0; max-width:520px}
+
+  .card{background:var(--panel); border:2px solid var(--line); border-radius:var(--radius); box-shadow:0 24px 44px -26px rgba(35,42,72,.35)}
+  .chat{display:flex; flex-direction:column; overflow:hidden; height:calc(100vh - 260px); min-height:600px; margin-bottom:56px}
+  .chat-top{display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:2px solid var(--line); background:linear-gradient(135deg, var(--green-soft), var(--purple-soft))}
+  .avatar{width:42px; height:42px}
+  .chat-top b{display:block; font-family:var(--display); font-weight:400; font-size:16px}
+  .chat-top small{color:var(--green); font-size:12px; font-weight:700; display:flex; align-items:center; gap:5px}
+  .chat-top .dot2{width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:.35}}
+  #chat-frame{flex:1; width:100%; border:0; background:#fff}
+
+  footer{border-top:1px solid var(--line); padding:28px 0; font-size:13px; color:var(--ink-soft)}
+  .foot{display:flex; gap:14px; flex-wrap:wrap; align-items:center}
+
+  @media (max-width:900px){ .nav-links{display:none} .chat{height:560px} }
+  @media (max-width:560px){ .wrap{padding:0 16px} }
+</style>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" type="image/svg+xml" href="../icon.svg">
+  <meta name="theme-color" content="#2ec98a">
+  <script src="../app-shell.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#2ec98a"/>
+        <circle cx="17" cy="20" r="4.2" fill="#fff"/><circle cx="31" cy="20" r="4.2" fill="#fff"/>
+        <circle cx="17" cy="21" r="2" fill="#232a48"/><circle cx="31" cy="21" r="2" fill="#232a48"/>
+        <path d="M17 30c3 3 11 3 14 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      </svg>
+      파코
+    </div>
+    <nav class="nav-links">
+      <a href="./index.html">홈</a>
+      <a class="on" href="./coach.html">AI 코치</a>
+      <a href="./roadmap.html">레벨 로드맵</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap page-head">
+  <span class="eyebrow"><span class="dot"></span>지금 코드 리뷰 가능해요</span>
+  <h1>파코와 함께 오늘 코드를 시작해요</h1>
+  <p>막히는 부분을 물어보면 힌트부터 차근차근 알려줘요. 정답을 바로 알려주지 않으니 스스로 풀어보는 재미를 느껴보세요.</p>
+</div>
+
+<div class="wrap">
+  <section class="card chat" id="chat">
+    <div class="chat-top">
+      <svg class="avatar" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#2ec98a"/>
+        <circle cx="17" cy="20" r="4.2" fill="#fff"/><circle cx="31" cy="20" r="4.2" fill="#fff"/>
+        <circle cx="17" cy="21" r="2" fill="#232a48"/><circle cx="31" cy="21" r="2" fill="#232a48"/>
+        <path d="M17 30c3 3 11 3 14 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div><b>파이썬 학습 코치 파코</b><small><span class="dot2"></span>지금 코드 리뷰 가능해요</small></div>
+    </div>
+    <iframe id="chat-frame" title="파이썬 학습 코치 채팅"
+      src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoachv3_YEkNfz/webchat?__version__=2&enableFileAttachment=false&cliAgent=true"
+      loading="lazy"></iframe>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <div class="logo display">파코</div>
+    <span style="margin-left:auto">© 2026 파이썬 학습 코치 파코</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파이썬 학습 코치 검토 대시보드</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Prettify & Pretendard fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'Inter', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            accent: {
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              purple: '#8b5cf6',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-interactive {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card-interactive:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .code-editor {
+      font-family: 'Fira Code', monospace;
+      background: #090d16;
+      tab-size: 4;
+    }
+  </style>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <meta name="theme-color" content="#2ec98a">
+  <script src="./app-shell.js" defer></script>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-500 selection:text-white">
+
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i class="fa-brands fa-python text-xl text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="font-bold text-lg text-white">Python 학습 관리 & 리뷰 대시보드</h1>
+            <span class="px-2 py-0.5 text-xs font-semibold bg-blue-500/20 text-blue-400 rounded-full border border-blue-500/30">Coach Mode</span>
+          </div>
+          <p class="text-xs text-slate-400">학생 단일 제출 10회차 연속 학습 분석 보고서</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="exportSummaryReport()" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-2 transition">
+          <i class="fa-regular fa-clipboard"></i> 종합 평가 복사
+        </button>
+        <button onclick="openReviewModal()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition">
+          <i class="fa-solid fa-pen-to-square"></i> 코치 총평 작성
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- 학생 프로필 요약 카드 -->
+    <div class="glass-card rounded-2xl p-6 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+        <div class="flex items-center space-x-5">
+          <div class="relative">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-0.5 flex items-center justify-center text-white text-2xl font-bold shadow-xl">
+              20
+            </div>
+            <div class="absolute -bottom-1 -right-1 bg-emerald-500 text-slate-950 rounded-full p-1 border-2 border-slate-900 text-[10px]" title="연속 제출 우수">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="text-xl font-bold text-white tracking-tight" id="studentIdDisplay">학번: 20511 (통합 성장 리포트)</h2>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">Lv.14 객체지향 마스터</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">10개 세션 완주</span>
+            </div>
+            <p class="text-sm text-slate-400 mt-1">
+              기간: <span class="text-slate-300 font-mono">2026.09.01 ~ 2026.09.10</span> | 학습 기간: 8주 집중 과정 (진도율 95%)
+            </p>
+          </div>
+        </div>
+
+        <!-- 4대 핵심 지표 통계 -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 min-w-[120px]">
+            <p class="text-xs text-slate-400">누적 성장 XP</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="text-xl font-bold text-blue-400 font-mono">5,600</span>
+              <span class="text-[11px] text-emerald-400 font-semibold">(+5,420)</span>
+            </div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 min-w-[120px]">
+            <p class="text-xs text-slate-400">평균 실습 점수</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="text-xl font-bold text-emerald-400 font-mono">92.4</span>
+              <span class="text-[11px] text-slate-400">/ 100점</span>
+            </div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 min-w-[120px]">
+            <p class="text-xs text-slate-400">통과 퀴즈/실습</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="text-xl font-bold text-amber-400 font-mono">10 / 10</span>
+              <span class="text-[11px] text-slate-400">100%</span>
+            </div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 min-w-[120px]">
+            <p class="text-xs text-slate-400">보유 뱃지</p>
+            <div class="flex items-baseline gap-1 mt-1">
+              <span class="text-xl font-bold text-purple-400 font-mono">12</span>
+              <span class="text-[11px] text-slate-400">개 획득</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상단 진도 바 -->
+      <div class="mt-6 pt-4 border-t border-slate-800/80">
+        <div class="flex justify-between items-center text-xs mb-1.5">
+          <span class="text-slate-400">전체 커리큘럼 로드맵 진행도 (변수 입출력 → 객체지향 클래스)</span>
+          <span class="font-bold text-blue-400">95% (최종 프로젝트 진입 직전)</span>
+        </div>
+        <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5">
+          <div class="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full w-[95%] transition-all duration-1000"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+      <div class="flex space-x-2">
+        <button onclick="switchTab('tab-timeline')" id="btn-tab-timeline" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow">
+          <i class="fa-solid fa-list-check mr-1.5"></i> 회차별 세션 검토
+        </button>
+        <button onclick="switchTab('tab-analytics')" id="btn-tab-analytics" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-chart-line mr-1.5"></i> 종합 성장 추이 & 역량
+        </button>
+        <button onclick="switchTab('tab-insights')" id="btn-tab-insights" class="tab-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> 약점 분석 & 맞춤 처방
+        </button>
+      </div>
+      <div class="text-xs text-slate-500 hidden sm:block">
+        <i class="fa-solid fa-circle-info mr-1"></i> 각 회차 카드를 클릭하여 원본 코드 및 채점표를 검토하세요.
+      </div>
+    </div>
+
+    <div id="tab-timeline" class="tab-content block space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- 좌측: 10개 세션 리스트 탐색기 -->
+        <div class="lg:col-span-4 space-y-3">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+              <i class="fa-regular fa-folder-open text-blue-400"></i> 제출된 세션 히스토리 (10)
+            </h3>
+            <span class="text-xs text-slate-500">클릭하여 전환</span>
+          </div>
+
+          <div id="sessionListContainer" class="space-y-2 max-h-[720px] overflow-y-auto pr-1">
+            <!-- Dynamic session items will be injected here -->
+          </div>
+        </div>
+
+        <!-- 우측: 선택된 세션 상세 검토 패널 -->
+        <div class="lg:col-span-8 space-y-6">
+          <div id="sessionDetailCard" class="glass-card rounded-2xl p-6 space-y-6">
+            <!-- Detail Header -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="detailBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/30">Week 1</span>
+                  <span id="detailDate" class="text-xs font-mono text-slate-400">2026-09-01</span>
+                </div>
+                <h3 id="detailTitle" class="text-xl font-bold text-white mt-1">변수 선언 및 계산 실습 완료</h3>
+                <p id="detailLevelInfo" class="text-xs text-slate-400 mt-0.5">Lv.2 변수 탐험가 • 180 XP</p>
+              </div>
+
+              <!-- 채점 및 승인 뱃지 -->
+              <div class="flex items-center gap-3">
+                <div class="text-right">
+                  <div class="text-2xl font-black text-emerald-400 font-mono" id="detailTotalScore">91점</div>
+                  <span class="text-[11px] text-slate-400">실습 평가 총점</span>
+                </div>
+                <button onclick="toggleVerifySession()" id="verifyBtn" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-circle-check"></i> <span>검토 완료됨</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 제출 코드 및 채점표 2단 구성 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+              <!-- 제출 코드 뷰어 -->
+              <div class="md:col-span-7 space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-code text-blue-400"></i> 제출된 Python 코드
+                  </span>
+                  <button onclick="copyCurrentCode()" class="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1">
+                    <i class="fa-regular fa-clone"></i> 복사
+                  </button>
+                </div>
+
+                <div class="rounded-xl overflow-hidden border border-slate-800 bg-[#090d16] shadow-inner">
+                  <div class="bg-slate-900/90 px-3 py-1.5 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span id="codeFileName" class="font-mono text-[11px]">solution.py</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800">Python 3.11</span>
+                  </div>
+                  <pre class="p-4 text-xs leading-relaxed text-slate-200 overflow-x-auto code-editor" id="detailCodeBox"><code># 코드가 여기에 표시됩니다.</code></pre>
+                </div>
+
+                <!-- 코드 실행 결과 미리보기 -->
+                <div class="rounded-xl bg-slate-950/60 border border-slate-800/80 p-3 text-xs space-y-1">
+                  <span class="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                    <i class="fa-solid fa-terminal text-slate-500"></i> 콘솔 출력 결과 (Output)
+                  </span>
+                  <pre class="font-mono text-[11px] text-emerald-400/90" id="detailOutputBox">출력 결과가 표시됩니다.</pre>
+                </div>
+              </div>
+
+              <!-- 루브릭 세부 채점표 -->
+              <div class="md:col-span-5 space-y-3">
+                <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-table-list text-purple-400"></i> 6대 평가 영역 채점표
+                </span>
+
+                <div class="rounded-xl border border-slate-800 overflow-hidden bg-slate-900/40">
+                  <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-800/60 text-slate-400 font-medium">
+                      <tr>
+                        <th class="py-2 px-3">항목</th>
+                        <th class="py-2 px-2 text-center">배점</th>
+                        <th class="py-2 px-3 text-right">점수</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-slate-300 font-mono" id="detailRubricTbody">
+                      <!-- Dynamically injected -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- 리뷰 코멘트 하이라이트 -->
+                <div class="rounded-xl bg-slate-900/60 border border-slate-800 p-3.5 space-y-2 text-xs">
+                  <div class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <i class="fa-regular fa-thumbs-up"></i> 잘한 점
+                  </div>
+                  <p id="detailPraise" class="text-slate-300 text-[11px] leading-relaxed"></p>
+
+                  <div class="text-amber-400 font-semibold flex items-center gap-1 pt-1">
+                    <i class="fa-solid fa-wrench"></i> 개선 권장사항
+                  </div>
+                  <p id="detailImprovement" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 강점 / 약점 TOP3 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+              <div class="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3.5">
+                <h4 class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+                  <i class="fa-solid fa-star"></i> 본 세션 강점 TOP 3
+                </h4>
+                <ul id="detailStrengths" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                  <!-- strengths -->
+                </ul>
+              </div>
+
+              <div class="bg-rose-950/20 border border-rose-500/20 rounded-xl p-3.5">
+                <h4 class="text-xs font-bold text-rose-400 mb-2 flex items-center gap-1.5">
+                  <i class="fa-solid fa-triangle-exclamation"></i> 주의 및 보완점 TOP 3
+                </h4>
+                <ul id="detailWeaknesses" class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                  <!-- weaknesses -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- 코치 피드백 & 다음 세션 권장 과제 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-robot"></i> AI 코치 피드백 & 세션 가이드
+                </h4>
+                <span class="text-[11px] text-slate-400 font-mono" id="detailNextReport">Lv.2 XP180</span>
+              </div>
+              <p id="detailCoachComment" class="text-xs text-slate-300 leading-relaxed"></p>
+
+              <div class="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 text-xs">
+                <div class="flex items-center gap-1.5 text-slate-400">
+                  <span class="text-amber-400 font-semibold">추천 복습:</span>
+                  <span id="detailReviewTopic" class="text-slate-200">변수 계산 도전 문제</span>
+                </div>
+                <button onclick="promptQuickFeedback()" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
+                  <i class="fa-regular fa-comment-dots"></i> 코치 1:1 메시지 남기기
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="tab-analytics" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- 1. XP 및 점수 성장 곡선 -->
+        <div class="lg:col-span-8 glass-card rounded-2xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-arrow-trend-up text-blue-400"></i> 세션별 누적 XP 성장 궤적
+              </h3>
+              <p class="text-xs text-slate-400">Day 1 (180 XP)에서 Day 10 (5,600 XP)까지의 단계별 도약</p>
+            </div>
+            <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+              성장률 +3011%
+            </span>
+          </div>
+          <div class="h-64 w-full">
+            <canvas id="xpChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 2. 루브릭 6대 영역 역량 레이더 차트 -->
+        <div class="lg:col-span-4 glass-card rounded-2xl p-5 space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-purple-400"></i> 영역별 종합 숙련도
+            </h3>
+            <p class="text-xs text-slate-400">10개 세션 누적 채점 기준 평균치</p>
+          </div>
+          <div class="h-64 w-full flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- 3. 실습 점수 변동률 분석 -->
+        <div class="lg:col-span-12 glass-card rounded-2xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-emerald-400"></i> 세션별 실습 제출 점수 (100점 만점 기준)
+            </h3>
+            <span class="text-xs text-slate-400">평균: 92.4점 (최고 96점, 최저 91점)</span>
+          </div>
+          <div class="h-56 w-full">
+            <canvas id="scoreBarChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="tab-insights" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- 취약점 종합 진단 -->
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/30 text-lg">
+            <i class="fa-solid fa-bug"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">반복되는 취약 패턴</h3>
+          <p class="text-xs text-slate-400">10회차 보고서 전반에서 공통으로 지적된 3대 보완 영역입니다.</p>
+
+          <div class="space-y-3 text-xs">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-rose-400 block mb-1">1. PEP8 코드 스타일 및 공백</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">연산자(`=`, `+`) 앞뒤 공백 및 쉼표 뒤 공백 누락이 초·중반 세션 전반에서 반복됨.</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-amber-400 block mb-1">2. Python 내장 함수 활용도</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">f-string, 리스트 컴프리헨션 등 파이썬다운 축약 문법보다 기본 명령문 위주 구현.</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-purple-400 block mb-1">3. 경계값(Edge Case) 처리 미흡</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">정상 입력 범위 외 음수, 빈 문자열, 형식 불일치 시의 예외 처리 누락 경향.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 핵심 역량 및 강점 -->
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 text-lg">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">입증된 학습 강점</h3>
+          <p class="text-xs text-slate-400">학습자가 보여준 뛰어난 문제 해결력과 적응력입니다.</p>
+
+          <div class="space-y-3 text-xs">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-emerald-400 block mb-1">1. 주차별 개념 퀴즈 100% 정답</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">자료형 구분부터 OOP 상속까지 문법 개념 이해도가 매우 견고함.</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-blue-400 block mb-1">2. 빠른 논리 구조화 능력</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">문제 요구사항을 함수 및 클래스 구조로 설계하는 논리 전개가 막힘없이 진행됨.</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-indigo-400 block mb-1">3. 지속적인 실습 완주율 (10/10)</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">도중에 포기하지 않고 에러를 스스로 수정해 전 세션 실습 패스 달성.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 맞춤 처방 및 추천 프로젝트 -->
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30 text-lg">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">코치 추천 다음 단계</h3>
+          <p class="text-xs text-slate-400">Lv.15 도달 및 포트폴리오 완성을 위한 제안입니다.</p>
+
+          <div class="space-y-3 text-xs">
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-blue-400 block mb-1">추천 종합 프로젝트</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                <strong>"CLI 기반 학생 성적 관리 및 파일 리포트 생성기"</strong><br>
+                - 클래스(Student/GradeManager) 활용<br>
+                - 파일 I/O 및 JSON 저장<br>
+                - try-except 입력값 검증 포함
+              </p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <span class="font-bold text-emerald-400 block mb-1">권장 학습 자료</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                - PEP8 Linter 도구(flake8, black) 실습<br>
+                - 파이썬 클린코드(Clean Code) 패턴 가이드
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Coach Review Modal -->
+  <div id="reviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden">
+    <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg p-6 space-y-4 shadow-2xl mx-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-nib text-blue-400"></i> 교사/코치 종합 평가 코멘트
+        </h3>
+        <button onclick="closeReviewModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">검토 학생</label>
+          <input type="text" readonly value="학번: 20511 (10회차 연속 제출)" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-400 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">성장 총평 및 격려</label>
+          <textarea id="coachGeneralNote" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:outline-none focus:border-blue-500" placeholder="학생의 10회차 성장에 대한 총평을 입력하세요..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">최종 인증 레벨</label>
+            <select id="coachAssignedLevel" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+              <option value="Lv.14">Lv.14 객체지향 마스터 (적정)</option>
+              <option value="Lv.15">Lv.15 프로젝트 마스터 (승급)</option>
+              <option value="Lv.13">Lv.13 클래스 입문자 (보류)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">추천 과제 유형</label>
+            <select id="coachNextAction" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+              <option value="종합 미니 프로젝트">종합 미니 프로젝트</option>
+              <option value="코드 리팩토링 및 클린코드">코드 리팩토링 및 클린코드</option>
+              <option value="자료구조 심화">자료구조 심화</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+        <button onclick="closeReviewModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold">
+          취소
+        </button>
+        <button onclick="saveCoachFeedback()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/30">
+          평가 저장 및 확정
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom In-App Message Modal (Replaces alert()) -->
+  <div id="messageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden">
+    <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-sm p-5 space-y-3 shadow-2xl text-center mx-4">
+      <div id="messageModalIcon" class="w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl bg-blue-500/20 text-blue-400">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 id="messageModalTitle" class="text-base font-bold text-white">알림</h3>
+      <p id="messageModalText" class="text-xs text-slate-300 leading-relaxed"></p>
+      <div class="pt-2">
+        <button onclick="closeMessageModal()" class="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold">
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-xl text-xs">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">작업이 완료되었습니다.</span>
+  </div>
+
+  <script>
+    const SESSIONS_DATA = [
+      {
+        id: "session_01",
+        sessionNum: 1,
+        date: "2026-09-01",
+        week: "Week 1",
+        topic: "변수 선언 및 사칙연산",
+        level: "Lv.2 변수 탐험가",
+        xp: 180,
+        addedXp: 50,
+        nextLvl: "Lv.3 출력 마스터",
+        targetXp: 250,
+        score: 96,
+        badge: "변수 달인",
+        code: `# 1회차: 변수 선언 및 합계/평균 계산 실습
+num1 = int(input("첫 번째 숫자 입력: "))
+num2 = int(input("두 번째 숫자 입력: "))
+
+total = num1 + num2
+average = total / 2
+
+print(f"합계: {total}")
+print(f"평균: {average:.1f}")`,
+        output: `첫 번째 숫자 입력: 10
+두 번째 숫자 입력: 20
+합계: 30
+평균: 15.0`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 20 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 10 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "input() 형변환과 f-string을 깔끔하게 적용하여 입출력 흐름이 안정적입니다.",
+        improvement: "변수명과 연산자 사이 공백을 일정하게 두어 PEP8 표준을 준수하세요.",
+        strengths: [
+          "변수 개념 및 int() 형변환 문법 완벽 이해",
+          "f-string 서식 포맷팅(:.1f) 자발적 적용",
+          "입력 후 즉시 계산하는 논리 전개 우수"
+        ],
+        weaknesses: [
+          "연산자 주변 공백 불규칙",
+          "문자열 입력 시 ValueError 예외 처리 미비",
+          "소수점 계산 원리 추가 복습 필요"
+        ],
+        coachComment: "첫 실습부터 퀴즈 전 문항 정답과 함께 96점의 우수한 성적을 거두었습니다. f-string 사용이 매우 돋보입니다.",
+        reviewTopic: "int()와 float() 형변환 비교 연습",
+        verified: true
+      },
+      {
+        id: "session_02",
+        sessionNum: 2,
+        date: "2026-09-02",
+        week: "Week 2",
+        topic: "성적 등급 판별기",
+        level: "Lv.4 조건문 도전자",
+        xp: 480,
+        addedXp: 50,
+        nextLvl: "Lv.5 조건문 마스터",
+        targetXp: 700,
+        score: 91,
+        badge: "성적 달인",
+        code: `# 2회차: if-elif-else 다중 조건문
+score = int(input("점수를 입력하세요: "))
+
+if score >= 90:
+    grade = 'A'
+elif score >= 80:
+    grade = 'B'
+elif score >= 70:
+    grade = 'C'
+else:
+    grade = 'F'
+
+print(f"당신의 등급은 {grade}입니다.")`,
+        output: `점수를 입력하세요: 85
+당신의 등급은 B입니다.`,
+        rubric: [
+          { name: "정확성", max: 30, score: 28 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 18 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "if - elif - else 분기 논리를 정확한 순서로 설계했습니다.",
+        improvement: "0점 미만 또는 100점 초과의 비정상 입력값에 대한 유효성 검사가 필요합니다.",
+        strengths: [
+          "조건식의 범위 우선순위 정확히 파악",
+          "들여쓰기 4칸 문법 에러 없이 준수",
+          "변수 grade 활용한 단일 print 구조화"
+        ],
+        weaknesses: [
+          "0~100 범위 경계값 예외 처리 누락",
+          "인라인 조건문(삼항연산자) 미학습",
+          "주석 설명 보완 필요"
+        ],
+        coachComment: "조건문 기초가 튼튼합니다. 입력값의 유효 범위를 먼저 검사하는 방어적 프로그래밍 습관을 길러보세요.",
+        reviewTopic: "다중 조건식과 논리 연산자(and, or)",
+        verified: true
+      },
+      {
+        id: "session_03",
+        sessionNum: 3,
+        date: "2026-09-03",
+        week: "Week 3",
+        topic: "윤년 판별 프로그램",
+        level: "Lv.5 조건문 마스터",
+        xp: 720,
+        addedXp: 50,
+        nextLvl: "Lv.6 반복문 탐험가",
+        targetXp: 1000,
+        score: 93,
+        badge: "윤년 달인",
+        code: `# 3회차: 복합 논리 연산자 윤년 판정
+year = int(input("연도를 입력하세요: "))
+
+# 4의 배수이면서 100의 배수가 아니거나, 400의 배수일 때 윤년
+if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
+    print(f"{year}년은 윤년입니다.")
+else:
+    print(f"{year}년은 평년입니다.")`,
+        output: `연도를 입력하세요: 2024
+2024년은 윤년입니다.`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 18 },
+          { name: "가독성", max: 10, score: 9 },
+          { name: "변수명", max: 10, score: 8 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "복잡한 윤년 조건(and/or 조합)을 괄호와 함께 한 줄로 깔끔하게 처리했습니다.",
+        improvement: "조건식을 별도의 불리언(is_leap) 변수에 할당하면 가독성이 더욱 향상됩니다.",
+        strengths: [
+          "논리 연산자 우선순위의 완벽한 활용",
+          "나머지 연산자(%)의 정확한 수학적 적용",
+          "핵심 알고리즘 주석 작성 태도 우수"
+        ],
+        weaknesses: [
+          "복잡한 조건식을 변수화하여 가독성을 높이는 연습 부족",
+          "연도 0 이하 음수 입력 처리 미고려",
+          "테스트 케이스 다각화 필요"
+        ],
+        coachComment: "조건문 마스터 레벨에 걸맞은 논리적 사고를 보여주었습니다. Lv.6 진입을 축하합니다!",
+        reviewTopic: "불리언 플래그 변수 활용법",
+        verified: true
+      },
+      {
+        id: "session_04",
+        sessionNum: 4,
+        date: "2026-09-04",
+        week: "Week 4",
+        topic: "구구단 및 별 찍기 출력기",
+        level: "Lv.6 반복문 탐험가",
+        xp: 1050,
+        addedXp: 50,
+        nextLvl: "Lv.7 리스트 사용자",
+        targetXp: 1350,
+        score: 92,
+        badge: "구구단 달인",
+        code: `# 4회차: 중첩 for문 구구단 출력
+dan = int(input("출력할 단(2~9): "))
+
+if 2 <= dan <= 9:
+    print(f"[{dan}단]")
+    for i in range(1, 10):
+        print(f"{dan} x {i} = {dan * i}")
+else:
+    print("2부터 9 사이의 숫자를 입력해주세요.")`,
+        output: `출력할 단(2~9): 3
+[3단]
+3 x 1 = 3
+3 x 2 = 6
+3 x 3 = 9
+...
+3 x 9 = 27`,
+        rubric: [
+          { name: "정확성", max: 30, score: 28 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 19 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "range(1, 10)의 시작과 끝 범위를 정확히 지정하고 반복 루프를 매끄럽게 구성했습니다.",
+        improvement: "연속 조건문 비교(2 <= dan <= 9)를 잘 썼으나, while 루프로 재입력 유도를 추가하면 완벽합니다.",
+        strengths: [
+          "반복문(range) 인덱스 활용 정확",
+          "문자열 포맷팅과 연산식의 자연스러운 결합",
+          "단 입력 범위 검증 선행"
+        ],
+        weaknesses: [
+          "break / continue 제어문 활용 경험 부족",
+          "while 문과의 차이점 비교 학습 필요",
+          "출력 서식 줄바꿈 제어 미숙"
+        ],
+        coachComment: "반복문 개념을 훌륭히 소화했습니다. 다음 주차 리스트와 결합하면 더욱 강력한 코드를 작성할 수 있습니다.",
+        reviewTopic: "while문 무한루프와 break 제어",
+        verified: true
+      },
+      {
+        id: "session_05",
+        sessionNum: 5,
+        date: "2026-09-05",
+        week: "Week 5",
+        topic: "단어 빈도 카운터 (딕셔너리)",
+        level: "Lv.8 딕셔너리 관리자",
+        xp: 1820,
+        addedXp: 50,
+        nextLvl: "Lv.9 함수 정복자",
+        targetXp: 2200,
+        score: 94,
+        badge: "단어장 달인",
+        code: `# 5회차: 딕셔너리를 활용한 단어 등장 횟수 카운트
+text = "apple banana apple cherry banana apple"
+words = text.split()
+counts = {}
+
+for w in words:
+    if w in counts:
+        counts[w] += 1
+    else:
+        counts[w] = 1
+
+for word, count in counts.items():
+    print(f"{word}: {count}회")`,
+        output: `apple: 3회
+banana: 2회
+cherry: 1회`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 19 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "split() 메서드와 딕셔너리 key 확인 로직을 훌륭하게 연결했습니다.",
+        improvement: "딕셔너리의 .get(w, 0) + 1 메서드를 쓰면 if-else 4줄을 단 한 줄로 단축할 수 있습니다.",
+        strengths: [
+          "딕셔너리 items() 언패킹 문법 능숙",
+          "문자열 분할 및 리스트 순회 결합",
+          "자료구조 선택의 타당성 확보"
+        ],
+        weaknesses: [
+          "dict.get() 기본값 문법 미활용",
+          "Collections 모듈 Counter 미학습",
+          "대소문자 정규화(lower()) 누락"
+        ],
+        coachComment: "데이터 분석의 기초가 되는 단어 카운터를 멋지게 풀었습니다. 파이썬다운 축약법을 하나씩 더 익혀봅시다.",
+        reviewTopic: "dict.get() 및 딕셔너리 컴프리헨션",
+        verified: true
+      },
+      {
+        id: "session_06",
+        sessionNum: 6,
+        date: "2026-09-06",
+        week: "Week 6",
+        topic: "소수 판별 함수",
+        level: "Lv.9 함수 정복자",
+        xp: 2300,
+        addedXp: 50,
+        nextLvl: "Lv.10 모듈 활용가",
+        targetXp: 2700,
+        score: 92,
+        badge: "소수 달인",
+        code: `# 6회차: 소수(Prime Number) 판별 사용자 정의 함수
+def is_prime(num):
+    if num < 2:
+        return False
+    for i in range(2, int(num ** 0.5) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+test_nums = [2, 7, 10, 13, 25]
+for n in test_nums:
+    result = "소수" if is_prime(n) else "합성수"
+    print(f"{n} -> {result}")`,
+        output: `2 -> 소수
+7 -> 소수
+10 -> 합성수
+13 -> 소수
+25 -> 합성수`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 18 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 8 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "제곱근(int(num ** 0.5))까지만 검사하는 효율적인 알고리즘을 구현했습니다.",
+        improvement: "함수 상단에 Docstring(\"\"\"설명\"\"\")을 추가하여 함수의 입출력 명세를 문서화하세요.",
+        strengths: [
+          "조기 반환(Early Return) 패턴을 통한 최적화",
+          "수학적 연산 복합 구현 능력 탁월",
+          "삼항 연산자(Ternary operator) 자발적 적용"
+        ],
+        weaknesses: [
+          "타입 힌트(Type Hint) 부재 (num: int -> bool)",
+          "함수 독스트링(Docstring) 생략",
+          "음수나 0에 대한 주석 부족"
+        ],
+        coachComment: "함수 분리와 성능 최적화까지 훌륭히 해냈습니다. 함수의 설명문(Docstring) 작성 습관을 더해보세요.",
+        reviewTopic: "파이썬 타입 힌트와 Docstring 표준",
+        verified: true
+      },
+      {
+        id: "session_07",
+        sessionNum: 7,
+        date: "2026-09-07",
+        week: "Week 6",
+        topic: "로또 번호 생성기 (random 모듈)",
+        level: "Lv.10 모듈 활용가",
+        xp: 2850,
+        addedXp: 50,
+        nextLvl: "Lv.11 파일 제어자",
+        targetXp: 3300,
+        score: 94,
+        badge: "로또 달인",
+        code: `# 7회차: random 라이브러리를 활용한 중복 없는 로또 번호
+import random
+
+def generate_lotto():
+    numbers = set()
+    while len(numbers) < 6:
+        numbers.add(random.randint(1, 45))
+    return sorted(list(numbers))
+
+for i in range(1, 4):
+    print(f"{i}회차 번호: {generate_lotto()}")`,
+        output: `1회차 번호: [3, 12, 19, 24, 38, 41]
+2회차 번호: [1, 9, 14, 27, 33, 45]
+3회차 번호: [5, 8, 20, 22, 31, 40]`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 19 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "set 자료구조의 중복 불허 속성을 while과 결합하여 중복 없는 뽑기를 완성했습니다.",
+        improvement: "random.sample(range(1, 46), 6) 내장 함수를 활용하면 루프 없이도 1줄로 구현 가능합니다.",
+        strengths: [
+          "표준 라이브러리 import 및 활용 숙달",
+          "set 자료구조의 특성을 목적에 맞게 도입",
+          "sorted() 내장 함수를 통한 정렬 마감"
+        ],
+        weaknesses: [
+          "random.sample 등 고수준 API 파악 부족",
+          "모듈 import 위치 규칙(최상단) 학습",
+          "시드(seed) 설정 재현성 학습 필요"
+        ],
+        coachComment: "set을 스스로 떠올려 중복 문제를 해결한 점이 대견합니다. random 모듈의 다양한 함수도 함께 살펴보세요.",
+        reviewTopic: "random.sample() vs set 루프 성능 비교",
+        verified: true
+      },
+      {
+        id: "session_08",
+        sessionNum: 8,
+        date: "2026-09-08",
+        week: "Week 7",
+        topic: "텍스트 파일 읽기 및 통계 집계",
+        level: "Lv.11 파일 제어자",
+        xp: 3400,
+        addedXp: 50,
+        nextLvl: "Lv.12 예외 처리자",
+        targetXp: 4000,
+        score: 91,
+        badge: "텍스트 달인",
+        code: `# 8회차: with open 파일 I/O 및 줄별 통계
+file_path = "scores.txt"
+
+# 파일 작성 및 재읽기
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write("Alice 90\\nBob 85\\nCharlie 95\\n")
+
+total = 0
+count = 0
+with open(file_path, "r", encoding="utf-8") as f:
+    for line in f:
+        name, score_str = line.strip().split()
+        total += int(score_str)
+        count += 1
+
+avg = total / count if count > 0 else 0
+print(f"총 {count}명 평균 점수: {avg:.2f}")`,
+        output: `총 3명 평균 점수: 90.00`,
+        rubric: [
+          { name: "정확성", max: 30, score: 28 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 18 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "with 구문(Context Manager)과 utf-8 인코딩을 누락 없이 정확히 사용했습니다.",
+        improvement: "파일이 존재하지 않거나 빈 파일일 때의 FileNotFoundError 처리 루틴이 누락되었습니다.",
+        strengths: [
+          "with open 문법의 완벽한 리소스 안전 해제",
+          "strip()과 split()을 조합한 라인 파싱",
+          "0 나누기 방지(ZeroDivisionError 삼항연산)"
+        ],
+        weaknesses: [
+          "FileNotFoundError 예외 처리 미비",
+          "경로 관리(os.path / pathlib) 미학습",
+          "대용량 파일 읽기 제너레이터 이해 필요"
+        ],
+        coachComment: "파일 입출력의 핵심인 with open을 아주 바르게 구사했습니다. 실무 수준의 파일 다루기가 가능해졌습니다.",
+        reviewTopic: "with open과 os 모듈 파일 존재 여부 검사",
+        verified: true
+      },
+      {
+        id: "session_09",
+        sessionNum: 9,
+        date: "2026-09-09",
+        week: "Week 7",
+        topic: "안전한 계산기 (try-except 예외 처리)",
+        level: "Lv.12 예외 처리자",
+        xp: 4150,
+        addedXp: 50,
+        nextLvl: "Lv.13 클래스 입문자",
+        targetXp: 4800,
+        score: 93,
+        badge: "안전한 달인",
+        code: `# 9회차: try-except 기반 계산기
+def safe_divide():
+    try:
+        a = float(input("첫 번째 수: "))
+        b = float(input("두 번째 수: "))
+        result = a / b
+    except ValueError:
+        print("오류: 올바른 숫자를 입력해야 합니다.")
+    except ZeroDivisionError:
+        print("오류: 0으로 나눌 수 없습니다.")
+    else:
+        print(f"결과: {result:.2f}")
+    finally:
+        print("연산 시도가 완료되었습니다.")
+
+safe_divide()`,
+        output: `첫 번째 수: 10
+두 번째 수: 0
+오류: 0으로 나눌 수 없습니다.
+연산 시도가 완료되었습니다.`,
+        rubric: [
+          { name: "정확성", max: 30, score: 29 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 19 },
+          { name: "가독성", max: 10, score: 8 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "ValueError와 ZeroDivisionError를 구분하여 세분화된 안내 메시지를 출력했습니다.",
+        improvement: "else와 finally 블록의 쓰임새를 잘 살렸으나, 입력 루프를 감싸 재시도 기능을 넣으면 더 좋습니다.",
+        strengths: [
+          "예외의 종류에 따른 정밀한 분기 처리",
+          "try-except-else-finally 풀 패키지 활용",
+          "사용자 친화적인 에러 메시지 제공"
+        ],
+        weaknesses: [
+          "커스텀 예외(Custom Exception) 생성 미학습",
+          "logging 모듈을 통한 로그 기록 부재",
+          "함수 반환값 표준화 부족"
+        ],
+        coachComment: "프로그램이 갑작스럽게 꺼지지 않도록 방어하는 능력이 크게 성장했습니다. 실전 코딩의 기본을 갖췄습니다.",
+        reviewTopic: "사용자 정의 예외 클래스와 raise 키워드",
+        verified: true
+      },
+      {
+        id: "session_10",
+        sessionNum: 10,
+        date: "2026-09-10",
+        week: "Week 8",
+        topic: "은행 계좌 관리 클래스 (객체지향)",
+        level: "Lv.14 객체지향 마스터",
+        xp: 5600,
+        addedXp: 50,
+        nextLvl: "Lv.15 파이썬 프로젝트 마스터",
+        targetXp: 6500,
+        score: 95,
+        badge: "은행 달인",
+        code: `# 10회차: OOP 클래스 및 캡슐화 실습
+class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self._balance = balance
+
+    def deposit(self, amount):
+        if amount > 0:
+            self._balance += amount
+            print(f"[입금] {amount:,}원 입금 완료 (잔액: {self._balance:,}원)")
+        else:
+            print("입금액은 0원보다 커야 합니다.")
+
+    def withdraw(self, amount):
+        if amount > self._balance:
+            print("[출금 실패] 잔액이 부족합니다.")
+        elif amount <= 0:
+            print("출금액이 올바르지 않습니다.")
+        else:
+            self._balance -= amount
+            print(f"[출금] {amount:,}원 출금 완료 (잔액: {self._balance:,}원)")
+
+acc = BankAccount("김민준", 10000)
+acc.deposit(5000)
+acc.withdraw(3000)`,
+        output: `[입금] 5,000원 입금 완료 (잔액: 15,000원)
+[출금] 3,000원 출금 완료 (잔액: 12,000원)`,
+        rubric: [
+          { name: "정확성", max: 30, score: 30 },
+          { name: "문법", max: 20, score: 20 },
+          { name: "논리", max: 20, score: 19 },
+          { name: "가독성", max: 10, score: 9 },
+          { name: "변수명", max: 10, score: 9 },
+          { name: "Python 활용도", max: 10, score: 8 }
+        ],
+        praise: "__init__ 생성자, 인스턴스 메서드 및 잔액 캡슐화(_balance)를 탁월하게 설계했습니다.",
+        improvement: "@property 데코레이터를 이용한 getter/setter 패턴을 도입하면 더욱 파이썬답습니다.",
+        strengths: [
+          "객체지향 프로그래밍(OOP) 기본 원리 체득",
+          "천 단위 콤마 포맷팅({amount:,}) 디테일",
+          "입출금 비즈니스 로직 방어 검증 철저"
+        ],
+        weaknesses: [
+          "@property / @setter 데코레이터 미활용",
+          "클래스 상속(예: SavingAccount) 미적용",
+          "__str__ 또는 __repr__ 매직 메서드 누락"
+        ],
+        coachComment: "10회차 세션을 완주하며 객체지향 설계까지 훌륭히 마스터했습니다. 이제 독자적인 종합 프로젝트를 완성할 준비가 되었습니다!",
+        reviewTopic: "파이썬 @property 데코레이터와 클래스 상속",
+        verified: true
+      }
+    ];
+
+    let currentSessionIndex = 9; // Default to the latest session (Session 10)
+    let chartsInitialized = false;
+    let xpChartInstance = null;
+    let radarChartInstance = null;
+    let scoreBarChartInstance = null;
+
+    window.onload = function () {
+      renderSessionList();
+      selectSession(currentSessionIndex);
+      initCharts();
+    };
+
+    function renderSessionList() {
+      const container = document.getElementById("sessionListContainer");
+      container.innerHTML = "";
+
+      SESSIONS_DATA.forEach((s, idx) => {
+        const isSelected = idx === currentSessionIndex;
+        const item = document.createElement("div");
+        item.className = `p-3 rounded-xl cursor-pointer transition-all border ${
+          isSelected 
+            ? "bg-blue-600/20 border-blue-500/60 shadow-lg shadow-blue-500/10 text-white" 
+            : "bg-slate-900/60 border-slate-800 hover:border-slate-700 text-slate-300"
+        }`;
+        item.onclick = () => selectSession(idx);
+
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-mono ${isSelected ? 'text-blue-400 font-bold' : 'text-slate-500'}">
+              Session ${s.sessionNum} • ${s.date}
+            </span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+              s.score >= 95 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'
+            }">
+              ${s.score}점
+            </span>
+          </div>
+          <div class="text-xs font-semibold mt-1 truncate ${isSelected ? 'text-white' : 'text-slate-200'}">
+            ${s.topic}
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mt-2">
+            <span>${s.level}</span>
+            <span class="font-mono text-emerald-400 font-medium">${s.xp} XP</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function selectSession(index) {
+      currentSessionIndex = index;
+      const s = SESSIONS_DATA[index];
+
+      // Update sidebar active highlights
+      renderSessionList();
+
+      // Header fields
+      document.getElementById("detailBadge").innerText = s.week;
+      document.getElementById("detailDate").innerText = s.date;
+      document.getElementById("detailTitle").innerText = `${s.topic} 실습 리포트`;
+      document.getElementById("detailLevelInfo").innerText = `${s.level} • 누적 ${s.xp} XP (이번 세션 +${s.addedXp} XP)`;
+      document.getElementById("detailTotalScore").innerText = `${s.score}점`;
+
+      // Code and Output
+      document.getElementById("codeFileName").innerText = `${s.id}_solution.py`;
+      document.getElementById("detailCodeBox").innerHTML = `<code>${escapeHtml(s.code)}</code>`;
+      document.getElementById("detailOutputBox").innerText = s.output;
+
+      // Rubric table
+      const tbody = document.getElementById("detailRubricTbody");
+      tbody.innerHTML = "";
+      s.rubric.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-800/40";
+        tr.innerHTML = `
+          <td class="py-1.5 px-3 text-slate-300 font-sans">${r.name}</td>
+          <td class="py-1.5 px-2 text-center text-slate-500">${r.max}</td>
+          <td class="py-1.5 px-3 text-right font-bold ${r.score === r.max ? 'text-emerald-400' : 'text-slate-200'}">${r.score}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Praise and Improvement
+      document.getElementById("detailPraise").innerText = s.praise;
+      document.getElementById("detailImprovement").innerText = s.improvement;
+
+      // Strengths
+      const strengthsUl = document.getElementById("detailStrengths");
+      strengthsUl.innerHTML = s.strengths.map(st => `<li>${st}</li>`).join("");
+
+      // Weaknesses
+      const weaknessesUl = document.getElementById("detailWeaknesses");
+      weaknessesUl.innerHTML = s.weaknesses.map(wk => `<li>${wk}</li>`).join("");
+
+      // Feedback & next
+      document.getElementById("detailCoachComment").innerText = s.coachComment;
+      document.getElementById("detailNextReport").innerText = `다음 목표: ${s.nextLvl} (${s.targetXp} XP)`;
+      document.getElementById("detailReviewTopic").innerText = s.reviewTopic;
+
+      // Verify button status
+      updateVerifyButtonState(s.verified);
+    }
+
+    function toggleVerifySession() {
+      const s = SESSIONS_DATA[currentSessionIndex];
+      s.verified = !s.verified;
+      updateVerifyButtonState(s.verified);
+      showToast(s.verified ? "해당 세션이 '검토 완료'로 승인되었습니다." : "세션 검토 상태가 '미완료'로 변경되었습니다.");
+    }
+
+    function updateVerifyButtonState(isVerified) {
+      const btn = document.getElementById("verifyBtn");
+      if (isVerified) {
+        btn.className = "px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1.5 transition";
+        btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>검토 완료됨</span>`;
+      } else {
+        btn.className = "px-3 py-2 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition";
+        btn.innerHTML = `<i class="fa-solid fa-clock"></i> <span>검토 대기중</span>`;
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.className = "tab-btn px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition";
+      });
+
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = "tab-btn px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white shadow";
+      }
+
+      if (tabId === "tab-analytics" && !chartsInitialized) {
+        initCharts();
+      }
+    }
+
+    function initCharts() {
+      chartsInitialized = true;
+      const labels = SESSIONS_DATA.map(s => `Day ${s.sessionNum}`);
+      const xpValues = SESSIONS_DATA.map(s => s.xp);
+      const scoreValues = SESSIONS_DATA.map(s => s.score);
+
+      // 1. Line Chart: XP Accumulation Curve
+      const ctxXp = document.getElementById("xpChart")?.getContext("2d");
+      if (ctxXp) {
+        if (xpChartInstance) xpChartInstance.destroy();
+        xpChartInstance = new Chart(ctxXp, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "누적 XP",
+              data: xpValues,
+              borderColor: "#3b82f6",
+              backgroundColor: "rgba(59, 130, 246, 0.15)",
+              borderWidth: 3,
+              tension: 0.35,
+              fill: true,
+              pointBackgroundColor: "#60a5fa",
+              pointBorderColor: "#1e3a8a",
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#1e293b",
+                titleColor: "#f8fafc",
+                bodyColor: "#93c5fd",
+                borderColor: "#3b82f6",
+                borderWidth: 1,
+                padding: 10
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: "rgba(255,255,255,0.05)" },
+                ticks: { color: "#94a3b8", font: { size: 11 } }
+              },
+              y: {
+                grid: { color: "rgba(255,255,255,0.05)" },
+                ticks: { color: "#94a3b8", font: { size: 11 } }
+              }
+            }
+          }
+        });
+      }
+
+      // 2. Radar Chart: 6 Core Rubric Competencies
+      const ctxRadar = document.getElementById("radarChart")?.getContext("2d");
+      if (ctxRadar) {
+        if (radarChartInstance) radarChartInstance.destroy();
+        radarChartInstance = new Chart(ctxRadar, {
+          type: "radar",
+          data: {
+            labels: ["정확성", "문법", "논리", "가독성", "변수명", "활용도"],
+            datasets: [{
+              label: "평균 달성률 (%)",
+              data: [98, 100, 94, 82, 90, 80],
+              borderColor: "#a855f7",
+              backgroundColor: "rgba(168, 85, 247, 0.25)",
+              borderWidth: 2,
+              pointBackgroundColor: "#c084fc",
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              r: {
+                angleLines: { color: "rgba(255,255,255,0.1)" },
+                grid: { color: "rgba(255,255,255,0.1)" },
+                pointLabels: { color: "#cbd5e1", font: { size: 11, weight: "bold" } },
+                ticks: { display: false, min: 50, max: 100 }
+              }
+            }
+          }
+        });
+      }
+
+      // 3. Bar Chart: Daily Scores
+      const ctxScore = document.getElementById("scoreBarChart")?.getContext("2d");
+      if (ctxScore) {
+        if (scoreBarChartInstance) scoreBarChartInstance.destroy();
+        scoreBarChartInstance = new Chart(ctxScore, {
+          type: "bar",
+          data: {
+            labels: SESSIONS_DATA.map(s => `${s.topic.split(' ')[0]} (S${s.sessionNum})`),
+            datasets: [{
+              label: "실습 점수",
+              data: scoreValues,
+              backgroundColor: scoreValues.map(v => v >= 94 ? "#10b981" : "#3b82f6"),
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "#1e293b",
+                titleColor: "#f8fafc",
+                bodyColor: "#34d399"
+              }
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { color: "#94a3b8", font: { size: 10 } }
+              },
+              y: {
+                min: 80,
+                max: 100,
+                grid: { color: "rgba(255,255,255,0.05)" },
+                ticks: { color: "#94a3b8", stepSize: 5 }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    function copyCurrentCode() {
+      const code = SESSIONS_DATA[currentSessionIndex].code;
+      copyToClipboardFallback(code);
+      showToast("코드가 클립보드에 복사되었습니다.");
+    }
+
+    function copyToClipboardFallback(text) {
+      const tempTextArea = document.createElement("textarea");
+      tempTextArea.value = text;
+      tempTextArea.style.position = "fixed";
+      tempTextArea.style.left = "-9999px";
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error("복사 실패:", err);
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+      toastMsg.innerText = message;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2500);
+    }
+
+    function showModalAlert(title, message, isSuccess = true) {
+      document.getElementById("messageModalTitle").innerText = title;
+      document.getElementById("messageModalText").innerText = message;
+      const icon = document.getElementById("messageModalIcon");
+      if (isSuccess) {
+        icon.className = "w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl bg-emerald-500/20 text-emerald-400";
+        icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+      } else {
+        icon.className = "w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl bg-amber-500/20 text-amber-400";
+        icon.innerHTML = '<i class="fa-solid fa-info"></i>';
+      }
+      document.getElementById("messageModal").classList.remove("hidden");
+    }
+
+    function closeMessageModal() {
+      document.getElementById("messageModal").classList.add("hidden");
+    }
+
+    function openReviewModal() {
+      document.getElementById("reviewModal").classList.remove("hidden");
+    }
+
+    function closeReviewModal() {
+      document.getElementById("reviewModal").classList.add("hidden");
+    }
+
+    function saveCoachFeedback() {
+      const note = document.getElementById("coachGeneralNote").value;
+      const level = document.getElementById("coachAssignedLevel").value;
+      const nextAction = document.getElementById("coachNextAction").value;
+
+      closeReviewModal();
+      showModalAlert(
+        "코치 총평 등록 완료",
+        `학습자(20511)의 10회차 종합 평가가 저장되었습니다.\n\n• 최종 인증: ${level}\n• 권장 과제: ${nextAction}\n${note ? "• 코치 메모: " + note : ""}`,
+        true
+      );
+    }
+
+    function promptQuickFeedback() {
+      const s = SESSIONS_DATA[currentSessionIndex];
+      showModalAlert(
+        `Session ${s.sessionNum} 코치 메모`,
+        `현재 [${s.topic}] 과제에 대한 즉시 격려 메시지가 작성 모드로 열렸습니다. 개선 제안인 "${s.improvement}" 항목을 중점 지도하세요.`,
+        false
+      );
+    }
+
+    function exportSummaryReport() {
+      const summaryText = `[파이썬 10회차 연속 학습 분석 종합 보고서]
+- 학생 학번: 20511
+- 최종 레벨: Lv.14 객체지향 마스터 (누적 5,600 XP)
+- 10개 세션 평균 실습 점수: 92.4점 / 100점
+- 주요 성취: 입출력부터 클래스 객체지향 설계까지 전 과정 정상 통과
+- 주요 권장사항: PEP8 코드 스타일 준수 및 함수 Docstring 작성 습관화`;
+
+      copyToClipboardFallback(summaryText);
+      showToast("종합 리포트 요약본이 클립보드에 복사되었습니다.");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "id": "./",
+  "name": "나만의 첫 번째 PWA 핸즈온 앱",
+  "short_name": "MyPWA",
+  "description": "Step-by-Step 핸즈온 실습으로 만드는 오프라인 지원 PWA 샘플",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

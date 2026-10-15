@@ -1,0 +1,10 @@
+{
+  "name": "pco-webapp",
+  "version": "1.0.0",
+  "description": "파코(파이썬 코치) Google Sites → 로컬 독립 실행형 PWA 웹앱",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>파이썬 학습 코치 · 8주 완성 파이썬 스타터</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+  :root{
+    /* ── color: 코드 에디터를 닮은 팔레트 ── */
+    --bg:#0f1428;           /* 에디터 배경 (순검정 아님) */
+    --panel:#161d3a;        /* 카드/패널 */
+    --panel-2:#1c2447;      /* 살짝 밝은 패널 */
+    --line:#2a3363;         /* 보더 */
+    --ink:#eef1fb;          /* 본문 텍스트 */
+    --ink-soft:#98a1c9;     /* 보조 텍스트 */
+    --keyword:#7c9fff;      /* 파랑 — 코드 키워드 느낌, 메인 액션 */
+    --keyword-soft:rgba(124,159,255,.14);
+    --xp:#ffb84d;           /* 앰버 — XP/레벨 하이라이트 */
+    --xp-soft:rgba(255,184,77,.14);
+    --ok:#5eead4;           /* 민트 — 통과/정답 표시 */
+    --radius:18px;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'Pretendard Variable', Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation-duration:.001ms !important; transition-duration:.001ms !important} }
+
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:""; position:fixed; inset:0 0 auto 0; height:620px; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(760px 420px at 10% -12%, rgba(124,159,255,.16), transparent 60%),
+      radial-gradient(640px 360px at 92% -18%, rgba(255,184,77,.10), transparent 60%);
+  }
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--keyword); outline-offset:3px; border-radius:6px}
+  .wrap{max-width:1040px; margin:0 auto; padding:0 24px}
+  .mono{font-family:var(--mono)}
+
+  /* ── 헤더 ── */
+  header{position:sticky; top:0; z-index:50; backdrop-filter:blur(14px);
+    background:rgba(15,20,40,.72); border-bottom:1px solid var(--line)}
+  .nav{display:flex; align-items:center; gap:14px; height:66px}
+  .logo{display:flex; align-items:center; gap:10px; font-weight:700; font-size:16.5px; letter-spacing:-.01em}
+  .logo .mark{width:32px; height:32px; border-radius:9px; display:grid; place-items:center;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--keyword);
+    font-family:var(--mono); font-size:15px; font-weight:700}
+  .nav-links{display:flex; gap:4px; margin-left:16px}
+  .nav-links a{padding:8px 12px; border-radius:9px; font-size:14px; font-weight:600;
+    color:var(--ink-soft); text-decoration:none}
+  .nav-links a:hover{background:var(--panel-2); color:var(--ink)}
+  .nav-right{margin-left:auto; display:flex; align-items:center; gap:10px}
+  .btn{border:0; cursor:pointer; font-family:var(--sans); font-weight:700; border-radius:11px;
+    padding:10px 16px; font-size:14px; background:var(--keyword); color:#0b0f22;
+    box-shadow:0 8px 20px -10px rgba(124,159,255,.7); transition:transform .12s, box-shadow .12s}
+  .btn:hover{transform:translateY(-1px); box-shadow:0 12px 24px -10px rgba(124,159,255,.8)}
+
+  /* ── 히어로 ── */
+  .hero{padding:58px 0 20px; display:grid; grid-template-columns:1.05fr .95fr; gap:36px; align-items:center}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12.5px;
+    font-weight:600; color:var(--xp); background:var(--xp-soft); border:1px solid rgba(255,184,77,.3);
+    padding:6px 12px; border-radius:999px}
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--xp)}
+  h1{font-size:clamp(28px,3.6vw,42px); line-height:1.28; letter-spacing:-.03em; margin:16px 0 12px; font-weight:800}
+  h1 .hl{color:var(--keyword)}
+  .lede{color:var(--ink-soft); font-size:16px; max-width:480px; margin:0 0 22px}
+  .hero-cta{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .btn-ghost{border:1px solid var(--line); background:transparent; color:var(--ink);
+    border-radius:11px; padding:10px 16px; font-size:14px; font-weight:600; cursor:pointer; font-family:var(--sans)}
+  .btn-ghost:hover{border-color:var(--keyword); color:var(--keyword)}
+
+  /* ── 시그니처: 미니 터미널 ── */
+  .terminal{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; box-shadow:0 20px 44px -20px rgba(0,0,0,.55)}
+  .term-top{display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid var(--line); background:var(--panel-2)}
+  .term-dot{width:9px; height:9px; border-radius:50%}
+  .term-top span:nth-child(1) .term-dot,
+  .t1{background:#ff6259}
+  .t2{background:#ffbd2e}
+  .t3{background:#27c93f}
+  .term-title{margin-left:8px; font-family:var(--mono); font-size:12px; color:var(--ink-soft)}
+  .term-body{padding:20px 22px; font-family:var(--mono); font-size:14px; min-height:210px}
+  .term-body .c-com{color:var(--ink-soft)}
+  .term-body .c-kw{color:var(--keyword)}
+  .term-body .c-str{color:var(--ok)}
+  .term-line{white-space:pre; overflow:hidden; border-right:2px solid var(--keyword);
+    width:0; animation:type 1.1s steps(28,end) forwards, caret .8s step-end infinite;
+    animation-delay:.3s; margin-bottom:6px}
+  .term-line.l2{animation-delay:1.6s}
+  .term-out{opacity:0; animation:fade .5s ease forwards; animation-delay:2.6s; color:var(--ink)}
+  .levelup{opacity:0; margin-top:16px; display:inline-flex; align-items:center; gap:8px;
+    background:var(--xp-soft); border:1px solid rgba(255,184,77,.35); color:var(--xp);
+    padding:8px 12px; border-radius:10px; font-size:12.5px; font-weight:700;
+    animation:pop .45s cubic-bezier(.2,.8,.2,1.2) forwards; animation-delay:3.1s}
+  @keyframes type{from{width:0} to{width:100%}}
+  @keyframes caret{50%{border-color:transparent}}
+  @keyframes fade{to{opacity:1}}
+  @keyframes pop{0%{opacity:0; transform:translateY(6px) scale(.96)} 100%{opacity:1; transform:translateY(0) scale(1)}}
+  @media (prefers-reduced-motion: reduce){
+    .term-line{width:100%; border-right:0; animation:none}
+    .term-out, .levelup{opacity:1; animation:none}
+  }
+
+  /* ── 레벨 사다리 ── */
+  .ladder-section{padding:8px 0 46px}
+  .ladder-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap}
+  .ladder-head h2{font-size:19px; letter-spacing:-.02em; margin:0}
+  .ladder-head p{margin:2px 0 0; color:var(--ink-soft); font-size:13.5px}
+  .ladder{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+  .lv{background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:12px 13px;
+    transition:border-color .15s, transform .15s}
+  .lv:hover{border-color:var(--keyword); transform:translateY(-2px)}
+  .lv .n{font-family:var(--mono); font-size:12px; color:var(--xp); font-weight:700}
+  .lv .name{font-size:13.5px; font-weight:600; margin-top:4px; letter-spacing:-.01em}
+
+  /* ── 채팅 패널 ── */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:0 20px 44px -22px rgba(0,0,0,.5)}
+  .chat{display:flex; flex-direction:column; overflow:hidden;
+    height:calc(100vh - 190px); min-height:600px; margin-bottom:52px}
+  .chat-top{display:flex; align-items:center; gap:11px; padding:14px 18px; border-bottom:1px solid var(--line); background:var(--panel-2)}
+  .avatar{width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-size:16px;
+    background:var(--keyword-soft); border:1px solid rgba(124,159,255,.35); color:var(--keyword);
+    font-family:var(--mono); font-weight:700}
+  .chat-top b{display:block; font-size:14.5px; letter-spacing:-.01em}
+  .chat-top small{color:var(--ok); font-size:12px; font-weight:700}
+  .chat-top .dot{width:6px; height:6px; border-radius:50%; background:var(--ok); display:inline-block; margin-right:5px}
+  #chat-frame{flex:1; width:100%; border:0; background:var(--panel)}
+
+  /* ── 안내 카드 ── */
+  .info{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:0 0 56px}
+  .info .card{padding:20px}
+  .info h3{margin:12px 0 6px; font-size:15px; letter-spacing:-.01em}
+  .info p{margin:0; font-size:13.5px; color:var(--ink-soft)}
+  .ico{width:30px; height:30px; border-radius:9px; display:grid; place-items:center; font-family:var(--mono); font-size:14px; font-weight:700}
+  .ico.k{background:var(--keyword-soft); color:var(--keyword)}
+  .ico.x{background:var(--xp-soft); color:var(--xp)}
+  .ico.o{background:rgba(94,234,212,.14); color:var(--ok)}
+
+  footer{border-top:1px solid var(--line); padding:26px 0; font-size:13px; color:var(--ink-soft)}
+  .foot{display:flex; gap:14px; flex-wrap:wrap; align-items:center}
+  .foot .logo{font-size:14px}
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr}
+    .info{grid-template-columns:1fr}
+    .nav-links{display:none}
+    .chat{height:620px}
+  }
+  @media (max-width:560px){ .wrap{padding:0 16px} }
+</style>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <meta name="theme-color" content="#2ec98a">
+  <script src="./app-shell.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="mark mono">&gt;_</span> 파이썬 학습 코치</div>
+    <nav class="nav-links">
+      <a href="#chat">AI 코치</a>
+      <a href="#levels">레벨 로드맵</a>
+      <a href="#info">학부모·선생님</a>
+    </nav>
+    <div class="nav-right">
+      <button class="btn" onclick="document.getElementById('chat').scrollIntoView({behavior:'smooth'})">학습 시작</button>
+    </div>
+  </div>
+</header>
+
+<section class="wrap hero">
+  <div>
+    <span class="eyebrow"><span class="dot"></span>중·고등학생 대상 · 8주 완성</span>
+    <h1>코드 한 줄로 시작해서,<br><span class="hl">Lv.15</span>까지 올라가요</h1>
+    <p class="lede">문법을 외우지 않아도 괜찮아요. 질문하면 AI 코치가 힌트부터 차근차근 알려주고, 실습을 통과할 때마다 XP와 배지가 쌓여요.</p>
+    <div class="hero-cta">
+      <button class="btn" onclick="document.getElementById('chat').scrollIntoView({behavior:'smooth'})">오늘 학습 시작하기</button>
+      <button class="btn-ghost" onclick="document.getElementById('levels').scrollIntoView({behavior:'smooth'})">15단계 로드맵 보기</button>
+    </div>
+  </div>
+
+  <div class="terminal" aria-hidden="true">
+    <div class="term-top">
+      <span class="term-dot t1"></span><span class="term-dot t2"></span><span class="term-dot t3"></span>
+      <span class="term-title">week_01_intro.py</span>
+    </div>
+    <div class="term-body">
+      <div class="term-line"><span class="c-com"># Lv.1 · 첫 코드 작성하기</span></div>
+      <div class="term-line l2"><span class="c-kw">print</span>(<span class="c-str">"Hello, Python!"</span>)</div>
+      <div class="term-out">&gt;&gt; Hello, Python!</div>
+      <div class="levelup">🏅 배지 획득 · 첫 코드 작성자 &nbsp;·&nbsp; +10 XP</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap ladder-section" id="levels">
+  <div class="ladder-head">
+    <div>
+      <h2>15단계 레벨 로드맵</h2>
+      <p>Lv.1 입문자부터 Lv.15 Python Junior Developer까지, 순서대로 올라가요.</p>
+    </div>
+  </div>
+  <div class="ladder">
+    <div class="lv"><div class="n mono">LV.01</div><div class="name">Python 입문자</div></div>
+    <div class="lv"><div class="n mono">LV.02</div><div class="name">변수 탐험가</div></div>
+    <div class="lv"><div class="n mono">LV.03</div><div class="name">출력 마스터</div></div>
+    <div class="lv"><div class="n mono">LV.04</div><div class="name">조건문 도전자</div></div>
+    <div class="lv"><div class="n mono">LV.05</div><div class="name">반복문 탐험가</div></div>
+    <div class="lv"><div class="n mono">LV.06</div><div class="name">함수 설계자</div></div>
+    <div class="lv"><div class="n mono">LV.07</div><div class="name">리스트 사용자</div></div>
+    <div class="lv"><div class="n mono">LV.08</div><div class="name">딕셔너리 관리자</div></div>
+    <div class="lv"><div class="n mono">LV.09</div><div class="name">문자열 전문가</div></div>
+    <div class="lv"><div class="n mono">LV.10</div><div class="name">파일 처리 마스터</div></div>
+    <div class="lv"><div class="n mono">LV.11</div><div class="name">모듈 활용가</div></div>
+    <div class="lv"><div class="n mono">LV.12</div><div class="name">디버깅 전문가</div></div>
+    <div class="lv"><div class="n mono">LV.13</div><div class="name">문제 해결자</div></div>
+    <div class="lv"><div class="n mono">LV.14</div><div class="name">프로젝트 개발자</div></div>
+    <div class="lv"><div class="n mono">LV.15</div><div class="name">Python Junior Developer</div></div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="card chat" id="chat">
+    <div class="chat-top">
+      <span class="avatar mono">&gt;_</span>
+      <div><b>파이썬 학습 코치</b><small><span class="dot"></span>지금 코드 리뷰 가능해요</small></div>
+    </div>
+    <iframe id="chat-frame" title="파이썬 학습 코치 채팅"
+      src="https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoach_s_FJsw/webchat?__version__=2&amp;enableFileAttachment=false&amp;cliAgent=true"
+      loading="lazy"></iframe>
+  </section>
+</div>
+
+<section class="wrap info" id="info">
+  <div class="card">
+    <span class="ico k mono">?</span>
+    <h3>정답 대신 힌트부터</h3>
+    <p>바로 정답을 주지 않고, 힌트 → 설명 → 예제 → 해설 순서로 스스로 풀도록 도와줘요.</p>
+  </div>
+  <div class="card">
+    <span class="ico x mono">XP</span>
+    <h3>레벨과 배지로 성장 확인</h3>
+    <p>퀴즈 통과·실습 채점·프로젝트 완료마다 XP가 쌓이고 레벨이 올라가요.</p>
+  </div>
+  <div class="card">
+    <span class="ico o mono">@</span>
+    <h3>학습 리포트 이메일 발송</h3>
+    <p>세션이 끝나면 오늘의 학습 요약을 이메일로 보내드려요. 담당 선생님도 함께 받아볼 수 있어요.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="logo"><span class="mark mono" style="width:26px;height:26px;font-size:12px;">&gt;_</span> 파이썬 학습 코치</div>
+    <span>중·고등학생 대상 8주 파이썬 자기주도 학습</span>
+    <span style="margin-left:auto">© 2026 파이썬 학습 코치</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>레벨 로드맵 · 파코</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+
+<style>
+  :root{
+    --bg:#f3f8ff; --panel:#ffffff; --panel-soft:#eef3ff; --ink:#232a48; --ink-soft:#707aa0; --line:#e2e9fb;
+    --green:#2ec98a; --green-soft:#e2f9ee; --pink:#ff6fa0; --pink-soft:#ffe9f1;
+    --yellow:#ffc846; --yellow-soft:#fff6e0; --purple:#7c6bff; --purple-soft:#efecff;
+    --mono:'JetBrains Mono', ui-monospace, monospace; --display:'Jua', sans-serif;
+    --sans:'Pretendard Variable', Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  :focus-visible{outline:3px solid var(--purple); outline-offset:3px; border-radius:8px}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+  .mono{font-family:var(--mono)}
+  .display{font-family:var(--display); letter-spacing:-.01em}
+
+  header{position:sticky; top:0; z-index:50; background:rgba(243,248,255,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+  .nav{display:flex; align-items:center; gap:14px; height:72px}
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--display); font-size:20px}
+  .logo .mark{width:38px; height:38px}
+  .nav-links{display:flex; gap:4px; margin-left:20px}
+  .nav-links a{padding:9px 14px; border-radius:12px; font-size:14.5px; font-weight:700; color:var(--ink-soft); text-decoration:none; transition:background .15s, color .15s}
+  .nav-links a:hover, .nav-links a.on{background:var(--panel-soft); color:var(--ink)}
+
+  .ladder-section{padding:44px 0 56px}
+  .ladder-head{text-align:center; max-width:560px; margin:0 auto 30px}
+  .ladder-head h1{font-family:var(--display); font-weight:400; font-size:clamp(24px,3vw,30px); margin:0}
+  .ladder-head p{margin:8px 0 0; color:var(--ink-soft); font-size:14.5px}
+  .tier-legend{display:flex; gap:14px; justify-content:center; margin-top:14px; flex-wrap:wrap}
+  .tier-legend span{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:700; color:var(--ink-soft)}
+  .tier-legend i{width:10px; height:10px; border-radius:50%; display:inline-block}
+
+  .ladder{display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:14px}
+  .lv{position:relative; background:#fff; border:2px solid var(--line); border-radius:18px; padding:16px 12px; text-align:center; transition:transform .18s, border-color .18s, box-shadow .18s}
+  .lv:hover{transform:translateY(-4px) rotate(-1deg); border-color:var(--green); box-shadow:0 14px 24px -14px rgba(46,201,138,.45)}
+  .lv .badge{width:46px; height:46px; margin:0 auto 8px; border-radius:50%; display:grid; place-items:center; font-size:21px; background:var(--green-soft)}
+  .lv.tier-2 .badge{background:var(--purple-soft)}
+  .lv.tier-3 .badge{background:var(--pink-soft)}
+  .lv .n{font-family:var(--mono); font-size:11px; color:var(--ink-soft); font-weight:700}
+  .lv .name{font-family:var(--display); font-weight:400; font-size:14px; margin-top:3px}
+
+  footer{border-top:1px solid var(--line); padding:28px 0; font-size:13px; color:var(--ink-soft)}
+  .foot{display:flex; gap:14px; flex-wrap:wrap; align-items:center}
+
+  @media (max-width:900px){ .nav-links{display:none} }
+  @media (max-width:560px){ .wrap{padding:0 16px} }
+</style>
+  <link rel="manifest" href="../manifest.json">
+  <link rel="icon" type="image/svg+xml" href="../icon.svg">
+  <meta name="theme-color" content="#2ec98a">
+  <script src="../app-shell.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#2ec98a"/>
+        <circle cx="17" cy="20" r="4.2" fill="#fff"/><circle cx="31" cy="20" r="4.2" fill="#fff"/>
+        <circle cx="17" cy="21" r="2" fill="#232a48"/><circle cx="31" cy="21" r="2" fill="#232a48"/>
+        <path d="M17 30c3 3 11 3 14 0" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      </svg>
+      파코
+    </div>
+    <nav class="nav-links">
+      <a href="./index.html">홈</a>
+      <a href="./coach.html">AI 코치</a>
+      <a class="on" href="./roadmap.html">레벨 로드맵</a>
+    </nav>
+  </div>
+</header>
+
+<section class="wrap ladder-section">
+  <div class="ladder-head">
+    <h1>15단계 레벨 로드맵</h1>
+    <p>Lv.1 입문자부터 Lv.15 Python Junior Developer까지, 한 걸음씩 올라가요.</p>
+    <div class="tier-legend">
+      <span><i style="background:#2ec98a"></i>입문 (Lv.1-5)</span>
+      <span><i style="background:#7c6bff"></i>성장 (Lv.6-10)</span>
+      <span><i style="background:#ff6fa0"></i>도전 (Lv.11-15)</span>
+    </div>
+  </div>
+  <div class="ladder">
+    <div class="lv"><div class="badge">🐣</div><div class="n mono">LV.01</div><div class="name">Python 입문자</div></div>
+    <div class="lv"><div class="badge">🎒</div><div class="n mono">LV.02</div><div class="name">변수 탐험가</div></div>
+    <div class="lv"><div class="badge">📣</div><div class="n mono">LV.03</div><div class="name">출력 마스터</div></div>
+    <div class="lv"><div class="badge">🚦</div><div class="n mono">LV.04</div><div class="name">조건문 도전자</div></div>
+    <div class="lv"><div class="badge">🔁</div><div class="n mono">LV.05</div><div class="name">반복문 탐험가</div></div>
+    <div class="lv tier-2"><div class="badge">🧩</div><div class="n mono">LV.06</div><div class="name">함수 설계자</div></div>
+    <div class="lv tier-2"><div class="badge">📦</div><div class="n mono">LV.07</div><div class="name">리스트 사용자</div></div>
+    <div class="lv tier-2"><div class="badge">🗂️</div><div class="n mono">LV.08</div><div class="name">딕셔너리 관리자</div></div>
+    <div class="lv tier-2"><div class="badge">✂️</div><div class="n mono">LV.09</div><div class="name">문자열 전문가</div></div>
+    <div class="lv tier-2"><div class="badge">📁</div><div class="n mono">LV.10</div><div class="name">파일 처리 마스터</div></div>
+    <div class="lv tier-3"><div class="badge">🧰</div><div class="n mono">LV.11</div><div class="name">모듈 활용가</div></div>
+    <div class="lv tier-3"><div class="badge">🐛</div><div class="n mono">LV.12</div><div class="name">디버깅 전문가</div></div>
+    <div class="lv tier-3"><div class="badge">🧠</div><div class="n mono">LV.13</div><div class="name">문제 해결자</div></div>
+    <div class="lv tier-3"><div class="badge">🚀</div><div class="n mono">LV.14</div><div class="name">프로젝트 개발자</div></div>
+    <div class="lv tier-3"><div class="badge">🏆</div><div class="n mono">LV.15</div><div class="name">Python Junior Developer</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="logo display">파코</div>
+    <span style="margin-left:auto">© 2026 파이썬 학습 코치 파코</span>
+  </div>
+</footer>
+
+</body>
+</html>
