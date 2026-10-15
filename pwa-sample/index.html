@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>PWA Step-by-Step Hands-on Lab</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./icon-192.png" />
+  <script src="../app-shell.js" defer></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 860px;
+      margin: 32px auto 64px;
+      padding: 0 20px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 28px 24px;
+      box-shadow: 0 12px 30px rgba(79, 70, 229, 0.18);
+      margin-bottom: 24px;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 26px; }
+    .hero p { margin: 0 0 16px; opacity: 0.92; font-size: 15px; }
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+    .online { background: #dcfce7; color: #166534; }
+    .offline { background: #fee2e2; color: #991b1b; }
+    .sw-badge { background: rgba(255, 255, 255, 0.18); color: #fff; }
+    .btn {
+      background: #fff;
+      color: #312e81;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13.5px;
+      transition: transform 0.12s, background 0.15s;
+    }
+    .btn:hover { background: #eef2ff; transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .card h2 { margin: 0 0 8px; font-size: 17px; color: #1e1b4b; }
+    .card p { margin: 0 0 12px; font-size: 14px; color: var(--muted); }
+    .card a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .card a:hover { text-decoration: underline; }
+    .memo-input {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .memo-input input {
+      flex: 1;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    ul.memo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    ul.memo-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    pre.code {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      overflow-x: auto;
+      margin: 8px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>🚀 PWA Step-by-Step Hands-on 샘플</h1>
+      <p>DevTools(F12) → Application 탭에서 Manifest, Service Worker, Offline 모드를 직접 테스트해 보세요.</p>
+      <div class="status-row">
+        <span id="net-status" class="badge online">● 현재 상태: 온라인</span>
+        <span id="sw-status" class="badge sw-badge">SW 확인 중...</span>
+        <button id="install-btn" class="btn" style="display:none;">📲 앱 설치하기 (Install PWA)</button>
+        <button id="check-cache-btn" class="btn">📦 캐시 목록 확인</button>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <h2>📝 오프라인 로컬 메모 테스트</h2>
+        <p>네트워크를 Offline으로 전환하고 새로고침(F5)해도 페이지와 메모가 그대로 유지됩니다.</p>
+        <div class="memo-input">
+          <input id="memo-text" type="text" placeholder="실습 메모 입력..." />
+          <button id="add-memo-btn" class="btn btn-primary">추가</button>
+        </div>
+        <ul id="memo-list" class="memo-list"></ul>
+      </div>
+
+      <div class="card">
+        <h2>🆔 Manifest <code>id</code> 속성 포인트</h2>
+        <p><code>manifest.json</code>에 고유 <code>id</code>를 지정하면 추후 <code>start_url</code>이 변경되어도 동일 앱으로 업데이트됩니다.</p>
+        <pre class="code" id="cache-output">{
+  "id": "./",
+  "start_url": "./index.html",
+  "display": "standalone"
+}</pre>
+      </div>
+    </div>
+
+    <h2 style="font-size:19px; margin: 28px 0 12px;">🔗 강의 단계별 참고 도구 (Reference Sites)</h2>
+    <div class="grid">
+      <div class="card">
+        <h2>Step 2. Web.dev Manifest</h2>
+        <p>Web App Manifest 필수 속성과 고유 식별자(<code>id</code>) 설계 가이드</p>
+        <a href="https://web.dev/articles/add-manifest#id" target="_blank" rel="noopener">web.dev/articles/add-manifest ↗</a>
+      </div>
+      <div class="card">
+        <h2>Step 3. Maskable.app</h2>
+        <p>OS별 아이콘 마스크에서도 로고가 잘리지 않는 중앙 80% 안전 영역 검증 도구</p>
+        <a href="https://maskable.app/editor" target="_blank" rel="noopener">maskable.app/editor ↗</a>
+      </div>
+      <div class="card">
+        <h2>Step 4. Google Workbox</h2>
+        <p>실무 프로젝트를 위한 Service Worker 프리캐싱 및 런타임 캐싱 자동 생성</p>
+        <a href="https://developer.chrome.com/docs/workbox?hl=ko" target="_blank" rel="noopener">developer.chrome.com/docs/workbox ↗</a>
+      </div>
+      <div class="card">
+        <h2>Step 6-1. PWA Builder</h2>
+        <p>배포된 웹 URL의 PWA 점수 진단 및 Windows/Android/iOS 스토어 패키지 생성</p>
+        <a href="https://www.pwabuilder.com/" target="_blank" rel="noopener">pwabuilder.com ↗</a>
+      </div>
+      <div class="card">
+        <h2>Step 6-2. Can I Use</h2>
+        <p>브라우저·OS별 Service Worker, Web Push, Badging API 호환성 표 확인</p>
+        <a href="https://caniuse.com/?search=service%20worker" target="_blank" rel="noopener">caniuse.com ↗</a>
+      </div>
+      <div class="card">
+        <h2>Step 6-3. BrowserStack</h2>
+        <p>실제 iOS Safari 및 Android 디바이스 클라우드 크로스 브라우징 테스트</p>
+        <a href="https://www.browserstack.com/" target="_blank" rel="noopener">browserstack.com ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. 온라인/오프라인 상태 실시간 감지
+    function updateOnlineStatus() {
+      const el = document.getElementById('net-status');
+      const online = navigator.onLine;
+      el.textContent = online ? '● 현재 상태: 온라인' : '● 현재 상태: 오프라인 (Service Worker 캐시 동작 중)';
+      el.className = 'badge ' + (online ? 'online' : 'offline');
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // 2. Service Worker 등록 및 상태 표시
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => {
+            document.getElementById('sw-status').textContent = '✓ SW 활성 (' + reg.scope + ')';
+          })
+          .catch((err) => {
+            document.getElementById('sw-status').textContent = '✗ SW 오류: ' + err.message;
+          });
+      });
+    }
+
+    // 3. PWA 설치 프롬프트 (beforeinstallprompt) 제어
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('install-btn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-flex';
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.style.display = 'none';
+    });
+
+    // 4. Cache Storage 조회 시연
+    document.getElementById('check-cache-btn').addEventListener('click', async () => {
+      const out = document.getElementById('cache-output');
+      if (!('caches' in window)) {
+        out.textContent = 'Cache API를 지원하지 않는 환경입니다.';
+        return;
+      }
+      const keys = await caches.keys();
+      const result = {};
+      for (const k of keys) {
+        const c = await caches.open(k);
+        const reqs = await c.keys();
+        result[k] = reqs.map((r) => new URL(r.url).pathname);
+      }
+      out.textContent = JSON.stringify(result, null, 2);
+    });
+
+    // 5. 오프라인 메모 (localStorage 연동)
+    const STORAGE_KEY = 'pwa_handson_memos';
+    const memoList = document.getElementById('memo-list');
+    const memoInput = document.getElementById('memo-text');
+    function loadMemos() {
+      const items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '["Step 1: HTTPS / localhost 확인", "Step 5: DevTools Offline 체크 후 새로고침"]');
+      memoList.innerHTML = items.map((m, idx) =>
+        `<li><span>${m}</span><button data-idx="${idx}" style="border:none;background:none;color:#ef4444;cursor:pointer;font-weight:700;">삭제</button></li>`
+      ).join('');
+    }
+    document.getElementById('add-memo-btn').addEventListener('click', () => {
+      const val = memoInput.value.trim();
+      if (!val) return;
+      const items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '["Step 1: HTTPS / localhost 확인", "Step 5: DevTools Offline 체크 후 새로고침"]');
+      items.push(val);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      memoInput.value = '';
+      loadMemos();
+    });
+    memoList.addEventListener('click', (e) => {
+      const idx = e.target.getAttribute('data-idx');
+      if (idx === null) return;
+      const items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      items.splice(Number(idx), 1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      loadMemos();
+    });
+    loadMemos();
+  </script>
+</body>
+</html>
