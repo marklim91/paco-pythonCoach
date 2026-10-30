@@ -1,0 +1,59 @@
+.personal-page { max-width: 1160px; }
+.personal-page a { color: var(--blue); text-underline-offset: 4px; }
+.personal-page a.button { color: var(--text); text-decoration: none; display: inline-block; }
+.page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.login-panel { margin-top: 24px; }
+.login-panel .button { margin-top: 12px; }
+.learner-hero {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+  margin-top: 26px;
+  background: linear-gradient(120deg, #1d304b, #18243b 60%, #262448);
+}
+.level-emblem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 1px solid #6888b8;
+  border-radius: 26px;
+  background: #101c32;
+  color: #b7cfff;
+}
+.level-emblem span { font-size: 11px; letter-spacing: 1px; }
+.level-emblem strong { font-size: 52px; line-height: 1.35; color: var(--green); }
+.learner-summary { overflow-wrap: anywhere; }
+.learner-summary h2 { font-size: clamp(22px, 3vw, 29px); }
+.learner-summary .muted { margin: 0 0 6px; }
+.level-title { margin: 7px 0 0; color: var(--green); font-weight: 700; }
+.personal-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.personal-metrics small { display: block; overflow-wrap: anywhere; }
+.learning-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: stretch; }
+.next-panel { border-color: #506b93; background: linear-gradient(145deg, #203450, #17253b); }
+.goal-list, .check-list { padding-left: 22px; margin: 18px 0; }
+.goal-list li, .check-list li { padding: 5px 0 5px 4px; overflow-wrap: anywhere; }
+.goal-list li::marker { color: var(--green); font-weight: 800; }
+.check-list li::marker { color: var(--blue); }
+.reading-links { display: flex; flex-direction: column; gap: 12px; font-size: 13px; overflow-wrap: anywhere; }
+.personal-roadmap { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 22px 0; }
+.personal-roadmap li { padding: 9px 3px; border: 1px solid #3b4e6d; border-radius: 8px; text-align: center; font-size: 13px; font-variant-numeric: tabular-nums; background: #101b2e; }
+.personal-roadmap li[aria-current="step"] { background: #285447; color: #c3ffe5; border-color: var(--green); font-weight: 800; }
+.personal-roadmap li span { display: block; min-height: 14px; font-size: 9px; color: #c7d7f0; }
+.personal-history { margin-top: 24px; }
+.personal-history table { min-width: 320px; }
+.personal-history .history-scroll { max-height: 320px; }
+@media (max-width: 850px) {
+  .learning-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .learner-hero { grid-template-columns: 1fr; gap: 20px; }
+  .level-emblem { width: 130px; min-height: 125px; border-radius: 20px; }
+  .level-emblem strong { font-size: 44px; }
+  .personal-metrics { grid-template-columns: 1fr; }
+  .personal-metrics .metric { padding: 18px; }
+  .page-actions { gap: 6px; }
+  .page-actions .button.subtle { margin-left: 0; }
+}

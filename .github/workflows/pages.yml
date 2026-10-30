@@ -1,0 +1,90 @@
+name: Test and deploy static report
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deployment' }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+
+  build:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      collected-at: ${{ steps.snapshot.outputs.collected-at }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require explicit public data approval
+        env:
+          APPROVED: ${{ vars.PAGES_PUBLISH_STUDENT_DATA }}
+        run: |
+          if [ "$APPROVED" != "true" ]; then
+            echo "::error::Set PAGES_PUBLISH_STUDENT_DATA=true only after approving public student names, schools, levels and points."
+            exit 1
+          fi
+      - uses: actions/configure-pages@v5
+      - name: Export allowlisted public report
+        env:
+          POWER_AUTOMATE_DASHBOARD_URL: ${{ secrets.POWER_AUTOMATE_DASHBOARD_URL }}
+          PAGES_PUBLISH_STUDENT_DATA: ${{ vars.PAGES_PUBLISH_STUDENT_DATA }}
+        run: npm run build:pages
+      - name: Record snapshot timestamp
+        id: snapshot
+        run: node -e "const fs=require('node:fs');const d=JSON.parse(fs.readFileSync('_site/reports/dashboard.json'));fs.appendFileSync(process.env.GITHUB_OUTPUT,'collected-at='+d.collectedAt+'\n');"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check published HTML, mode and snapshot
+        env:
+          PAGES_URL: ${{ steps.deployment.outputs.page_url }}
+          EXPECTED_COLLECTED_AT: ${{ needs.build.outputs.collected-at }}
+        run: node scripts/check-pages.js

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>파코 · 내 학습 현황</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#111a30" />
+    <link rel="stylesheet" href="./dashboard.css" />
+    <link rel="stylesheet" href="./my-learning.css" />
+    <script src="./app-shell.js" defer></script>
+    <script src="./my-learning.js" defer></script>
+  </head>
+  <body>
+    <main class="dashboard personal-page">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">PACO / MY LEARNING</p>
+          <h1>지금의 나를 알고, <span>다음 단계로</span></h1>
+          <p class="intro">내 학습 기록과 오늘 시도해 볼 작은 도전</p>
+        </div>
+        <div class="page-actions">
+          <a class="button subtle" href="./dashboard.html">전체 학생 현황</a>
+          <button id="learning-refresh" class="button" type="button">내 기록 새로고침</button>
+        </div>
+      </header>
+
+      <section class="source-bar" aria-label="개인 기록 연결 상태" aria-live="polite">
+        <span id="learning-status" class="connection">로그인 확인 중</span>
+        <span id="learning-collected">검증된 서버 세션으로 내 기록을 찾습니다.</span>
+        <span id="learning-refresh-note" class="source-hint">조회 데이터 최대 1분 캐시 · 시각은 한국 시간</span>
+      </section>
+      <p id="learning-error" class="error" role="alert" hidden></p>
+      <section id="learning-login" class="panel login-panel" hidden>
+        <p class="eyebrow">MY LEARNING</p>
+        <h2>로그인 후 내 현황을 확인해요</h2>
+        <p id="learning-login-message" class="intro"></p>
+        <p class="muted">기존 학교·학번 표시 쿠키만으로는 개인 기록을 선택하지 않습니다.</p>
+        <a class="button" href="./login.html?reverify=1">로그인 / 재검증</a>
+      </section>
+      <div id="learning-content" hidden></div>
+      <noscript><p class="error">내 학습 기록을 조회하려면 JavaScript를 켜 주세요.</p></noscript>
+      <footer class="footer">
+        <span>실제 기록은 Dataverse에서, 학습 제안은 기존 레벨 로드맵에서 가져옵니다.</span>
+        <a href="./v3_4/roadmap.html">15단계 로드맵 전체 보기</a>
+      </footer>
+    </main>
+
+    <template id="learning-template">
+      <section class="panel learner-hero" aria-labelledby="learner-name">
+        <div class="level-emblem" aria-label="현재 기록된 레벨">
+          <span>CURRENT LEVEL</span>
+          <strong id="my-level"></strong>
+          <span id="my-tier"></span>
+        </div>
+        <div class="learner-summary">
+          <p id="my-identity" class="muted"></p>
+          <h2 id="learner-name"></h2>
+          <p id="my-level-title" class="level-title"></p>
+          <p id="my-focus" class="intro"></p>
+          <p id="my-modified" class="caption"></p>
+        </div>
+      </section>
+
+      <section class="metrics personal-metrics" aria-label="내 학습 기록 요약">
+        <article class="metric accent">
+          <span class="metric-label">누적 학습 점수</span>
+          <strong id="my-points"></strong>
+          <small>Dataverse 최신 누적값</small>
+        </article>
+        <article class="metric">
+          <span class="metric-label">전체 학습 랭킹</span>
+          <strong id="my-rank"></strong>
+          <small id="my-rank-note"></small>
+        </article>
+        <article class="metric">
+          <span class="metric-label">관측 점수 변화</span>
+          <strong id="my-growth"></strong>
+          <small id="my-growth-note"></small>
+        </article>
+      </section>
+
+      <p id="unmapped-level" class="error" hidden>기록된 레벨이 기존 로드맵의 1~15 범위 밖입니다. 현재 점수와 레벨은 그대로 표시하며, 학습 가이드는 담당자가 레벨 기준을 확인한 뒤 제공할 수 있습니다.</p>
+      <div id="learning-guide" class="learning-grid">
+        <section class="panel next-panel" aria-labelledby="next-heading">
+          <p class="eyebrow">YOUR NEXT STEP</p>
+          <h2 id="next-heading"></h2>
+          <p id="next-focus" class="intro"></p>
+          <h3 id="next-goals-heading">다음 단계를 준비하는 학습 목표</h3>
+          <ol id="next-goals" class="goal-list"></ol>
+          <p id="promotion-note" class="notice"></p>
+        </section>
+        <section class="panel" aria-labelledby="practice-title">
+          <p class="eyebrow">TRY IT YOURSELF</p>
+          <h2 id="practice-title"></h2>
+          <p id="practice-task" class="intro"></p>
+          <h3>직접 확인해 볼 질문</h3>
+          <ul id="practice-checks" class="check-list"></ul>
+          <p class="caption">이 질문은 자기 점검용입니다. 답변이나 완료 여부는 저장하지 않습니다.</p>
+        </section>
+        <section class="panel" aria-labelledby="review-heading">
+          <p class="eyebrow">REVIEW &amp; READ</p>
+          <h2 id="review-heading">현재 단계에서 복습할 내용</h2>
+          <ul id="review-goals" class="check-list"></ul>
+          <div class="reading-links">
+            <a id="review-reading" target="_blank" rel="noopener noreferrer"></a>
+            <a id="next-reading" target="_blank" rel="noopener noreferrer"></a>
+          </div>
+          <p class="caption">공식 문서는 참고용입니다. 어려운 내용은 작은 예제부터 연습해 보세요.</p>
+        </section>
+        <section class="panel" aria-labelledby="roadmap-heading">
+          <p class="eyebrow">LEVEL ROADMAP</p>
+          <h2 id="roadmap-heading">15단계 중 지금의 위치</h2>
+          <ol id="my-roadmap" class="personal-roadmap"></ol>
+          <p class="caption">강조된 숫자는 기록된 현재 레벨입니다. 이전 단계의 과제 완료나 승급 진도를 나타내지 않습니다.</p>
+        </section>
+      </div>
+      <p id="recommendation-note" class="notice"></p>
+
+      <section class="panel personal-history" aria-labelledby="history-heading">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">OBSERVED GROWTH</p>
+            <h2 id="history-heading">내 점수 관측 기록</h2>
+          </div>
+          <span class="pill">최근 관측 최대 7건</span>
+        </div>
+        <p id="history-note" class="caption"></p>
+        <div class="table-scroll history-scroll">
+          <table>
+            <caption class="sr-only">서버가 관측한 내 점수와 레벨</caption>
+            <thead><tr><th scope="col">관측 시각 (한국 시간)</th><th scope="col">레벨</th><th scope="col">누적 점수</th></tr></thead>
+            <tbody id="my-history"></tbody>
+          </table>
+        </div>
+      </section>
+    </template>
+  </body>
+</html>

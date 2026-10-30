@@ -1,6 +1,9 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { createLoginHandler } = require('./login-api');
+const { createDashboardStore } = require('./dashboard-store');
+const { createDashboardHandlers } = require('./dashboard-api');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -13,6 +16,8 @@ const ROUTE_ALIASES = {
   '/dashboard': '/dashboard.html',
   '/대시보드': '/dashboard.html',
   '/dge.go.kr/pco/대시보드': '/dashboard.html',
+  '/my-learning': '/my-learning.html',
+  '/내학습': '/my-learning.html',
   '/v3_4': '/v3_4/index.html',
   '/v3_4/': '/v3_4/index.html',
   '/파코v3_4': '/v3_4/index.html',
@@ -40,37 +45,61 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
-const server = http.createServer((req, res) => {
-  const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  const decodedPath = decodeURIComponent(parsedUrl.pathname);
-  const targetRel = ROUTE_ALIASES[decodedPath] || decodedPath;
+function createServer({ loginHandler, dashboardStore = createDashboardStore(), dashboardOptions = {} } = {}) {
+  const verifyLogin = loginHandler || createLoginHandler({ onVerified: dashboardStore.login });
+  const dashboardHandler = createDashboardHandlers({ ...dashboardOptions, store: dashboardStore });
+  const dashboardRoutes = new Set([
+    '/api/dashboard', '/api/presence', '/api/session',
+    '/api/me/learning',
+    '/api/session/heartbeat', '/api/session/logout',
+  ]);
+  return http.createServer((req, res) => {
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    if (parsedUrl.pathname === '/api/login/verify') {
+      verifyLogin(req, res);
+      return;
+    }
+    if (dashboardRoutes.has(parsedUrl.pathname)) {
+      dashboardHandler(req, res, parsedUrl);
+      return;
+    }
+    const decodedPath = decodeURIComponent(parsedUrl.pathname);
+    const targetRel = ROUTE_ALIASES[decodedPath] || decodedPath;
 
-  const safePath = path.normalize(targetRel).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(PUBLIC_DIR, safePath);
+    const safePath = path.normalize(targetRel).replace(/^(\.\.[\/\\])+/, '');
+    const filePath = path.join(PUBLIC_DIR, safePath);
 
-  if (!filePath.startsWith(PUBLIC_DIR)) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('404 Not Found: ' + decodedPath);
+    if (!filePath.startsWith(PUBLIC_DIR)) {
+      res.writeHead(403);
+      res.end('Forbidden');
       return;
     }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Cache-Control': 'no-cache'
-    });
-    fs.createReadStream(filePath).pipe(res);
-  });
-});
+    fs.stat(filePath, (err, stats) => {
+      if (err || !stats.isFile()) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('404 Not Found: ' + decodedPath);
+        return;
+      }
 
-server.listen(PORT, () => {
-  console.log(`파코(파이썬 코치) WebApp 서버 실행 중: http://localhost:${PORT}`);
-});
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Cache-Control': 'no-cache'
+      });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  });
+}
+
+if (require.main === module) {
+  const dashboardStore = createDashboardStore({
+    filePath: process.env.DASHBOARD_DATA_FILE || path.join(__dirname, 'data', 'dashboard.json'),
+  });
+  createServer({ dashboardStore }).listen(PORT, () => {
+    console.log(`파코(파이썬 코치) WebApp 서버 실행 중: http://localhost:${PORT}`);
+  });
+}
+
+module.exports = { createServer };

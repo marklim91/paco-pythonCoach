@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>로그인 · 파코</title>
+    <script src="./auth.js" data-page="login"></script>
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#2ec98a" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #f3f8ff;
+        color: #232a48;
+        font-family: Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+        line-height: 1.6;
+      }
+      main {
+        width: 100%;
+        max-width: 440px;
+        padding: 32px;
+        background: #fff;
+        border: 2px solid #e2e9fb;
+        border-radius: 24px;
+        box-shadow: 0 24px 44px -26px rgba(35, 42, 72, .35);
+      }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+      .brand img { width: 40px; height: 40px; }
+      h1 { margin: 24px 0 8px; font-size: 28px; }
+      .intro, .hint, .notice { color: #626d91; }
+      .intro { margin: 0 0 24px; }
+      label { display: block; margin-top: 18px; font-weight: 700; }
+      input, select, button { width: 100%; font: inherit; border-radius: 12px; }
+      input, select {
+        margin-top: 8px;
+        padding: 12px;
+        border: 2px solid #e2e9fb;
+        background: #fff;
+        color: #232a48;
+      }
+      :focus-visible { outline: 3px solid #7c6bff; outline-offset: 3px; }
+      .hint { margin: 6px 0 0; font-size: 13px; }
+      button {
+        margin-top: 24px;
+        padding: 13px;
+        border: 0;
+        background: #217f5c;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 800;
+      }
+      button:hover { background: #196447; }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+      #login-error { color: #b42318; margin-bottom: 0; }
+      #login-error:empty { display: none; }
+      .notice { margin: 20px 0 0; font-size: 12px; }
+      @media (max-width: 400px) { main { padding: 24px; } }
+    </style>
+    <script src="./login.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <div class="brand"><img src="./icon.svg" alt="" />파코 · 파이썬 학습 코치</div>
+      <h1>로그인</h1>
+      <p class="intro">학교와 학생 정보를 입력하고 학습을 시작해요.</p>
+      <form id="login-form">
+        <label for="school">학교 (필수)</label>
+        <select id="school" name="school" required>
+          <option value="" selected disabled>학교를 선택해 주세요</option>
+        </select>
+        <label for="student-id">학번 (필수)</label>
+        <input id="student-id" name="studentId" type="text" inputmode="numeric"
+          pattern="[0-9]+" maxlength="32" required autocomplete="off" aria-describedby="student-id-hint" />
+        <p class="hint" id="student-id-hint">숫자만 입력해 주세요.</p>
+        <label for="student-name">이름 (필수)</label>
+        <input id="student-name" name="studentName" type="text"
+          pattern="\p{L}[\p{L}\p{M}]*" maxlength="100" required autocomplete="name"
+          aria-describedby="student-name-hint" />
+        <p class="hint" id="student-name-hint">한글, 영문 등 문자만 입력해 주세요. (숫자·공백·특수문자 제외)</p>
+        <button type="submit" disabled>로그인</button>
+        <p id="login-error" role="alert"></p>
+      </form>
+      <p class="notice">학교와 학번은 로그인 유지를 위해 이 브라우저의 세션 쿠키에 저장됩니다.</p>
+      <noscript><p>로그인하려면 브라우저에서 JavaScript를 허용해 주세요.</p></noscript>
+    </main>
+  </body>
+</html>
