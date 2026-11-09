@@ -5,3 +5,5 @@ node_modules/
 data/
 _site/
 dist-new/
+# 포인트 흐름 주소(비밀 서명 포함). 배포 때 Actions가 시크릿으로 생성하며, 로컬 개발용 파일은 커밋하지 않습니다.
+public/runtime-config.js

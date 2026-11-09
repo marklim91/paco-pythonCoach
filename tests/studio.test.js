@@ -112,6 +112,18 @@ const cookies = 'theme=dark; studentId=30202; school=' + encodeURIComponent(stud
 const session = (body, ok = true) => async () => ({ ok, json: async () => body });
 const flowReply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 
+test('points flow address comes from the deploy-time runtime config, never from the source', () => {
+  assert.match(html, /<script src="\.\/runtime-config\.js"><\/script>/);
+  assert.equal(evaluate('DEFAULT_POINTS_URL'), '');
+  const configured = vm.createContext({
+    document: { getElementById: () => ({ textContent: script('curriculum') }) },
+    URL, AbortSignal, PcoConfig: { pointsUrl: 'https://x.api.powerplatform.com/a?sig=from-secret' },
+  });
+  vm.runInContext(script('studio-core'), configured);
+  assert.equal(vm.runInContext('DEFAULT_POINTS_URL', configured), 'https://x.api.powerplatform.com/a?sig=from-secret');
+  assert.doesNotMatch(html, /powerautomate\/automations/);
+});
+
 test('points flow address must be an https Power Automate trigger without credentials', () => {
   assert.equal(evaluate(`validatePointsUrl(${JSON.stringify('  ' + flowUrl + ' ')})`), flowUrl);
   assert.equal(evaluate('validatePointsUrl("https://prod-1.koreacentral.logic.azure.com/workflows/a?sig=x")').startsWith('https://'), true);

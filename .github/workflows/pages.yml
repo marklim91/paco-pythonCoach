@@ -41,6 +41,11 @@ jobs:
           mkdir _site
           cp -r public/. _site/
           touch _site/.nojekyll
+      - name: Inject the points flow address from the POINTS_FLOW_URL secret
+        env:
+          POINTS_FLOW_URL: ${{ secrets.POINTS_FLOW_URL }}
+        run: |
+          node -e 'require("fs").writeFileSync("_site/runtime-config.js", "window.PcoConfig = " + JSON.stringify({ pointsUrl: process.env.POINTS_FLOW_URL || "" }) + ";\n")'
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
@@ -68,7 +73,7 @@ jobs:
           base="${PAGES_URL%/}/"
           for attempt in 1 2 3 4 5; do
             ok=1
-            for file in login.html local-api.js new.html; do
+            for file in login.html local-api.js new.html runtime-config.js; do
               code=$(curl -s -o /dev/null -w '%{http_code}' "${base}${file}?t=${RANDOM}") || code=000
               [ "$code" = "200" ] || ok=0
             done

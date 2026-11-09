@@ -401,9 +401,13 @@ if(empty(outputs('Current_solved')), triggerBody()?['problemId'], concat(outputs
 setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', true), 'points', outputs('Update_points')?['body/crbf2_learningpoints'])
 ```
 
-#### 7. 브라우저에 흐름 주소 입력
+#### 7. 흐름 주소 연결
 
-서버나 환경 변수는 필요하지 않습니다. 흐름을 저장하고 켠 뒤 트리거의 전체 HTTP POST URL을 복사해, 로그인한 `/new`(또는 `new.html`)의 설정(왼쪽 아래 톱니바퀴) → **포인트 적립 흐름 주소**에 붙여넣고 저장합니다. 주소는 해당 브라우저의 `localStorage`에만 저장되며, `*.api.powerplatform.com` 또는 `*.logic.azure.com`의 HTTPS 주소만 허용합니다.
+서버나 환경 변수는 필요하지 않습니다. 흐름을 저장하고 켠 뒤 트리거의 전체 HTTP POST URL을 복사합니다.
+
+- **GitHub Pages(권장)**: 저장소 **Settings → Secrets and variables → Actions**에 `POINTS_FLOW_URL` 시크릿으로 URL을 저장합니다(`gh secret set POINTS_FLOW_URL`). `pages.yml`이 배포할 때 `_site/runtime-config.js`(`window.PcoConfig.pointsUrl`)를 만들어 넣으므로 **소스·Git에는 URL이 남지 않고**, 모든 사용자가 설정 없이 적립됩니다. 단, 배포된 `runtime-config.js`는 누구나 볼 수 있습니다(위 보안 제약 참고). 시크릿을 바꾸면 다시 배포(`workflow_dispatch` 또는 push)해야 반영됩니다.
+- **로컬 실행**: `public/runtime-config.js`를 직접 만들어 `window.PcoConfig = { pointsUrl: "<URL>" };`를 넣으세요. 이 파일은 `.gitignore`에 있어 커밋되지 않습니다.
+- **브라우저별 수동 입력**: `new.html`의 설정(왼쪽 아래 톱니바퀴) → **포인트 적립 흐름 주소**에 붙여넣고 저장해도 됩니다. 이 값이 있으면 위 설정보다 우선하며 해당 브라우저의 `localStorage`에만 저장됩니다. `*.api.powerplatform.com` 또는 `*.logic.azure.com`의 HTTPS 주소만 허용합니다.
 
 오류 안내: 학생을 찾지 못하면(흐름 404) "활성 학생 기록을 찾을 수 없어요", 흐름 오류는 "(상태 코드)", 응답 형식이 다르면 "응답 형식이 올바르지 않아요"가 표시됩니다. 흐름이 꺼져 있으면 `400 WorkflowTriggerIsNotEnabled`가 나므로 **켜짐** 상태인지 확인하세요. 제출은 브라우저에서 채점하므로 학습용 포인트이며 부정행위 방지용이 아닙니다.
 

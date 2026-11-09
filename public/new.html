@@ -13,6 +13,7 @@
         );
     </script>
     <title>파코 스튜디오 · 나의 첫 Python</title>
+    <script src="./runtime-config.js"></script>
     <script src="./auth.js"></script>
     <style>
       :root {
@@ -1722,9 +1723,9 @@
       const STORAGE_KEY = "paco-studio-v1";
       const DEFAULT_COACH_URL =
         "https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_agent_dKZZIw/webchat?__version__=2&enableFileAttachment=false&cliAgent=true";
-      // 비밀 서명이 포함된 주소는 소스에 적지 않고 설정 창에서 입력합니다(브라우저 localStorage에 저장).
+      // 배포 때 GitHub Actions가 만드는 runtime-config.js(PcoConfig.pointsUrl)에서 읽습니다. 소스에는 비밀 값을 두지 않습니다.
       const DEFAULT_POINTS_URL =
-        "";
+        (typeof PcoConfig !== "undefined" && PcoConfig.pointsUrl) || "";
       const POINTS_BY_LEVEL = { 입문: 10, 기초: 20, 도전: 30 };
       function normalizeOutput(value) {
         return value
