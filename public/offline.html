@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#151a30" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <title>오프라인 · 파코</title>
+    <style>
+      :root {
+        --bg: #f3f8ff;
+        --panel: #ffffff;
+        --ink: #232a48;
+        --ink-soft: #707aa0;
+        --line: #e2e9fb;
+        --green: #2ec98a;
+        --green-ink: #0f6b49;
+        --green-soft: #e2f9ee;
+        --yellow: #ffc846;
+        --code-bg: #1b2140;
+        --code-ink: #cfd6ff;
+        --shadow: 0 24px 60px -24px rgba(46, 80, 160, 0.28);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #151a30;
+          --panel: #1e2542;
+          --ink: #eef1ff;
+          --ink-soft: #a3acd1;
+          --line: #2d3560;
+          --green-ink: #7ff0c0;
+          --green-soft: #1d3a37;
+          --code-bg: #121730;
+          --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        align-content: center;
+        padding: 24px;
+        color: var(--ink);
+        background:
+          radial-gradient(60rem 40rem at 85% -10%, rgba(46, 201, 138, 0.16), transparent 60%),
+          radial-gradient(50rem 36rem at -10% 110%, rgba(124, 107, 255, 0.14), transparent 60%),
+          var(--bg);
+        font-family: "Pretendard Variable", Pretendard, ui-rounded, -apple-system,
+          "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .card {
+        width: min(100%, 480px);
+        min-width: 0;
+        padding: 40px 32px 32px;
+        text-align: center;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+      .mascot { width: 128px; height: 128px; margin: 0 auto 8px; display: block; }
+      .mascot .body { animation: float 4s ease-in-out infinite; transform-origin: center; }
+      .mascot .zz { animation: zz 3s ease-in-out infinite; }
+      .mascot .zz.b { animation-delay: 0.8s; }
+      @keyframes float { 50% { transform: translateY(-4px); } }
+      @keyframes zz { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        color: var(--green-ink);
+        font-size: 12.5px;
+        font-weight: 700;
+      }
+      .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow); }
+      .pill.ok i { background: var(--green); }
+      h1 { margin: 14px 0 8px; font-size: clamp(22px, 5vw, 26px); line-height: 1.3; letter-spacing: -0.02em; }
+      .lead { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
+      pre {
+        margin: 24px 0 0;
+        padding: 16px 18px;
+        text-align: left;
+        overflow-x: auto;
+        background: var(--code-bg);
+        color: var(--code-ink);
+        border-radius: 16px;
+        font: 13px/1.7 ui-monospace, "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      }
+      pre .k { color: #ff9ec0; }
+      pre .s { color: #7ff0c0; }
+      pre .c { color: #7f89b8; }
+      .actions { margin-top: 24px; display: grid; gap: 12px; }
+      button.retry {
+        appearance: none;
+        border: 0;
+        padding: 14px 20px;
+        border-radius: 16px;
+        background: var(--green);
+        color: #06281b;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 24px -10px rgba(46, 201, 138, 0.8);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      button.retry:hover { transform: translateY(-1px); }
+      button.retry:active { transform: translateY(1px); }
+      button.retry:disabled { opacity: 0.7; cursor: progress; transform: none; }
+      .status { min-height: 22px; margin: 0; color: var(--ink-soft); font-size: 13.5px; }
+      .cached { margin-top: 28px; padding-top: 22px; border-top: 1px dashed var(--line); text-align: left; }
+      .cached h2 { margin: 0 0 12px; font-size: 14px; color: var(--ink-soft); font-weight: 700; }
+      .cached ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+      .cached a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14.5px;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .cached a:hover { border-color: var(--green); background: var(--green-soft); }
+      .cached a small { margin-left: auto; color: var(--ink-soft); font-weight: 500; font-size: 12px; }
+      button:focus-visible, a:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <svg class="mascot" viewBox="0 0 48 48" role="img" aria-label="잠든 파코">
+        <g class="body">
+          <circle cx="24" cy="26" r="20" fill="#2ec98a" />
+          <path d="M13 24c1.6 2 4.6 2 6.2 0M28.8 24c1.6 2 4.6 2 6.2 0" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" />
+          <path d="M19 34c3 2 7 2 10 0" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" />
+          <circle cx="12.5" cy="30" r="2.6" fill="#ffffff" opacity=".28" />
+          <circle cx="35.5" cy="30" r="2.6" fill="#ffffff" opacity=".28" />
+        </g>
+        <text class="zz" x="36" y="12" font-size="7" font-weight="800" fill="#7c6bff">z</text>
+        <text class="zz b" x="41" y="7" font-size="5" font-weight="800" fill="#7c6bff">z</text>
+      </svg>
+
+      <span class="pill" id="pill"><i></i><span id="pillText">오프라인</span></span>
+      <h1>인터넷 연결이 끊겼어요</h1>
+      <p class="lead">괜찮아요! 연결이 돌아오면 파코가 바로 이어서 도와줄게요.<br />그동안 Wi-Fi나 데이터 연결을 확인해 볼까요?</p>
+
+      <pre aria-hidden="true"><span class="k">try</span>:
+    connect_to_paco()
+<span class="k">except</span> ConnectionError:
+    print(<span class="s">"잠깐 쉬는 중... zZ"</span>)  <span class="c"># 곧 돌아와요</span></pre>
+
+      <div class="actions">
+        <button class="retry" id="retry" type="button">🔄 다시 시도하기</button>
+        <p class="status" id="status" role="status" aria-live="polite">연결이 돌아오면 자동으로 이어져요.</p>
+      </div>
+
+      <nav class="cached" id="cached" aria-label="오프라인에서 열 수 있는 페이지" hidden>
+        <h2>오프라인에서도 볼 수 있어요</h2>
+        <ul id="cachedList"></ul>
+      </nav>
+    </main>
+
+    <script>
+      (function () {
+        var PAGES = [
+          { rel: "index.html", icon: "🏠", label: "파코 홈" },
+          { rel: "v3_4/roadmap.html", icon: "🗺️", label: "15단계 레벨 로드맵" },
+          { rel: "my-learning.html", icon: "📘", label: "내 학습", note: "저장된 화면만" },
+          { rel: "dashboard.html", icon: "📊", label: "대시보드", note: "저장된 화면만" },
+        ];
+        var retry = document.getElementById("retry");
+        var statusEl = document.getElementById("status");
+        var pill = document.getElementById("pill");
+        var pillText = document.getElementById("pillText");
+        var checking = false;
+
+        // 이 페이지는 실패한 요청 URL에서 대신 표시되므로, 이동 기준은 서비스 워커 scope입니다.
+        var scopePromise = (
+          "serviceWorker" in navigator
+            ? navigator.serviceWorker.getRegistration()
+            : Promise.resolve(null)
+        )
+          .then(function (reg) {
+            return reg ? reg.scope : new URL(".", location.href).href;
+          })
+          .catch(function () {
+            return new URL(".", location.href).href;
+          });
+
+        function setStatus(text) { statusEl.textContent = text; }
+
+        function isReachable(scope) {
+          // sw.js가 pco-probe 요청을 가로채지 않으므로 캐시 응답 없이 실제 네트워크만 확인합니다.
+          var url = scope + "manifest.json?pco-probe=" + Date.now();
+          var ctrl = new AbortController();
+          var timer = setTimeout(function () { ctrl.abort(); }, 6000);
+          return fetch(url, { cache: "no-store", signal: ctrl.signal })
+            .then(function (res) { return res.ok; })
+            .catch(function () { return false; })
+            .then(function (ok) { clearTimeout(timer); return ok; });
+        }
+
+        function check(manual) {
+          if (checking) return;
+          checking = true;
+          retry.disabled = true;
+          setStatus("연결을 확인하는 중...");
+          scopePromise.then(function (scope) {
+            return isReachable(scope).then(function (ok) {
+              if (ok) {
+                pill.classList.add("ok");
+                pillText.textContent = "다시 연결됨";
+                setStatus("연결됐어요! 이동하는 중...");
+                if (/offline\.html$/.test(location.pathname)) location.replace(scope + "index.html");
+                else location.reload();
+                return;
+              }
+              checking = false;
+              retry.disabled = false;
+              setStatus(manual ? "아직 연결되지 않았어요. 잠시 후 다시 시도해 주세요." : "연결이 돌아오면 자동으로 이어져요.");
+            });
+          });
+        }
+
+        function renderCached() {
+          if (!("caches" in window)) return;
+          scopePromise.then(function (scope) {
+            return Promise.all(
+              PAGES.map(function (p) {
+                return caches.match(scope + p.rel, { ignoreSearch: true }).then(function (hit) { return hit ? p : null; });
+              })
+            ).then(function (found) {
+              var list = found.filter(Boolean);
+              if (!list.length) return;
+              var ul = document.getElementById("cachedList");
+              list.forEach(function (p) {
+                var li = document.createElement("li");
+                var a = document.createElement("a");
+                a.href = scope + p.rel;
+                a.textContent = p.icon + " " + p.label;
+                if (p.note) {
+                  var small = document.createElement("small");
+                  small.textContent = p.note;
+                  a.appendChild(small);
+                }
+                li.appendChild(a);
+                ul.appendChild(li);
+              });
+              document.getElementById("cached").hidden = false;
+            });
+          }).catch(function () {});
+        }
+
+        retry.addEventListener("click", function () { check(true); });
+        window.addEventListener("online", function () { check(false); });
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) check(false);
+        });
+        renderCached();
+        if (navigator.onLine) check(false);
+      })();
+    </script>
+  </body>
+</html>

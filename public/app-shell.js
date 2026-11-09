@@ -42,21 +42,10 @@
       match: ["dashboard.html", "대시보드"],
     },
     // {
-    //   label: "파코(v3_4)",
-    //   rel: "v3_4/index.html",
-    //   match: ["v3_4", "v3_4/", "v3_4/index.html", "파코v3_4"],
-    // },
-    // {
-    //   label: "↳ AI코치",
-    //   rel: "v3_4/coach.html",
-    //   match: ["v3_4/coach.html", "파코v3_4/ai코치"],
-    // },
-    // {
     //   label: "↳ 레벨 로드맵",
     //   rel: "v3_4/roadmap.html",
     //   match: ["v3_4/roadmap.html", "파코v3_4/레벨-로드맵"],
     // },
-    // { label: "파코(v2)", rel: "v2.html", match: ["v2.html", "파코v2"] },
     // {
     //   label: "🧪 PWA 핸즈온 샘플",
     //   rel: "pwa-sample/index.html",

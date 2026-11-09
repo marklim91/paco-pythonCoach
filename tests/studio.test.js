@@ -10,7 +10,7 @@ const script = id => html.match(new RegExp(`<script id="${id}"[^>]*>([\\s\\S]*?)
 const curriculum = JSON.parse(script('curriculum'));
 const context = vm.createContext({
   document: { getElementById: () => ({ textContent: script('curriculum') }) },
-  URL,
+  URL, AbortSignal,
 });
 vm.runInContext(script('studio-core'), context);
 const evaluate = expression => vm.runInContext(expression, context);
@@ -98,9 +98,102 @@ test('coach configuration rejects insecure schemes and embedded credentials', ()
   assert.equal(evaluate('validateCoachUrl("  https://example.com/chat  ")'), 'https://example.com/chat');
 });
 
-test('new page stays independent from legacy authentication and API scripts', () => {
-  assert.doesNotMatch(html, /src=["'][^"']*(?:auth|presence|app-shell)\.js/);
-  assert.doesNotMatch(html, /fetch\s*\(|\/api\//);
-  assert.match(html, /new Worker\(workerUrl, \{ type: 'module' \}\)/);
+test('new page uses the shared cookie guard but stays independent from legacy API scripts', () => {
+  assert.match(html, /<script src="\.\/auth\.js"><\/script>/);
+  assert.doesNotMatch(html, /src=["'][^"']*(?:presence|app-shell)\.js/);
+  assert.deepEqual([...new Set(html.match(/\/api\/[\w/-]+/g))], ['/api/session']);
+  assert.match(html, /new Worker\(workerUrl, \{ type: ['"]module['"] \}\)/);
   assert.match(html, /worker\.terminate\(\)/);
+});
+
+const flowUrl = 'https://example.environment.api.powerplatform.com/flow?sig=test-secret';
+const student = { school: '경북여자고등학교', studentId: '30202', studentName: '이서연' };
+const cookies = 'theme=dark; studentId=30202; school=' + encodeURIComponent(student.school);
+const session = (body, ok = true) => async () => ({ ok, json: async () => body });
+const flowReply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
+
+test('points flow address must be an https Power Automate trigger without credentials', () => {
+  assert.equal(evaluate(`validatePointsUrl(${JSON.stringify('  ' + flowUrl + ' ')})`), flowUrl);
+  assert.equal(evaluate('validatePointsUrl("https://prod-1.koreacentral.logic.azure.com/workflows/a?sig=x")').startsWith('https://'), true);
+  for (const bad of ['http://x.api.powerplatform.com/a', 'https://evil.example.com/a', 'https://u:p@x.api.powerplatform.com/a',
+    'https://x.api.powerplatform.com/a#frag', 'not a url', '']) {
+    assert.throws(() => evaluate(`validatePointsUrl(${JSON.stringify(bad)})`), undefined, bad);
+  }
+});
+
+test('points depend on the problem level and every sample problem earns points', () => {
+  assert.deepEqual(curriculum.flatMap(track => track.problems).map(p => evaluate(`pointsFor(${JSON.stringify(p)})`)),
+    curriculum.flatMap(track => track.problems.map(() => ({ '입문': 10, '기초': 20, '도전': 30 })[track.name])));
+  assert.equal(evaluate('pointsFor({ level: "unknown" })'), 0);
+});
+
+test('student identity comes from the login cookies, falling back to the session for old logins without a name cookie', async () => {
+  const load = vm.runInContext('loadStudent', context);
+  const encode = encodeURIComponent;
+  const full = `theme=dark; school=${encode(student.school)}; studentId=30202; studentName=${encode(student.studentName)}`;
+  let calls = 0;
+  const unused = async () => { calls += 1; throw new Error('session must not be needed'); };
+  assert.deepEqual({ ...await load(unused, full) }, student);
+  assert.equal(calls, 0);
+
+  const legacy = cookies;
+  const ok = session({ authenticated: true, school: student.school, name: student.studentName });
+  assert.deepEqual({ ...await load(ok, legacy) }, student);
+
+  for (const [fetchImpl, cookieString] of [
+    [session({ authenticated: false }), legacy],
+    [session({ authenticated: true, school: student.school, name: null }), legacy],
+    [session({ authenticated: true, school: '다른학교', name: student.studentName }), legacy],
+    [session({}, false), legacy],
+    [async () => { throw new TypeError('offline'); }, legacy],
+    [ok, 'studentId=30202'],
+    [ok, `school=${encode(student.school)}; studentId=abc; studentName=${encode(student.studentName)}`],
+    [ok, `school=${encode(student.school)}; studentId=30202; studentName=${encode('<b>')}`],
+  ]) {
+    await assert.rejects(() => load(fetchImpl, cookieString), /다시 로그인/);
+  }
+});
+
+test('points request sends the student identity and accepts only a well-formed updated response', async () => {
+  const request = vm.runInContext('requestPoints', context);
+  const calls = [];
+  const capture = reply => async (url, init) => { calls.push({ url, init }); return reply(); };
+  const added = await request({
+    url: flowUrl, student, problemId: 'hello', points: 10, fetchImpl: capture(flowReply(200, { updated: true, points: 4770 })),
+  });
+  assert.deepEqual({ ...added }, { points: 4770, awarded: true });
+  const repeated = await request({
+    url: flowUrl, student, problemId: 'hello', points: 10, fetchImpl: capture(flowReply(200, { updated: true, awarded: false, points: 4770 })),
+  });
+  assert.deepEqual({ ...repeated }, { points: 4770, awarded: false });
+  assert.equal(calls[0].url, flowUrl);
+  assert.equal(calls[0].init.method, 'POST');
+  assert.equal(calls[0].init.headers['Content-Type'], 'application/json');
+  assert.equal(calls[0].init.redirect, 'error');
+  assert.deepEqual(JSON.parse(calls[0].init.body), { ...student, problemId: 'hello', points: 10 });
+
+  const attempt = (reply, url = flowUrl) => request({ url, student, problemId: 'hello', points: 10, fetchImpl: capture(reply) });
+  await assert.rejects(() => attempt(flowReply(404, { updated: false })), /활성 학생 기록/);
+  await assert.rejects(() => attempt(flowReply(500, {})), /\(500\)/);
+  await assert.rejects(() => attempt(flowReply(200, { updated: 'true', points: 1 })), /응답 형식/);
+  await assert.rejects(() => attempt(flowReply(200, { updated: true, points: '1' })), /응답 형식/);
+  const before = calls.length;
+  await assert.rejects(() => attempt(flowReply(200, { updated: true, points: 1 }), 'https://evil.example.com/a'), /Power Automate/);
+  assert.equal(calls.length, before, 'invalid addresses must never be called');
+});
+
+test('saved studio state without the points fields still loads and invalid flow addresses are not trusted', () => {
+  const legacy = { selected: 'hello', codes: {}, completed: ['hello'], coachUrl: 'https://example.com/chat' };
+  const loaded = evaluate(`readStudioState({ getItem() { return ${JSON.stringify(JSON.stringify(legacy))}; } })`);
+  assert.equal(loaded.warning, '');
+  assert.equal(loaded.state.pointsUrl, '');
+  assert.equal(loaded.state.awarded.length, 0);
+  const saved = { ...legacy, pointsUrl: flowUrl, awarded: ['a', 'a', 7] };
+  const restored = evaluate(`readStudioState({ getItem() { return ${JSON.stringify(JSON.stringify(saved))}; } })`);
+  assert.equal(restored.state.pointsUrl, flowUrl);
+  assert.deepEqual([...restored.state.awarded], ['a']);
+  const hostile = { ...legacy, pointsUrl: 'https://evil.example.com/a' };
+  const rejected = evaluate(`readStudioState({ getItem() { return ${JSON.stringify(JSON.stringify(hostile))}; } })`);
+  assert.equal(rejected.state.pointsUrl, '');
+  assert.match(rejected.warning, /Power Automate/);
 });

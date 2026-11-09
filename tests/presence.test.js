@@ -142,7 +142,7 @@ test('logout removes the student label, clears display cookies and retains deplo
   assert.equal(app.status(), '로그아웃됨');
   assert.equal(app.nodes['pco-session-logout'].hidden, true);
   assert.equal(app.nodes['pco-session-login'].hidden, false);
-  assert.equal(app.writes.length, 2);
+  assert.equal(app.writes.length, 3);
   assert.ok(app.writes.every(cookie => cookie.includes('Max-Age=0; Path=/paco/')));
   assert.deepEqual(app.redirects, ['https://example.test/paco/login.html?reverify=1']);
   assert.deepEqual(app.events, ['pco-session-changed']);

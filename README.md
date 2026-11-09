@@ -40,7 +40,7 @@ npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 - Python은 Pyodide Web Worker에서 실행됩니다. 각 실행·제출은 새 실행기를 사용하며 로딩 제한은 90초, 테스트별 실행 제한은 5초, 출력 스트림별 한도는 20,000자입니다. 중지 버튼으로 종료할 수 있습니다. 브라우저 안의 학습용 채점이므로 보안 격리 서버나 부정행위 방지용 채점기는 아닙니다.
 - 코드·선택 문제·완료 기록·코치 주소는 전용 `localStorage` 키 `paco-studio-v1`에 저장됩니다. 다른 브라우저·기기로 동기화하지 않습니다. 저장소 접근·용량·데이터 오류는 화면에 경고하고 임시 모드로 전환합니다.
 - 코치는 기존 메인 화면의 외부 iframe 주소를 사용하며 **코치 연결하기**를 눌러야 로드합니다. 설정에서 주소를 변경할 수 있습니다. 문제·코드는 자동 전송하지 않고 질문 버튼으로 복사하여 채팅에 직접 붙여넣습니다. 외부 서비스의 인증·iframe 허용 정책이 적용되며, 연결이 막히면 새 창 링크를 사용합니다.
-- 별도 학습 API는 없습니다. 단, Python 런타임(Pyodide)은 jsDelivr에서 받으므로 **인터넷 연결이 필요**합니다. 첫 Python 실행은 다운로드로 시간이 걸릴 수 있습니다. 외부 코치 역시 인터넷이 필요하며 완전 오프라인 기능은 제공하지 않습니다.
+- 학습 결과는 브라우저에 저장하며, **해결 시 포인트 적립**만 브라우저가 Power Automate 흐름을 직접 호출합니다(서버·환경 변수 불필요). 흐름 주소는 설정(톱니바퀴)에서 입력하며 [해결 포인트 적립용 Power Automate 흐름](#해결-포인트-적립용-power-automate-흐름)을 참고하세요. 학교·학번·이름은 로그인 쿠키(`school`, `studentId`, `studentName`)에서 가져오므로 로그인한 `/new`에서만 적립됩니다(서버가 없는 정적 환경에서도 동작). 이름 쿠키가 없는 이전 로그인은 `/api/session`으로 보완하고, 그것도 없으면 다시 로그인 안내가 표시됩니다. Python 런타임(Pyodide)은 jsDelivr에서 받으므로 **인터넷 연결이 필요**합니다. 첫 Python 실행은 다운로드로 시간이 걸릴 수 있습니다. 외부 코치 역시 인터넷이 필요하며 완전 오프라인 기능은 제공하지 않습니다.
 
 ---
 
@@ -99,10 +99,10 @@ python -m http.server 8080 --bind 127.0.0.1 --directory public   # 또는 VS Cod
 
 ## 로그인 (Node 서버 모드)
 
-- 첫 접속 시 학교·학번 쿠키가 없거나 유효하지 않으면 `login.html`로 이동합니다. 기존 쿠키가 있으면 메인 화면을 유지합니다.
+- 메인, v2, v3.4 홈·AI 코치·로드맵, 스튜디오, 대시보드, 내 학습 현황에 직접 접속해도 학교·학번 쿠키가 없거나 유효하지 않으면 `login.html`로 이동합니다. 뒤로 가기로 복원된 페이지도 쿠키를 다시 확인합니다. Node 서버 및 브라우저 로컬 API 모드에 적용되며, 로그인·로컬 설정·PWA 핸즈온 샘플과 GitHub Pages 공개 정적 리포트 모드는 제외됩니다.
 - 학교(현풍중학교, 경북여자고등학교, 함양여자중학교, 도원중학교), 학번(숫자만), 이름(문자만)은 모두 필수입니다.
 - `POST /api/login/verify`에서 Power Automate를 통해 Dataverse를 조회하고, 학교·학번·이름이 모두 일치하며 `Is Active`가 예인 학생이 있을 때만 쿠키를 저장하고 `index.html`로 이동합니다. 학번은 앞자리 0을 유지합니다.
-- 학교(`school`)와 학번(`studentId`)만 세션 쿠키로 저장하며 쿠키에는 이름을 저장하지 않습니다. 대시보드 최근 로그인 표시용 이름은 서버에 저장합니다. 브라우저의 세션 복원 설정에 따라 쿠키가 복원될 수 있습니다.
+- 학교(`school`)·학번(`studentId`)과 이름(`studentName`, 스튜디오 포인트 적립용)을 표시용 쿠키로 저장합니다. 이름 쿠키는 로그인 시점에 함께 저장되며 로그아웃 때 삭제됩니다. 이름 쿠키가 생기기 전에 로그인한 사용자는 다시 로그인해야 하며(`login.html?reverify=1`), 그전에는 `/api/session`으로 보완합니다. 이 쿠키들은 브라우저에서 읽고 수정할 수 있습니다. 대시보드 최근 로그인 표시용 이름은 서버에도 저장합니다. 브라우저의 세션 복원 설정에 따라 쿠키가 복원될 수 있습니다.
 - 학생 정보 일치 여부만 검증합니다. 학교·학번 쿠키는 브라우저에서 수정할 수 있으며, 기존 쿠키로 진입할 때 재조회하지 않습니다. 신원 증명이나 보호된 API의 접근 제어가 필요하면 별도의 서버 세션·인증이 필요합니다.
 - 검증 실패·미설정·시간 초과·잘못된 흐름 응답은 로그인을 허용하지 않습니다. 신규 로그인은 네트워크 연결이 필요합니다.
 - 회귀 테스트는 `npm test`로 실행합니다.
@@ -275,13 +275,137 @@ npm start
 
 - 테스트용 활성 학생으로 학교·학번·이름이 모두 일치하면 메인 화면으로 이동하는지 확인합니다.
 - 이름이나 학번이 다르거나 `Is Active`가 아니오이면 로그인이 거부되어야 합니다.
-- 기존 로그인 쿠키가 있으면 로그인 화면을 건너뛰므로, 재검증할 때는 사이트의 `school`, `studentId` 쿠키를 삭제하거나 새 브라우저 프로필을 사용합니다.
+- 기존 로그인 쿠키가 있으면 로그인 화면을 건너뛰므로, 재검증할 때는 사이트의 `school`, `studentId`, `studentName` 쿠키를 삭제하거나 새 브라우저 프로필을 사용합니다.
 - `400`: 입력 형식 오류, `401`: 일치하는 활성 학생 없음, `413`: 요청 크기 초과, `415`: JSON 요청 아님.
 - `503`: 서버 URL 미설정/잘못된 설정, `502`: 흐름 호출 실패/잘못된 응답, `504`: 흐름 호출 제한 시간(15초) 초과.
 - `502`이면 흐름 URL·인증 모드·연결 계정 권한·열 논리 이름·응답의 Boolean 형식을 확인합니다. 서버 로그에는 오류 코드만 기록하고 URL이나 학생 정보를 기록하지 않습니다.
 - 자동 테스트는 외부 서비스를 모의 처리합니다. 실제 Dataverse 연결 확인은 위 흐름과 환경 변수를 설정한 후 별도로 진행해야 합니다.
 
 공식 문서: [HTTP 트리거 인증](https://learn.microsoft.com/en-us/power-automate/oauth-authentication), [Dataverse 행 나열](https://learn.microsoft.com/en-us/power-automate/dataverse/list-rows).
+
+---
+
+## 해결 포인트 적립용 Power Automate 흐름
+
+학생이 `new.html`에서 **제출하기**로 모든 테스트를 통과하면 Dataverse `crbf2_learningpoints`에 문제별 포인트를 더합니다.
+
+```text
+new.html (제출 통과) → 브라우저가 Power Automate HTTP 트리거를 직접 호출
+     { school, studentId, studentName, problemId, points }
+  → Dataverse 행 나열(학교·학번·이름·Is Active 조건)
+  → 이미 푼 문제(Solved Problems에 problemId 포함)? → 예: 점수 변경 없이 { updated, awarded:false, points }
+                                                    → 아니오: learningpoints += points, Solved Problems에 problemId 추가
+  → { "updated": true, "awarded": true|false, "points": <누적 점수> }
+```
+
+- 포인트는 `new.html`의 `POINTS_BY_LEVEL`이 정합니다(입문 10 · 기초 20 · 도전 30). 학교·학번·이름은 로그인 쿠키 `school`, `studentId`, `studentName`에서 가져옵니다(이 값들은 브라우저에서 수정할 수 있습니다).
+- **중복 적립은 Dataverse의 `Solved Problems`(쉼표로 구분한 문제 ID, 예: `hello,sum`)로 막습니다.** 브라우저·기기가 달라도 한 학생은 같은 문제로 한 번만 적립됩니다. 브라우저의 `paco-studio-v1`(`awarded`)은 불필요한 호출을 줄이는 보조 기록입니다. 흐름 호출이 실패하면 기록하지 않습니다. 단, 응답을 읽지 못한 네트워크 오류는 흐름이 이미 실행됐을 수 있으니 같은 문제를 반복 제출하기 전에 흐름 실행 기록을 확인하세요.
+- **보안 제약(프로젝트 한계)**: 브라우저에서 직접 호출하므로 흐름 URL의 서명이 사용자에게 노출되고, 점수·학생 정보도 조작할 수 있습니다. 서명이 노출되면 트리거의 URL을 재생성하세요. 신뢰할 수 있는 점수가 필요하면 서버 경유 방식이 필요합니다.
+- CORS: Power Automate 게이트웨이가 `Access-Control-Allow-Origin: *`와 사전 요청(OPTIONS) 응답을 제공하므로 별도 설정 없이 `application/json`으로 호출할 수 있습니다.
+
+#### 1. HTTP 트리거
+
+로그인 흐름과 같은 방식으로 **When an HTTP request is received**를 만들고(`Anyone`, POST, 전체 URL은 비밀 관리) 본문 스키마를 입력합니다.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "school": {
+      "type": "string",
+      "enum": ["현풍중학교", "경북여자고등학교", "함양여자중학교", "도원중학교"]
+    },
+    "studentId": { "type": "string", "minLength": 1, "maxLength": 32 },
+    "studentName": { "type": "string", "minLength": 1, "maxLength": 100 },
+    "problemId": { "type": "string", "maxLength": 32 },
+    "points": { "type": "integer", "minimum": 1, "maximum": 100 }
+  },
+  "required": ["school", "studentId", "studentName", "problemId", "points"],
+  "additionalProperties": false
+}
+```
+
+#### 2. 학생 행 찾기
+
+1. **Microsoft Dataverse → List rows / 행 나열**, 이름 `Find_student`, 테이블 **StudentLearningRecord**.
+2. **Row count / 행 수**는 `1`, **Sort by / 정렬 기준**은 `modifiedon desc`로 설정합니다. 같은 학생의 행이 여러 개여도 대시보드가 사용하는 **가장 최근 수정 행**을 업데이트합니다.
+3. **Select columns / 열 선택**: `crbf2_studentlearningrecordid,crbf2_learningpoints,crbf2_solvedproblems` (`Solved Problems` 열의 **논리 이름**을 Power Apps에서 확인해 맞추세요)
+4. **Filter rows / 행 필터링**(`$filter=`는 붙이지 않음):
+
+```text
+crbf2_schoolname eq '@{replace(triggerBody()?['school'],decodeUriComponent('%27'),decodeUriComponent('%27%27'))}' and crbf2_studentnumber eq '@{replace(triggerBody()?['studentId'],decodeUriComponent('%27'),decodeUriComponent('%27%27'))}' and crbf2_studentname eq '@{replace(triggerBody()?['studentName'],decodeUriComponent('%27'),decodeUriComponent('%27%27'))}' and crbf2_isactive eq true
+```
+
+학교·학번·이름은 모두 텍스트이므로 따옴표로 감싸고, 작은따옴표는 이스케이프합니다.
+
+#### 3. 찾았는지 확인
+
+**Condition / 조건**을 추가하고 아래 식이 `true`일 때만 다음 단계로 진행합니다.
+
+```text
+greater(length(outputs('Find_student')?['body/value']), 0)
+```
+
+**아니오** 분기에는 **Response**를 추가해 상태 `404`, 본문 `{"updated":false}`를 반환합니다(서버는 502로 처리하고 적립을 기록하지 않습니다).
+
+#### 4. 이미 푼 문제인지 확인 (조건의 예 분기)
+
+`Solved Problems`는 `hello,sum`처럼 쉼표로 구분한 문제 ID 문자열입니다. 열이 **한 줄 텍스트**라면 기본 최대 길이(100자)를 4000으로 늘리세요.
+
+1. **Data operations → Compose / 작성**, 이름 `Current_solved`, 입력(식):
+
+```text
+coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_solvedproblems'], '')
+```
+
+2. **Condition / 조건**, 이름 `Already_solved`. 왼쪽 값(식)이 **다음과 같음** `true`:
+
+```text
+contains(concat(',', outputs('Current_solved'), ','), concat(',', triggerBody()?['problemId'], ','))
+```
+
+양쪽에 쉼표를 붙여 비교하므로 `sum`이 `summary`와 섞이지 않습니다.
+
+- **예(이미 푼 문제)**: **Response** 상태 `200`, `Content-Type: application/json`, 본문(식)
+  ```text
+  setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', false), 'points', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_learningpoints'], 0))
+  ```
+- **아니오(처음 푸는 문제)**: 5단계와 6단계를 넣습니다.
+
+#### 5. 점수와 풀이 기록 저장 (`Already_solved`의 아니오 분기)
+
+1. **Update a row / 행 업데이트**, 이름 `Update_points`, 테이블 **StudentLearningRecord**.
+2. **Row ID / 행 ID**(식): `first(outputs('Find_student')?['body/value'])?['crbf2_studentlearningrecordid']`
+3. `learning points`(`crbf2_learningpoints`)(식). 값이 비어 있으면 0으로 처리합니다.
+
+```text
+add(coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_learningpoints'], 0), triggerBody()?['points'])
+```
+
+4. `Solved Problems`(`crbf2_solvedproblems`)(식). 비어 있으면 문제 ID만, 있으면 뒤에 `,문제ID`를 붙입니다. 첫 문제는 `hello`, 다음 문제를 풀면 `hello,sum`이 됩니다.
+
+```text
+if(empty(outputs('Current_solved')), triggerBody()?['problemId'], concat(outputs('Current_solved'), ',', triggerBody()?['problemId']))
+```
+
+다른 열은 비워 둡니다.
+
+- 연결 계정에는 이 테이블의 **읽기·쓰기** 권한이 필요합니다(대시보드·로그인 흐름의 읽기 전용 연결과 분리하세요).
+- 동시에 같은 학생에게 두 번 적립되면 읽기-수정-쓰기 경합으로 점수나 풀이 기록이 덮어쓰일 수 있습니다. 이를 엄격히 막으려면 트리거 **동시성 제어**를 켜고 Degree of parallelism을 `1`로 설정하세요.
+
+#### 6. 응답 (`Update_points` 다음)
+
+**Response** 작업(상태 `200`, `Content-Type: application/json`)의 본문에 아래 식을 사용합니다. `updated`는 Boolean, `points`는 정수여야 합니다. 업데이트 실패 시에는 이 작업이 실행되지 않거나 5xx를 반환해야 하며, 성공으로 응답하면 안 됩니다. `awarded`가 없으면 화면은 적립된 것으로 처리합니다.
+
+```text
+setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', true), 'points', outputs('Update_points')?['body/crbf2_learningpoints'])
+```
+
+#### 7. 브라우저에 흐름 주소 입력
+
+서버나 환경 변수는 필요하지 않습니다. 흐름을 저장하고 켠 뒤 트리거의 전체 HTTP POST URL을 복사해, 로그인한 `/new`(또는 `new.html`)의 설정(왼쪽 아래 톱니바퀴) → **포인트 적립 흐름 주소**에 붙여넣고 저장합니다. 주소는 해당 브라우저의 `localStorage`에만 저장되며, `*.api.powerplatform.com` 또는 `*.logic.azure.com`의 HTTPS 주소만 허용합니다.
+
+오류 안내: 학생을 찾지 못하면(흐름 404) "활성 학생 기록을 찾을 수 없어요", 흐름 오류는 "(상태 코드)", 응답 형식이 다르면 "응답 형식이 올바르지 않아요"가 표시됩니다. 흐름이 꺼져 있으면 `400 WorkflowTriggerIsNotEnabled`가 나므로 **켜짐** 상태인지 확인하세요. 제출은 브라우저에서 채점하므로 학습용 포인트이며 부정행위 방지용이 아닙니다.
 
 ---
 
@@ -298,10 +422,8 @@ npm start
   - `/index.html` (`/파코v3`): 파코 v3 통합 메인 페이지 (홈 + AI 코치 + 레벨 로드맵)
   - `/dashboard.html` (`/대시보드`): Dataverse 전체 학생 성장·랭킹·접속 현황
   - `/my-learning.html` (`/내학습`): 로그인 학생의 실제 레벨·점수와 로드맵 기반 학습 가이드
-  - `/v3_4/index.html` (`/파코v3_4`): 파코 v3.4 분리형 홈
-  - `/v3_4/coach.html` (`/파코v3_4/ai코치`): 파코 v3.4 AI 코치 전용 채팅 페이지
-  - `/v3_4/roadmap.html` (`/파코v3_4/레벨-로드맵`): 파코 v3.4 레벨 로드맵 페이지
-  - `/v2.html` (`/파코v2`): 파코 v2 구버전 페이지
+  - `/v3_4/roadmap.html` (`/파코v3_4/레벨-로드맵`): 15단계 레벨 로드맵 페이지 (내 학습에서 링크)
+  - `/offline.html`: 오프라인 폴백 페이지 (서비스 워커가 연결 실패 시 표시, 캐시된 페이지 바로가기와 연결 복귀 시 자동 이동 포함)
   - `/pwa-sample/` — **강의 실습용 최소 기능 PWA 샘플** (`index.html`, `manifest.json`, `sw.js`, `workbox-config.js`, Maskable 아이콘)
 - `original/` — Google Sites에서 추출한 무수정 원본 HTML 6종 보관
 

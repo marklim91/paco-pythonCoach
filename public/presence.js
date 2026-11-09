@@ -91,7 +91,7 @@
       logout.disabled = true;
       try {
         await request("api/session/logout", "POST");
-        ["school", "studentId"].forEach(function (name) {
+        ["school", "studentId", "studentName"].forEach(function (name) {
           document.cookie =
             name + "=; Max-Age=0; Path=" + base.pathname + "; SameSite=Lax";
         });

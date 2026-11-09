@@ -59,7 +59,7 @@
       if (!response.ok || !result || result.verified !== true) {
         throw new Error(result && result.message || "학생 정보 확인에 실패했습니다. 관리자에게 문의해 주세요.");
       }
-      PcoAuth.saveLogin(student.school, student.studentId);
+      PcoAuth.saveLogin(student.school, student.studentId, student.studentName);
       location.replace(PcoAuth.homeUrl);
     } catch (error) {
       errorMessage.textContent = error.name === "AbortError"

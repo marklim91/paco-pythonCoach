@@ -37,15 +37,21 @@
       /^[0-9]+$/.test(readCookie("studentId"));
   }
 
-  function saveLogin(school, studentId) {
+  function saveLogin(school, studentId, studentName) {
     if (schools.indexOf(school) === -1 || !/^[0-9]+$/.test(studentId)) {
       throw new Error("학교와 학번을 확인해 주세요.");
+    }
+    var name = studentName === undefined ? "" : studentName;
+    if (name && (name.length > 100 || !/^\p{L}[\p{L}\p{M}]*$/u.test(name))) {
+      throw new Error("이름을 확인해 주세요.");
     }
     var attributes = "; Path=" + baseUrl.pathname + "; SameSite=Lax";
     if (location.protocol === "https:") attributes += "; Secure";
     document.cookie = "school=" + encodeURIComponent(school) + attributes;
     document.cookie = "studentId=" + encodeURIComponent(studentId) + attributes;
-    if (readCookie("school") !== school || readCookie("studentId") !== studentId) {
+    if (name) document.cookie = "studentName=" + encodeURIComponent(name) + attributes;
+    if (readCookie("school") !== school || readCookie("studentId") !== studentId ||
+        (name && readCookie("studentName") !== name)) {
       throw new Error("로그인 정보를 저장할 수 없습니다. 브라우저의 쿠키 허용 설정을 확인해 주세요.");
     }
   }

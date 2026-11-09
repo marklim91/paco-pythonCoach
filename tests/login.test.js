@@ -54,7 +54,7 @@ function setup(fetchImpl) {
 test('only successful verification saves cookies and routes to the existing home', async () => {
   const result = setup(async () => Response.json({ verified: true }));
   await result.submit();
-  assert.deepEqual(result.saved, [['현풍중학교', '00123']]);
+  assert.deepEqual(result.saved, [['현풍중학교', '00123', '홍길동']]);
   assert.deepEqual(result.redirects, ['https://example.test/index.html']);
   assert.equal(result.requests[0].options.cache, 'no-store');
   assert.deepEqual(JSON.parse(result.requests[0].options.body), {
@@ -74,7 +74,7 @@ test('pending verification prevents duplicate requests and saves only the verifi
   result.studentId.value = '99999';
   finish(Response.json({ verified: true }));
   await pending;
-  assert.deepEqual(result.saved, [['현풍중학교', '00123']]);
+  assert.deepEqual(result.saved, [['현풍중학교', '00123', '홍길동']]);
 });
 
 test('rejection, unavailable API, malformed responses and network errors never save cookies', async () => {
