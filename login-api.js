@@ -3,6 +3,7 @@ const SCHOOLS = [
   "경북여자고등학교",
   "함양여자중학교",
   "도원중학교",
+  "대구체육중학교",
 ];
 const MAX_BODY_BYTES = 4096;
 

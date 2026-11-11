@@ -100,7 +100,7 @@ python -m http.server 8080 --bind 127.0.0.1 --directory public   # 또는 VS Cod
 ## 로그인 (Node 서버 모드)
 
 - 메인, v2, v3.4 홈·AI 코치·로드맵, 스튜디오, 대시보드, 내 학습 현황에 직접 접속해도 학교·학번 쿠키가 없거나 유효하지 않으면 `login.html`로 이동합니다. 뒤로 가기로 복원된 페이지도 쿠키를 다시 확인합니다. Node 서버 및 브라우저 로컬 API 모드에 적용되며, 로그인·로컬 설정·PWA 핸즈온 샘플과 GitHub Pages 공개 정적 리포트 모드는 제외됩니다.
-- 학교(현풍중학교, 경북여자고등학교, 함양여자중학교, 도원중학교), 학번(숫자만), 이름(문자만)은 모두 필수입니다.
+- 학교(현풍중학교, 경북여자고등학교, 함양여자중학교, 도원중학교, 대구체육중학교), 학번(숫자만), 이름(문자만)은 모두 필수입니다. 학교를 추가하려면 `login-api.js`의 `SCHOOLS`, `public/auth.js`의 `schools`, 아래 Power Automate 로그인·포인트 흐름의 요청 스키마 `enum`을 모두 같은 목록으로 고치세요.
 - `POST /api/login/verify`에서 Power Automate를 통해 Dataverse를 조회하고, 학교·학번·이름이 모두 일치하며 `Is Active`가 예인 학생이 있을 때만 쿠키를 저장하고 `index.html`로 이동합니다. 학번은 앞자리 0을 유지합니다.
 - 학교(`school`)·학번(`studentId`)과 이름(`studentName`, 스튜디오 포인트 적립용)을 표시용 쿠키로 저장합니다. 이름 쿠키는 로그인 시점에 함께 저장되며 로그아웃 때 삭제됩니다. 이름 쿠키가 생기기 전에 로그인한 사용자는 다시 로그인해야 하며(`login.html?reverify=1`), 그전에는 `/api/session`으로 보완합니다. 이 쿠키들은 브라우저에서 읽고 수정할 수 있습니다. 대시보드 최근 로그인 표시용 이름은 서버에도 저장합니다. 브라우저의 세션 복원 설정에 따라 쿠키가 복원될 수 있습니다.
 - 학생 정보 일치 여부만 검증합니다. 학교·학번 쿠키는 브라우저에서 수정할 수 있으며, 기존 쿠키로 진입할 때 재조회하지 않습니다. 신원 증명이나 보호된 API의 접근 제어가 필요하면 별도의 서버 세션·인증이 필요합니다.
@@ -220,7 +220,7 @@ https://org3d4c9970.crm5.dynamics.com/api/data/v9.2/EntityDefinitions(LogicalNam
   "properties": {
     "school": {
       "type": "string",
-      "enum": ["현풍중학교", "경북여자고등학교", "함양여자중학교", "도원중학교"]
+      "enum": ["현풍중학교", "경북여자고등학교", "함양여자중학교", "도원중학교", "대구체육중학교"]
     },
     "studentId": { "type": "string", "minLength": 1, "maxLength": 32 },
     "studentName": { "type": "string", "minLength": 1, "maxLength": 100 }
@@ -316,7 +316,7 @@ new.html (제출 통과) → 브라우저가 Power Automate HTTP 트리거를 �
   "properties": {
     "school": {
       "type": "string",
-      "enum": ["현풍중학교", "경북여자고등학교", "함양여자중학교", "도원중학교"]
+      "enum": ["현풍중학교", "경북여자고등학교", "함양여자중학교", "도원중학교", "대구체육중학교"]
     },
     "studentId": { "type": "string", "minLength": 1, "maxLength": 32 },
     "studentName": { "type": "string", "minLength": 1, "maxLength": 100 },

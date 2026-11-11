@@ -59,7 +59,7 @@ test('missing, partial, malformed and invalid cookies redirect to login', () => 
 
 test('each supported school and a numeric student ID allow the existing home', () => {
   const schools = loadAuth({ login: true }).auth.schools;
-  assert.equal(schools.length, 4);
+  assert.equal(schools.length, 5);
   for (const school of schools) {
     const result = loadAuth({
       cookies: { school: encodeURIComponent(school), studentId: '00123' },
