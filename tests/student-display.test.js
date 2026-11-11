@@ -102,14 +102,14 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
   return { node, nodes, students, errors, requests };
 }
 
-test('ranking and report retain names but display only school beneath them', async () => {
+test('ranking and report mask the middle of names and display only school beneath them', async () => {
   const app = loadClient();
   await settled();
   const row = app.node('ranking-body').children[0];
-  assert.equal(row.children[1].children[0].textContent, '가상하나');
+  assert.equal(row.children[1].children[0].textContent, '가**나');
   assert.equal(row.children[1].children[1].textContent, '현풍중학교');
   assert.equal(row.children[2].textContent, 'Lv.5');
-  assert.equal(app.node('report-student').textContent, '가상하나');
+  assert.equal(app.node('report-student').textContent, '가**나');
   assert.equal(app.node('report-school').textContent, '현풍중학교');
   assert.equal(app.node('report-points').textContent, '300');
   assert.equal(app.node('history-body').children.length, 2);
@@ -127,24 +127,24 @@ test('student aliases are absent from dashboard text and accessibility labels', 
     assert.doesNotMatch(label, /학습자-|2F0AB3C0|ABC12345/);
     assert.match(label, /학교 성장 리포트 보기/);
   }
-  assert.equal(app.node('presence-body').children[0].children[0].textContent, '가상하나');
+  assert.equal(app.node('presence-body').children[0].children[0].textContent, '가**나');
   assert.equal(app.node('presence-body').children[0].children[1].textContent, '현풍중학교');
 });
 
-test('name and school search replace alias search', async () => {
+test('search matches the visible masked name and the school, never the hidden letters or an alias', async () => {
   const app = loadClient();
   await settled();
   const search = app.node('student-search');
-  search.value = '가상하나';
-  search.listeners.input();
-  assert.match(app.node('ranking-count').textContent, /^2명/);
-  search.value = '도원';
-  search.listeners.input();
-  assert.match(app.node('ranking-count').textContent, /^1명/);
+  const count = query => {
+    search.value = query;
+    search.listeners.input();
+    return app.node('ranking-count').textContent;
+  };
+  assert.match(count('가'), /^2명/);
+  assert.match(count('나'), /^2명/);
+  assert.match(count('도원'), /^1명/);
   assert.equal(app.node('ranking-body').children[0].children[1].children[1].textContent, '도원중학교');
-  search.value = '학습자-2F0AB3C0';
-  search.listeners.input();
-  assert.equal(app.node('ranking-count').textContent, '0명');
+  for (const hidden of ['가상하나', '상하', '학습자-2F0AB3C0']) assert.equal(count(hidden), '0명', hidden);
 });
 
 test('same-name students remain separately selectable by internal student ID', async () => {
@@ -152,10 +152,39 @@ test('same-name students remain separately selectable by internal student ID', a
   await settled();
   const secondButton = app.node('ranking-body').children[1].children[1].children[0];
   secondButton.listeners.click();
-  assert.equal(app.node('report-student').textContent, '가상하나');
+  assert.equal(app.node('report-student').textContent, '가**나');
   assert.equal(app.node('report-school').textContent, '도원중학교');
   assert.equal(app.node('report-points').textContent, '200');
   assert.equal(app.node('ranking-body').children[1].className, 'selected');
+});
+
+test('names keep their first and last letter and hide the rest, whatever the length or script', async () => {
+  const cases = [
+    ['임재성', '임*성'], ['이수', '이*'], ['남궁민수', '남**수'], ['김', '*'], ['박 서연', '박**연'],
+    ['임재성'.normalize('NFD'), '임*성'], ['Alice', 'A***e'], ['Jose\u0301', 'J**é'], ['', '이름 미등록'],
+  ];
+  for (const [name, masked] of cases) {
+    const app = loadClient();
+    app.students[0].name = name;
+    await settled();
+    const button = app.node('ranking-body').children[0].children[1].children[0];
+    assert.equal(button.textContent, masked, JSON.stringify(name));
+    assert.equal(button.attributes['aria-label'].startsWith(masked + ' · 현풍중학교'), true, JSON.stringify(name));
+    assert.equal(app.node('report-student').textContent, masked, JSON.stringify(name));
+  }
+});
+
+test('no dashboard text or accessibility label contains an unmasked student name', async () => {
+  const app = loadClient();
+  await settled();
+  const seen = [];
+  const walk = element => {
+    seen.push(element.textContent, ...Object.values(element.attributes));
+    element.children.forEach(walk);
+  };
+  for (const element of app.nodes.values()) walk(element);
+  assert.ok(seen.some(text => text.includes('가**나')), 'the masked name is shown');
+  for (const text of seen) assert.doesNotMatch(String(text), /가상하나/);
 });
 
 test('personal learning page displays school only while retaining name, level and points', async () => {

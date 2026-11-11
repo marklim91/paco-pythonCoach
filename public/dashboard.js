@@ -17,7 +17,17 @@
 
   function number(value) { return formatNumber.format(value); }
   function time(value) { return formatTime.format(new Date(value)); }
-  function displayName(student) { return student.name || "이름 미등록"; }
+  var graphemes = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("ko", { granularity: "grapheme" }) : null;
+  // 개인정보 보호를 위해 이름의 가운데 글자를 *로 가립니다. (임재성 → 임*성, 이수 → 이*, 남궁민수 → 남**수)
+  function maskName(name) {
+    var text = String(name).normalize("NFC").trim();
+    var letters = graphemes ?
+      Array.from(graphemes.segment(text), function (part) { return part.segment; }) : Array.from(text);
+    if (letters.length < 2) return "*";
+    if (letters.length === 2) return letters[0] + "*";
+    return letters[0] + "*".repeat(letters.length - 2) + letters[letters.length - 1];
+  }
+  function displayName(student) { return student.name ? maskName(student.name) : "이름 미등록"; }
   var growthPendingHint = "점수 기록이 하나뿐이라 아직 비교할 수 없어요.";
   function growth(value) { return value === null ? "—" : (value > 0 ? "+" : "") + number(value); }
   var studio = window.PcoStudio || null;
@@ -168,7 +178,7 @@
     renderDistribution(rows);
     var query = byId("student-search").value.trim().toLowerCase();
     var matches = rows.filter(function (s) {
-      return s.school.toLowerCase().includes(query) || (s.name && s.name.toLowerCase().includes(query));
+      return s.school.toLowerCase().includes(query) || (s.name && maskName(s.name).toLowerCase().includes(query));
     });
     var pages = Math.ceil(matches.length / pageSize);
     page = Math.max(0, Math.min(page, pages - 1));
@@ -364,7 +374,7 @@
     byId("refresh").textContent = "배포된 리포트 다시 읽기";
     byId("source-hint").textContent = "실시간 조회 없이 마지막 성공한 배포의 데이터를 표시합니다.";
     byId("observation-note").textContent = "이번 배포의 단일 관측값입니다. 과거 성장과 로그인 기록을 수집하지 않습니다.";
-    byId("public-data-note").textContent = "학생 이름·학교·레벨·점수는 공개 JSON 파일로 배포됩니다. 로그인 보호가 없습니다.";
+    byId("public-data-note").textContent = "화면에는 이름 가운데를 가려 표시하지만, 공개 JSON 파일에는 학생 이름·학교·레벨·점수가 그대로 들어 있습니다. 로그인 보호가 없습니다.";
   }
   byId("refresh").addEventListener("click", function () { loadDashboard(); loadPresence(); });
   byId("school-filter").addEventListener("change", function () {
