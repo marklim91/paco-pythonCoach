@@ -146,7 +146,7 @@ test('coach configuration rejects insecure schemes and embedded credentials', ()
 test('new page uses the shared cookie guard but stays independent from legacy API scripts', () => {
   assert.match(html, /<script src="\.\/auth\.js"><\/script>/);
   assert.doesNotMatch(html, /src=["'][^"']*(?:presence|app-shell)\.js/);
-  assert.deepEqual([...new Set(html.match(/\/api\/[\w/-]+/g))], ['/api/session']);
+  assert.deepEqual([...new Set(html.match(/\/api\/[\w/-]+/g))].sort(), ['/api/session', '/api/session/logout']);
   assert.match(html, /new Worker\(workerUrl, \{ type: ['"]module['"] \}\)/);
   assert.match(html, /worker\.terminate\(\)/);
 });
@@ -156,6 +156,23 @@ const student = { school: '경북여자고등학교', studentId: '30202', studen
 const cookies = 'theme=dark; studentId=30202; school=' + encodeURIComponent(student.school);
 const session = (body, ok = true) => async () => ({ ok, json: async () => body });
 const flowReply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
+
+test('logout ends the server session when possible and always clears the login cookies', async () => {
+  const calls = [];
+  const cleared = [];
+  context.logoutCalls = calls;
+  context.logoutCookies = cleared;
+  context.okFetch = async (url, init) => { calls.push([url, init.method, init.credentials]); return { ok: true }; };
+  context.brokenFetch = async () => { throw new TypeError('offline'); };
+  await evaluate('endSession({ fetchImpl: okFetch, setCookie: value => logoutCookies.push(value), cookiePath: "/paco/" })');
+  assert.deepEqual(calls, [['./api/session/logout', 'POST', 'same-origin']]);
+  assert.deepEqual(cleared, ['school', 'studentId', 'studentName'].map(name => `${name}=; Max-Age=0; Path=/paco/; SameSite=Lax`));
+  cleared.length = 0;
+  await evaluate('endSession({ fetchImpl: brokenFetch, setCookie: value => logoutCookies.push(value), cookiePath: "/" })');
+  assert.equal(cleared.length, 3);
+  assert.match(html, /onClick: logout/);
+  assert.match(html, /window\.location\.replace\(\s*new URL\("login\.html\?reverify=1"/);
+});
 
 test('points flow address comes from the deploy-time runtime config, never from the source', () => {
   assert.match(html, /<script src="\.\/runtime-config\.js"><\/script>/);
