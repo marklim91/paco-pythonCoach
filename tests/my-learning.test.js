@@ -69,23 +69,25 @@ async function setup(t, options = {}) {
   return { request, signIn, personal, source, clock, calls };
 }
 
-test('all 15 learning guides match existing roadmap titles and have actionable goals and practice', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'v3_4', 'roadmap.html'), 'utf8');
-  const titles = [...html.matchAll(/class="name">([^<]+)</g)].map(match => match[1]);
-  assert.equal(titles.length, 15);
-  for (let level = 1; level <= 15; level++) {
-    const guide = getLearningGuide(level);
-    assert.equal(guide.current.level, level);
-    assert.equal(guide.current.title, titles[level - 1]);
+test('all 10 learning guides follow the studio tracks and have actionable goals and practice', () => {
+  const studio = require('../public/studio-catalog');
+  assert.equal(studio.tracks.length, 10);
+  for (let stage = 1; stage <= 10; stage++) {
+    const guide = getLearningGuide(stage);
+    const track = studio.tracks[stage - 1];
+    assert.equal(guide.current.stage, stage);
+    assert.equal(guide.current.title, track.label);
+    assert.equal(guide.current.studio.trackId, track.id);
+    assert.equal(guide.current.studio.startPoints, track.startPoints);
     assert.equal(guide.current.goals.length, 3);
-    assert.equal(guide.roadmap.length, 15);
-    assert.equal(guide.status, level === 15 ? 'last-level' : 'next-level');
-    assert.equal(guide.next?.level ?? null, level === 15 ? null : level + 1);
+    assert.equal(guide.roadmap.length, 10);
+    assert.equal(guide.status, stage === 10 ? 'last-stage' : 'next-stage');
+    assert.equal(guide.next?.stage ?? null, stage === 10 ? null : stage + 1);
     assert.deepEqual(guide.practice, (guide.next || guide.current).practice);
     assert.ok(guide.practice.task.length > 10);
     assert.ok(guide.practice.checks.length >= 2);
     assert.equal(new URL(guide.current.reading.url).hostname, 'docs.python.org');
-    assert.match(guide.promotionNote, /점수와 평가 기준은 연결된 데이터에 없습니다/);
+    assert.match(guide.promotionNote, /별도의 승급 심사는 없습니다/);
     assert.match(guide.recommendationNote, /취약점을 분석한 결과는 아닙니다/);
     for (const field of ['remainingXp', 'completionPercent', 'weaknesses', 'completed']) {
       assert.equal(Object.hasOwn(guide, field), false);
@@ -93,9 +95,20 @@ test('all 15 learning guides match existing roadmap titles and have actionable g
   }
 });
 
-test('unmapped levels do not invent a current or next curriculum stage', () => {
-  for (const level of [0, 16, 999, -1, 1.5, '5', null]) {
-    const guide = getLearningGuide(level);
+test('the stage follows the studio score ranges and stays inside the roadmap', () => {
+  const { stageForPoints } = require('../learning-guide');
+  const studio = require('../public/studio-catalog');
+  assert.equal(studio.maxPoints, 2930);
+  assert.deepEqual(studio.tracks.map(track => track.startPoints), [0, 85, 205, 380, 620, 870, 1160, 1490, 1830, 2300]);
+  for (const [points, stage] of [[0, 1], [84, 1], [85, 2], [204, 2], [205, 3], [2299, 9], [2300, 10], [2930, 10], [99999, 10]]) {
+    assert.equal(stageForPoints(points), stage, `${points}점`);
+  }
+  for (const invalid of [-1, NaN, Infinity, '100', null, undefined]) assert.equal(stageForPoints(invalid), 0);
+});
+
+test('unmapped stages do not invent a current or next curriculum stage', () => {
+  for (const stage of [0, 11, 999, -1, 1.5, '5', null]) {
+    const guide = getLearningGuide(stage);
     assert.equal(guide.status, 'unmapped');
     assert.equal(guide.current, null);
     assert.equal(guide.next, null);
@@ -108,7 +121,7 @@ test('learning guide values are independent between requests', () => {
   first.next.goals.length = 0;
   first.roadmap[0].title = 'changed';
   assert.equal(getLearningGuide(5).next.goals.length, 3);
-  assert.equal(getLearningGuide(1).roadmap[0].title, 'Python 입문자');
+  assert.equal(getLearningGuide(1).roadmap[0].title, '처음 만나는 파이썬');
 });
 
 test('missing or forged server sessions cannot read personal data or trigger the source', async t => {
@@ -137,8 +150,8 @@ test('personal API returns only the session student with actual values and no or
   assert.equal(body.student.observedGrowth, null);
   assert.equal(body.student.history.length, 1);
   assert.deepEqual(body.ranking, { overall: 2, overallStudents: 3, school: 2, schoolStudents: 2 });
-  assert.equal(body.guide.next.title, '함수 설계자');
-  assert.equal(body.guide.next.level, 6);
+  assert.equal(body.guide.next.title, '갈림길에서 선택하기');
+  assert.equal(body.guide.next.stage, 3);
   assert.equal(body.collectedAt, new Date(app.clock.value).toISOString());
   const encoded = JSON.stringify(body);
   for (const excluded of ['가상둘', '가상셋', 'studentId', 'crbf2_studentlearningrecordid', '11111111-1111-4111-8111-111111111111', cookie]) {
@@ -200,8 +213,8 @@ test('personal and whole-student dashboards share the source cache and observed 
   assert.equal(updated.student.points, 250);
   assert.equal(updated.student.observedGrowth, 100);
   assert.deepEqual(updated.student.history.map(sample => sample.points), [150, 250]);
-  assert.equal(updated.guide.current.level, 6);
-  assert.equal(updated.guide.next.level, 7);
+  assert.equal(updated.guide.current.stage, 3);
+  assert.equal(updated.guide.next.stage, 4);
   assert.equal(app.calls.length, 2);
 });
 
@@ -274,18 +287,25 @@ test('personal source configuration is required only after a valid session', asy
   assert.equal(app.calls.length, 0);
 });
 
-test('last and out-of-roadmap levels preserve actual source levels without invented promotion', async t => {
+test('the guide follows points while recorded levels are shown as stored, without invented promotion', async t => {
   const app = await setup(t);
   const cookie = await app.signIn();
-  for (const level of [1, 15, 0, 16]) {
+  const cases = [
+    { level: 1, points: 0, status: 'next-stage', stage: 1 },
+    { level: 16, points: 2300, status: 'last-stage', stage: 10 },
+    { level: 0, points: 99999, status: 'last-stage', stage: 10 },
+  ];
+  for (const { level, points, status, stage } of cases) {
     app.source.rows[0].crbf2_currentlevel = level;
+    app.source.rows[0].crbf2_learningpoints = points;
     app.source.rows[0].modifiedon = new Date(app.clock.value).toISOString();
     const response = await app.personal(cookie);
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.equal(body.student.level, level);
-    assert.equal(body.guide.status, level === 15 ? 'last-level' : level === 1 ? 'next-level' : 'unmapped');
-    assert.equal(body.guide.next?.level ?? null, level === 1 ? 2 : null);
+    assert.equal(body.guide.status, status);
+    assert.equal(body.guide.current.stage, stage);
+    assert.equal(body.guide.next?.stage ?? null, stage === 10 ? null : stage + 1);
     app.clock.value += 61000;
   }
 });

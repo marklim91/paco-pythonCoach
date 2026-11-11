@@ -22,15 +22,16 @@
 
   var pages = [
     {
-      label: "파코(v3)",
-      rel: "index.html",
-      match: ["", "index.html", "파코v3"],
-    },
-    {
       label: "파코 스튜디오",
       rel: "new.html",
-      match: ["new.html", "new", "스튜디오"],
+      match: ["", "new.html", "new", "스튜디오"],
     },
+    // 파코(v3) 메뉴는 숨깁니다. 다시 보이려면 아래 주석을 해제하세요.
+    // {
+    //   label: "파코(v3)",
+    //   rel: "index.html",
+    //   match: ["index.html", "파코v3"],
+    // },
     {
       label: "내 학습",
       rel: "my-learning.html",
@@ -90,6 +91,11 @@
       .join("") +
     "</nav>" +
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+    (window.PcoTheme
+      ? '<button type="button" class="pco-theme-toggle" role="switch" aria-checked="' +
+        String(window.PcoTheme.get() === "dark") +
+        '" data-pco-theme-toggle><span class="pco-theme-label">다크 모드</span><span class="pco-theme-track" aria-hidden="true"></span></button>'
+      : "") +
     '<span id="pco-session-status" role="status">접속 확인 중</span>' +
     '<a id="pco-session-login" href="' +
     basePath +

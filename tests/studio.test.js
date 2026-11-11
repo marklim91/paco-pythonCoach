@@ -23,10 +23,10 @@ test('standalone studio module and Python worker have valid JavaScript syntax', 
   }
 });
 
-test('sample curriculum supplies unique problems, runnable references and judging data', () => {
-  assert.equal(curriculum.length, 3);
+test('curriculum supplies unique problems, runnable references and judging data', () => {
+  assert.equal(curriculum.length, 10);
   const problems = curriculum.flatMap(track => track.problems);
-  assert.equal(problems.length, 9);
+  assert.equal(problems.length, 100);
   assert.equal(new Set(problems.map(problem => problem.id)).size, problems.length);
   for (const problem of problems) {
     for (const key of ['id', 'title', 'topic', 'concept', 'starter', 'solution', 'input', 'output']) {
@@ -40,6 +40,40 @@ test('sample curriculum supplies unique problems, runnable references and judgin
       assert.equal(typeof sample.input, 'string');
       assert.equal(typeof sample.output, 'string');
     }
+  }
+});
+
+const pythonCommand = ['python', 'python3', 'py'].find(name => spawnSync(name, ['--version']).status === 0);
+
+test('reference solutions pass their own judging cases while starter code does not', { skip: !pythonCommand }, () => {
+  const driver = [
+    'import sys, io, json, contextlib',
+    'def run(code, text):',
+    '    sys.stdin = io.StringIO(text)',
+    '    out = io.StringIO()',
+    '    try:',
+    '        with contextlib.redirect_stdout(out):',
+    '            exec(compile(code, "x.py", "exec"), {"__name__": "__main__"})',
+    '    except BaseException as error:',
+    '        return "ERROR " + repr(error)',
+    '    return out.getvalue()',
+    'def norm(value):',
+    '    return "\\n".join(line.rstrip() for line in value.replace("\\r\\n", "\\n").split("\\n")).rstrip("\\n")',
+    'report = {}',
+    'for problem in json.load(sys.stdin):',
+    '    report[problem["id"]] = {',
+    '        "solution": [norm(run(problem["solution"], t["input"])) == t["output"] for t in problem["tests"]],',
+    '        "starter": [norm(run(problem["starter"], t["input"])) == t["output"] for t in problem["tests"]],',
+    '    }',
+    'sys.__stdout__.write(json.dumps(report))',
+  ].join('\n');
+  const result = spawnSync(pythonCommand, ['-X', 'utf8', '-c', driver], {
+    input: JSON.stringify(curriculum.flatMap(track => track.problems)), encoding: 'utf8', timeout: 120000,
+  });
+  assert.equal(result.status, 0, result.stderr);
+  for (const [id, { solution, starter }] of Object.entries(JSON.parse(result.stdout))) {
+    assert.ok(solution.every(Boolean), `${id}: solution fails a judging case`);
+    assert.ok(!starter.every(Boolean), `${id}: starter code already passes every case`);
   }
 });
 
@@ -70,6 +104,17 @@ test('saved drafts, selected problem, coach URL and completed problems restore',
   assert.equal(result.state.completed.join(','), 'hello,sum');
   assert.equal(result.state.coachUrl, 'https://example.com/coach');
   assert.equal(result.warning, '');
+});
+
+test('a browser that saved the previous default coach moves to the new one, custom coaches stay', () => {
+  const legacy = 'https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_agent_dKZZIw/webchat?__version__=2&enableFileAttachment=false&cliAgent=true';
+  const read = coachUrl => {
+    context.saved = JSON.stringify({ selected: 'hello', codes: {}, completed: [], coachUrl });
+    return evaluate('readStudioState({ getItem() { return saved; } })').state.coachUrl;
+  };
+  assert.equal(read(legacy), evaluate('DEFAULT_COACH_URL'));
+  assert.match(evaluate('DEFAULT_COACH_URL'), /\/bots\/crbf2_bot_QSDFLs\/webchat\?/);
+  assert.equal(read('https://example.com/my-coach'), 'https://example.com/my-coach');
 });
 
 test('invalid saved records warn explicitly without writing over the original', () => {
@@ -133,10 +178,23 @@ test('points flow address must be an https Power Automate trigger without creden
   }
 });
 
-test('points depend on the problem level and every sample problem earns points', () => {
-  assert.deepEqual(curriculum.flatMap(track => track.problems).map(p => evaluate(`pointsFor(${JSON.stringify(p)})`)),
-    curriculum.flatMap(track => track.problems.map(() => ({ '입문': 10, '기초': 20, '도전': 30 })[track.name])));
+test('points depend on the problem level and every problem earns points', () => {
+  const points = { '맛보기': 5, '입문': 10, '기초': 20, '응용': 30, '도전': 50, '심화': 80 };
+  const problems = curriculum.flatMap(track => track.problems);
+  assert.deepEqual(problems.map(p => evaluate(`pointsFor(${JSON.stringify(p)})`)), problems.map(p => points[p.level]));
+  assert.ok(problems.every(p => points[p.level] > 0));
   assert.equal(evaluate('pointsFor({ level: "unknown" })'), 0);
+});
+
+test('every track climbs from easier to harder problems and each level is represented', () => {
+  const order = ['맛보기', '입문', '기초', '응용', '도전', '심화'];
+  for (const track of curriculum) {
+    const ranks = track.problems.map(p => order.indexOf(p.level));
+    assert.ok(ranks.every(rank => rank >= 0), `${track.id}: unknown level`);
+    assert.deepEqual(ranks, [...ranks].sort((a, b) => a - b), `${track.id}: not ordered by level`);
+  }
+  const levels = new Set(curriculum.flatMap(track => track.problems.map(p => p.level)));
+  assert.deepEqual([...levels].sort(), [...order].sort());
 });
 
 test('student identity comes from the login cookies, falling back to the session for old logins without a name cookie', async () => {

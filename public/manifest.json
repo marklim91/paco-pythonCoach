@@ -3,7 +3,7 @@
   "name": "파코(파이썬 코치) WebApp",
   "short_name": "파코",
   "description": "중·고등학생 대상 파이썬 AI 학습 코치 파코 및 학습 대시보드",
-  "start_url": "./index.html",
+  "start_url": "./new.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f3f8ff",

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pco-webapp-v10';
+const CACHE_NAME = 'pco-webapp-v11';
 const OFFLINE_URL = './offline.html';
 const ASSETS = [
   './',
@@ -10,6 +10,7 @@ const ASSETS = [
   './dashboard.html',
   './dashboard.css',
   './dashboard.js',
+  './studio-catalog.js',
   './my-learning.html',
   './my-learning.css',
   './my-learning.js',
@@ -20,7 +21,9 @@ const ASSETS = [
   './icon.svg',
   './icon-192.png',
   './icon-512.png',
-  './app-shell.js'
+  './app-shell.js',
+  './theme.js',
+  './theme.css'
 ];
 
 self.addEventListener('install', (event) => {

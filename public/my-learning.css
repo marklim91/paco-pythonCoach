@@ -45,6 +45,7 @@
 .personal-history { margin-top: 24px; }
 .personal-history table { min-width: 320px; }
 .personal-history .history-scroll { max-height: 320px; }
+.personal-page .studio-grid { margin: 22px 0; }
 @media (max-width: 850px) {
   .learning-grid { grid-template-columns: 1fr; }
 }

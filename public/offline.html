@@ -6,6 +6,18 @@
     <meta name="theme-color" content="#f3f8ff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#151a30" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
+    <script>
+      // theme.js와 같은 저장 키(pco-theme)를 읽습니다. 이 페이지는 외부 파일 없이 동작해야 합니다.
+      (function () {
+        var theme = null;
+        try { theme = localStorage.getItem("pco-theme"); } catch (e) {}
+        if (theme !== "dark" && theme !== "light") {
+          theme = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
     <title>오프라인 · 파코</title>
     <style>
       :root {
@@ -22,18 +34,16 @@
         --code-ink: #cfd6ff;
         --shadow: 0 24px 60px -24px rgba(46, 80, 160, 0.28);
       }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #151a30;
-          --panel: #1e2542;
-          --ink: #eef1ff;
-          --ink-soft: #a3acd1;
-          --line: #2d3560;
-          --green-ink: #7ff0c0;
-          --green-soft: #1d3a37;
-          --code-bg: #121730;
-          --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
-        }
+      :root[data-theme="dark"] {
+        --bg: #151a30;
+        --panel: #1e2542;
+        --ink: #eef1ff;
+        --ink-soft: #a3acd1;
+        --line: #2d3560;
+        --green-ink: #7ff0c0;
+        --green-soft: #1d3a37;
+        --code-bg: #121730;
+        --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.6);
       }
       * { box-sizing: border-box; }
       body {
@@ -225,7 +235,7 @@
                 pill.classList.add("ok");
                 pillText.textContent = "다시 연결됨";
                 setStatus("연결됐어요! 이동하는 중...");
-                if (/offline\.html$/.test(location.pathname)) location.replace(scope + "index.html");
+                if (/offline\.html$/.test(location.pathname)) location.replace(scope + "new.html");
                 else location.reload();
                 return;
               }

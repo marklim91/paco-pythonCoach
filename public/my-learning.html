@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-pco-skin="board">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./theme.js"></script>
     <title>파코 · 내 학습 현황</title>
     <script src="./auth.js"></script>
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
@@ -10,7 +11,9 @@
     <meta name="theme-color" content="#111a30" />
     <link rel="stylesheet" href="./dashboard.css" />
     <link rel="stylesheet" href="./my-learning.css" />
+    <link rel="stylesheet" href="./theme.css" />
     <script src="./local-api.js"></script>
+    <script src="./studio-catalog.js"></script>
     <script src="./app-shell.js" defer></script>
     <script src="./my-learning.js" defer></script>
   </head>
@@ -54,15 +57,15 @@
       <div id="learning-content" hidden></div>
       <noscript><p class="error">내 학습 기록을 조회하려면 JavaScript를 켜 주세요.</p></noscript>
       <footer class="footer">
-        <span>실제 기록은 Dataverse에서, 학습 제안은 기존 레벨 로드맵에서 가져옵니다.</span>
-        <a href="./v3_4/roadmap.html">15단계 로드맵 전체 보기</a>
+        <span>실제 점수는 Dataverse에서, 학습 제안은 파코 스튜디오 10단계 로드맵에서 가져옵니다.</span>
+        <a href="./new.html">스튜디오에서 문제 풀기</a>
       </footer>
     </main>
 
     <template id="learning-template">
       <section class="panel learner-hero" aria-labelledby="learner-name">
         <div class="level-emblem" aria-label="현재 기록된 레벨">
-          <span>CURRENT LEVEL</span>
+          <span>RECORDED LEVEL</span>
           <strong id="my-level"></strong>
           <span id="my-tier"></span>
         </div>
@@ -93,7 +96,34 @@
         </article>
       </section>
 
-      <p id="unmapped-level" class="error" hidden>기록된 레벨이 기존 로드맵의 1~15 범위 밖입니다. 현재 점수와 레벨은 그대로 표시하며, 학습 가이드는 담당자가 레벨 기준을 확인한 뒤 제공할 수 있습니다.</p>
+      <section class="studio-grid" aria-label="스튜디오 문제 현황">
+        <section class="panel" aria-labelledby="score-progress-title">
+          <p class="eyebrow">SCORE PROGRESS</p>
+          <h2 id="score-progress-title">만점 대비 내 점수</h2>
+          <p id="score-progress-text" class="intro"></p>
+          <div id="score-progress-bar"></div>
+          <p id="score-progress-note" class="caption"></p>
+          <h3>난이도별 점수 체계</h3>
+          <div class="table-scroll">
+            <table>
+              <caption class="sr-only">스튜디오 문제의 난이도별 점수와 문제 수</caption>
+              <thead><tr><th scope="col">난이도</th><th scope="col">문제당 점수</th><th scope="col">문제 수</th><th scope="col">소계</th></tr></thead>
+              <tbody id="my-scoring-body"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" aria-labelledby="studio-progress-title">
+          <p class="eyebrow">STUDIO PROGRESS</p>
+          <h2 id="studio-progress-title">스튜디오 문제 진도</h2>
+          <p id="studio-progress-text" class="intro"></p>
+          <ol id="track-progress" class="track-progress"></ol>
+          <p class="caption">이 브라우저의 스튜디오에 저장된 기록이며, 다른 기기나 브라우저의 기록은 합쳐지지 않습니다. Dataverse 점수와는 따로 집계됩니다.</p>
+          <h3>다음에 풀면 좋은 문제</h3>
+          <ul id="next-problems" class="next-list"></ul>
+        </section>
+      </section>
+
+      <p id="unmapped-level" class="error" hidden>기록된 점수로 현재 단계를 계산할 수 없습니다. 현재 점수와 레벨은 그대로 표시하며, 학습 가이드는 담당자가 확인한 뒤 제공할 수 있습니다.</p>
       <div id="learning-guide" class="learning-grid">
         <section class="panel next-panel" aria-labelledby="next-heading">
           <p class="eyebrow">YOUR NEXT STEP</p>
@@ -123,9 +153,9 @@
         </section>
         <section class="panel" aria-labelledby="roadmap-heading">
           <p class="eyebrow">LEVEL ROADMAP</p>
-          <h2 id="roadmap-heading">15단계 중 지금의 위치</h2>
+          <h2 id="roadmap-heading">10단계 중 지금의 위치</h2>
           <ol id="my-roadmap" class="personal-roadmap"></ol>
-          <p class="caption">강조된 숫자는 기록된 현재 레벨입니다. 이전 단계의 과제 완료나 승급 진도를 나타내지 않습니다.</p>
+          <p class="caption">강조된 숫자는 누적 학습 점수가 속한 현재 단계입니다. 각 단계의 문제를 얼마나 풀었는지는 위의 문제 진도에서 확인하세요.</p>
         </section>
       </div>
       <p id="recommendation-note" class="notice"></p>

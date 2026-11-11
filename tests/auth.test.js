@@ -75,7 +75,7 @@ test('logged-in visitors skip login without needing a name cookie', () => {
     cookies: { school: encodeURIComponent('현풍중학교'), studentId: '00123' },
   });
 
-  assert.deepEqual(result.redirects, ['https://example.test/index.html']);
+  assert.deepEqual(result.redirects, ['https://example.test/new.html']);
 });
 
 test('reverification can create a server session without being skipped by old display cookies', () => {
@@ -94,7 +94,7 @@ test('saving login preserves leading zeros and scopes secure session cookies', (
   assert.equal(result.jar.size, 2);
   assert.ok(result.writes.every(value =>
     value.endsWith('; Path=/paco/; SameSite=Lax; Secure')));
-  assert.equal(result.auth.homeUrl, 'https://example.test/paco/index.html');
+  assert.equal(result.auth.homeUrl, 'https://example.test/paco/new.html');
 });
 
 test('saving login with a name also stores a studentName cookie and rejects invalid names', () => {

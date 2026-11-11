@@ -39,7 +39,7 @@ const fixtureStudent = (changes = {}) => ({
 });
 const settled = () => new Promise(resolve => setImmediate(resolve));
 
-function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt } = {}) {
+function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt, completed } = {}) {
   const nodes = new Map();
   const errors = [];
   const requests = [];
@@ -61,7 +61,7 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
       mode: 'static', students, schools: students.map(student => student.school),
       collectedAt: collectedAt || new Date().toISOString(), historyNote: '이번 배포의 단일 관측값입니다.',
     },
-    '/reports/learning-guides.json': { mode: 'static', guides: { 5: getLearningGuide(5) } },
+    '/reports/learning-guides.json': { mode: 'static', guides: { 3: getLearningGuide(3) } },
     '/api/dashboard': {
       students, schools: students.map(student => student.school), collectedAt: students[0].modifiedAt,
     },
@@ -73,12 +73,16 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
     '/api/me/learning': {
       student: students[0], collectedAt: students[0].modifiedAt,
       ranking: { overall: 1, overallStudents: 2, school: 1, schoolStudents: 1 },
-      guide: getLearningGuide(5), historyNote: '서버의 관측 기록입니다.',
+      guide: getLearningGuide(3), historyNote: '서버의 관측 기록입니다.',
     },
   };
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'public', script), 'utf8'), {
     document, URL, Intl, AbortController,
-    window: { addEventListener() {}, ...(staticMode ? { PcoDeployment: { mode: 'static' } } : {}) },
+    window: {
+      addEventListener() {}, PcoStudio: require('../public/studio-catalog'),
+      ...(completed ? { localStorage: { getItem: () => JSON.stringify({ completed }) } } : {}),
+      ...(staticMode ? { PcoDeployment: { mode: 'static' } } : {}),
+    },
     Option: function (text, value) {
       const option = new Element('option');
       option.textContent = text;
@@ -166,6 +170,53 @@ test('personal learning page displays school only while retaining name, level an
     assert.doesNotMatch(element.textContent, /학습자-|2F0AB3C0/);
   }
   assert.equal(app.errors.length, 0);
+});
+
+test('dashboard shows score progress against the full score, a score distribution and the scoring guide', async () => {
+  const app = loadClient();
+  await settled();
+  const pointsCell = app.node('ranking-body').children[0].children[3];
+  assert.match(pointsCell.textContent, /^300 · 10%/);
+  assert.equal(pointsCell.children[1].attributes['aria-label'], '스튜디오 만점 2,930점 중 10%');
+  const bins = app.node('distribution-list').children;
+  assert.equal(bins.length, 7);
+  assert.equal(bins[2].textContent.startsWith('101~500점'), true);
+  assert.match(bins[2].textContent, /2명 · 100%/);
+  assert.match(bins[0].textContent, /0명 · 0%/);
+  assert.equal(bins[6].children[0].textContent, '만점 2,930점 이상');
+  const levels = app.node('scoring-body').children.map(row => row.children.map(cell => cell.textContent).join('|'));
+  assert.deepEqual(levels, [
+    '맛보기|5점|8문제|40점', '입문|10점|18문제|180점', '기초|20점|25문제|500점',
+    '응용|30점|24문제|720점', '도전|50점|17문제|850점', '심화|80점|8문제|640점',
+  ]);
+  assert.equal(app.node('scoring-total').textContent, '100문제 · 만점 2,930점');
+  assert.equal(app.node('scoring-tracks').children.length, 10);
+  assert.equal(app.node('studio-panels').hidden, false);
+  assert.equal(app.errors.length, 0);
+});
+
+test('personal page shows score progress, this browser studio progress and the next problems', async () => {
+  const app = loadClient('my-learning.js', { completed: ['hello', 't1_quotes', 'not-a-problem'] });
+  await settled();
+  assert.equal(app.node('my-tier').textContent, '3단계 / 10단계');
+  assert.equal(app.node('my-level-title').textContent, '갈림길에서 선택하기');
+  assert.equal(app.node('score-progress-text').textContent, '300점 / 만점 2,930점 (10%)');
+  assert.match(app.node('studio-progress-text').textContent, /100문제 중 2문제를 해결/);
+  assert.equal(app.node('track-progress').children.length, 10);
+  assert.equal(app.node('track-progress').children[0].children[1].textContent, '2 / 10');
+  assert.match(app.node('track-progress').children[2].children[0].textContent, /3단계 · 갈림길에서 선택하기 \(현재\)/);
+  const next = app.node('next-problems').children;
+  assert.equal(next.length, 3);
+  assert.equal(next[0].children[0].href, 'https://example.test/paco-pythonCoach/new.html?problem=t3_vending');
+  assert.equal(app.node('my-scoring-body').children.length, 6);
+  assert.equal(app.errors.length, 0);
+});
+
+test('personal page without a studio record still recommends problems from the current stage', async () => {
+  const app = loadClient('my-learning.js');
+  await settled();
+  assert.match(app.node('studio-progress-text').textContent, /해결한 스튜디오 문제 기록이 아직 없어요/);
+  assert.equal(app.node('next-problems').children[0].children[0].href.endsWith('?problem=t3_vending'), true);
 });
 
 test('static report uses the repository-relative snapshot, hides presence and preserves ranking selection', async () => {

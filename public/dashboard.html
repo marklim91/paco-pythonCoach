@@ -1,15 +1,18 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-pco-skin="board">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./theme.js"></script>
     <title>파코 · 학생 성장 리포트</title>
     <script src="./auth.js"></script>
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="./manifest.json" />
     <meta name="theme-color" content="#111a30" />
     <link rel="stylesheet" href="./dashboard.css" />
+    <link rel="stylesheet" href="./theme.css" />
     <script src="./local-api.js"></script>
+    <script src="./studio-catalog.js"></script>
     <script src="./app-shell.js" defer></script>
     <script src="./dashboard.js" defer></script>
   </head>
@@ -96,7 +99,7 @@
                   <th scope="col">순위</th>
                   <th scope="col">학습자 / 학교</th>
                   <th scope="col">레벨</th>
-                  <th scope="col">학습 점수</th>
+                  <th scope="col">학습 점수 (만점 대비)</th>
                   <th scope="col">관측 성장</th>
                 </tr>
               </thead>
@@ -180,6 +183,46 @@
             실제 학습 횟수를 추정하지 않습니다. 그래프는 학습 발생 시각이 아닌
             수집 시각 기준입니다.
           </p>
+        </section>
+      </div>
+
+      <div class="studio-grid" id="studio-panels" hidden>
+        <section class="panel" aria-labelledby="distribution-title">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">SCORE DISTRIBUTION</p>
+              <h2 id="distribution-title">점수 구간별 학생 분포</h2>
+            </div>
+            <span id="distribution-scope" class="pill">전체 학교</span>
+          </div>
+          <p id="distribution-note" class="caption"></p>
+          <ol id="distribution-list" class="distribution" aria-label="점수 구간별 학생 수"></ol>
+        </section>
+
+        <section class="panel" aria-labelledby="scoring-title">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">SCORING GUIDE</p>
+              <h2 id="scoring-title">난이도별 점수 체계</h2>
+            </div>
+            <span id="scoring-total" class="pill"></span>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <caption class="sr-only">스튜디오 문제의 난이도별 점수와 문제 수</caption>
+              <thead>
+                <tr>
+                  <th scope="col">난이도</th>
+                  <th scope="col">문제당 점수</th>
+                  <th scope="col">문제 수</th>
+                  <th scope="col">소계</th>
+                </tr>
+              </thead>
+              <tbody id="scoring-body"></tbody>
+            </table>
+          </div>
+          <h3>10개 트랙 · 쉬운 문제부터 차근차근</h3>
+          <ol id="scoring-tracks" class="track-list"></ol>
         </section>
       </div>
 

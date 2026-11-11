@@ -282,19 +282,25 @@
     });
   }
 
-  var guideScript = null;
-  function learningGuide(level) {
-    if (window.PcoLearningGuide) return Promise.resolve(window.PcoLearningGuide.getLearningGuide(level));
-    if (!guideScript) {
-      guideScript = new Promise(function (resolve, reject) {
+  var scriptLoads = {};
+  function loadScript(file) {
+    if (!scriptLoads[file]) {
+      scriptLoads[file] = new Promise(function (resolve, reject) {
         var tag = document.createElement("script");
-        tag.src = new URL("learning-guide.js", base).href;
+        tag.src = new URL(file, base).href;
         tag.onload = resolve;
         tag.onerror = function () { reject(new LocalError(500, "GUIDE_UNAVAILABLE", "학습 가이드 파일을 불러올 수 없습니다.")); };
         document.head.appendChild(tag);
       });
     }
-    return guideScript.then(function () { return window.PcoLearningGuide.getLearningGuide(level); });
+    return scriptLoads[file];
+  }
+  async function learningGuide(points) {
+    if (!window.PcoLearningGuide) {
+      if (!window.PcoStudio) await loadScript("studio-catalog.js");
+      await loadScript("learning-guide.js");
+    }
+    return window.PcoLearningGuide.getLearningGuide(window.PcoLearningGuide.stageForPoints(points));
   }
 
   /* ---------- route handlers ---------- */
@@ -436,7 +442,7 @@
           school: mates.filter(function (entry) { return entry.points > student.points; }).length + 1,
           schoolStudents: mates.length,
         },
-        guide: await learningGuide(student.level),
+        guide: await learningGuide(student.points),
         historyNote: "이 브라우저가 수집한 최근 90일 점수 관측값입니다. 최초 수집 이전의 성장이나 실제 학습 횟수는 포함하지 않습니다.",
       };
     },

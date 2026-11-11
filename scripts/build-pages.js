@@ -2,11 +2,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { fetchDashboardStudents } = require('../dashboard-api');
-const { getLearningGuide } = require('../learning-guide');
+const { getLearningGuide, stageForPoints } = require('../learning-guide');
 
 function learningGuides(students) {
   const guides = {};
-  for (const level of new Set(students.map(student => student.level))) guides[level] = getLearningGuide(level);
+  for (const stage of new Set(students.map(student => stageForPoints(student.points)))) guides[stage] = getLearningGuide(stage);
   return { mode: 'static', guides };
 }
 

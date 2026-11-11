@@ -42,6 +42,85 @@
     loading = false;
     clearRecord();
   }
+  var STUDIO_KEY = "paco-studio-v1";
+  function readStudioCompleted() {
+    try {
+      var saved = JSON.parse(window.localStorage.getItem(STUDIO_KEY));
+      return saved && Array.isArray(saved.completed) ? saved.completed : [];
+    } catch (error) { return []; }
+  }
+  function meterBar(percent, label) {
+    var bar = document.createElement("div");
+    bar.className = "meter";
+    bar.setAttribute("role", "img");
+    bar.setAttribute("aria-label", label);
+    var fill = document.createElement("span");
+    fill.setAttribute("style", "width:" + percent + "%");
+    bar.appendChild(fill);
+    return bar;
+  }
+  function renderStudio(student, guide) {
+    var studio = window.PcoStudio;
+    if (!studio) return;
+    var percent = student.points > 0 ? Math.min(100, Math.max(1, Math.floor(student.points / studio.maxPoints * 100))) : 0;
+    text("score-progress-text", number.format(student.points) + "점 / 만점 " + number.format(studio.maxPoints) + "점 (" + percent + "%)");
+    var bar = byId("score-progress-bar");
+    bar.replaceChildren(meterBar(percent, "스튜디오 만점 " + number.format(studio.maxPoints) + "점 중 " + percent + "%"));
+    text("score-progress-note", student.points > studio.maxPoints ?
+      "스튜디오 100문제 만점을 넘는 점수는 100%로 표시해요." :
+      "스튜디오 100문제를 모두 해결했을 때의 점수를 만점으로 계산했어요.");
+    var scoring = byId("my-scoring-body");
+    scoring.replaceChildren();
+    studio.LEVELS.forEach(function (level) {
+      var count = studio.problems.filter(function (p) { return p.level === level; }).length;
+      var row = document.createElement("tr");
+      [level, studio.POINTS[level] + "점", count + "문제", number.format(count * studio.POINTS[level]) + "점"].forEach(function (value) {
+        var cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+      });
+      scoring.appendChild(row);
+    });
+
+    var completed = readStudioCompleted();
+    var progress = studio.progress(completed);
+    text("studio-progress-text", progress.solved ?
+      "이 브라우저에서 " + progress.total + "문제 중 " + progress.solved + "문제를 해결했어요." :
+      "이 브라우저에는 해결한 스튜디오 문제 기록이 아직 없어요.");
+    var tracks = byId("track-progress");
+    tracks.replaceChildren();
+    progress.tracks.forEach(function (track, index) {
+      var item = document.createElement("li");
+      var title = document.createElement("span");
+      title.textContent = track.name + " · " + track.label;
+      if (guide.current && guide.current.stage === index + 1) title.textContent += " (현재)";
+      var count = document.createElement("strong");
+      count.textContent = track.solved + " / " + track.total;
+      item.append(title, count, meterBar(Math.round(track.solved / track.total * 100),
+        track.name + " " + track.solved + "문제 해결, 전체 " + track.total + "문제"));
+      tracks.appendChild(item);
+    });
+
+    var next = byId("next-problems");
+    next.replaceChildren();
+    var picks = studio.nextProblems(completed, 3, guide.current ? guide.current.stage : 1);
+    if (!picks.length) {
+      var done = document.createElement("li");
+      done.className = "caption";
+      done.textContent = "스튜디오 100문제를 모두 해결했어요! 풀이를 다시 보며 더 간결하게 고쳐 보세요.";
+      next.appendChild(done);
+    }
+    picks.forEach(function (pick) {
+      var item = document.createElement("li");
+      var link = document.createElement("a");
+      link.href = new URL("new.html?problem=" + encodeURIComponent(pick.problem.id), base).href;
+      link.textContent = pick.track.name + " · " + pick.problem.title;
+      var detail = document.createElement("small");
+      detail.textContent = pick.problem.level + " · " + pick.problem.points + "점 · 약 " + pick.problem.minutes + "분 · " + pick.problem.topic;
+      item.append(link, detail);
+      next.appendChild(item);
+    });
+  }
   function render(data) {
     var content = byId("learning-content");
     if (!content.firstElementChild) content.appendChild(byId("learning-template").content.cloneNode(true));
@@ -50,27 +129,35 @@
     text("learner-name", student.name + "님의 학습 현황");
     text("my-identity", student.school);
     text("my-level", "Lv." + number.format(student.level));
-    text("my-tier", !guide.current ? "로드맵 확인 필요" : student.level <= 5 ? "입문 단계" : student.level <= 10 ? "성장 단계" : "도전 단계");
-    text("my-level-title", guide.current ? guide.current.title : "로드맵에 없는 레벨");
-    text("my-focus", guide.current ? guide.current.focus : "레벨 기준을 담당자에게 확인해 주세요.");
+    text("my-tier", !guide.current ? "단계 확인 필요" : guide.current.stage + "단계 / " + guide.roadmap.length + "단계");
+    text("my-level-title", guide.current ? guide.current.title : "단계를 계산할 수 없는 점수");
+    text("my-focus", guide.current ? guide.current.focus : "점수 기준을 담당자에게 확인해 주세요.");
     text("my-modified", "Dataverse 마지막 수정: " + time(student.modifiedAt) + " (마지막 학습 시각을 의미하지 않습니다.)");
     text("my-points", number.format(student.points) + "점");
     text("my-rank", number.format(data.ranking.overall) + "위");
     text("my-rank-note", "전체 " + number.format(data.ranking.overallStudents) + "명 · 학교 " +
       number.format(data.ranking.school) + "위 / " + number.format(data.ranking.schoolStudents) + "명 · 동점 공동 순위");
-    text("my-growth", student.observedGrowth === null ? "관측 대기" :
+    text("my-growth", student.observedGrowth === null ? "—" :
       (student.observedGrowth > 0 ? "+" : "") + number.format(student.observedGrowth) + "점");
+    if (student.observedGrowth === null) {
+      byId("my-growth").title = "점수 기록이 하나뿐이라 아직 비교할 수 없어요.";
+      byId("my-growth").setAttribute("aria-label", "점수 기록이 하나뿐이라 아직 비교할 수 없어요.");
+    } else {
+      byId("my-growth").removeAttribute("title");
+      byId("my-growth").removeAttribute("aria-label");
+    }
     byId("my-growth").className = student.observedGrowth > 0 ? "growth-positive" :
       student.observedGrowth < 0 ? "growth-negative" : "";
-    text("my-growth-note", student.observedGrowth === null ? "관측값이 더 쌓이면 변화를 비교할 수 있어요." : "보관 중인 첫 관측 점수 대비 변화");
+    text("my-growth-note", student.observedGrowth === null ? "점수 기록이 하나 더 쌓이면 변화를 비교할 수 있어요." : "보관 중인 첫 관측 점수 대비 변화");
 
     byId("unmapped-level").hidden = guide.status !== "unmapped";
     byId("learning-guide").hidden = guide.status === "unmapped";
     text("recommendation-note", guide.recommendationNote);
+    renderStudio(student, guide);
     if (guide.current) {
       var target = guide.next || guide.current;
-      text("next-heading", guide.next ? "다음 목표 · Lv." + target.level + " " + target.title : "Lv.15 · 로드맵 마지막 단계");
-      text("next-focus", guide.next ? target.focus : "별도의 Lv.16을 가정하지 않습니다. 완성한 프로젝트를 검증하고 개선하며 학습을 이어가요.");
+      text("next-heading", guide.next ? "다음 목표 · " + target.stage + "단계 " + target.title : guide.current.stage + "단계 · 로드맵 마지막 단계");
+      text("next-focus", guide.next ? target.focus : "별도의 " + (guide.current.stage + 1) + "단계를 가정하지 않습니다. 도전·심화 문제를 다시 풀어 풀이를 비교하고 개선하며 학습을 이어가요.");
       text("next-goals-heading", guide.next ? "다음 단계를 준비하는 학습 목표" : "마지막 단계에서 더 깊게 도전하기");
       list("next-goals", target.goals);
       text("promotion-note", guide.promotionNote);
@@ -83,14 +170,16 @@
       var roadmap = byId("my-roadmap");
       roadmap.replaceChildren();
       guide.roadmap.forEach(function (entry) {
+        var isCurrent = entry.stage === guide.current.stage;
+        var isNext = guide.next && entry.stage === guide.next.stage;
         var item = document.createElement("li");
-        item.textContent = String(entry.level).padStart(2, "0");
+        item.textContent = String(entry.stage).padStart(2, "0");
         item.title = entry.title;
-        item.setAttribute("aria-label", "레벨 " + entry.level + " " + entry.title +
-          (entry.level === student.level ? " · 현재" : guide.next && entry.level === guide.next.level ? " · 다음 목표" : ""));
-        if (entry.level === student.level) item.setAttribute("aria-current", "step");
+        item.setAttribute("aria-label", entry.stage + "단계 " + entry.title +
+          (isCurrent ? " · 현재" : isNext ? " · 다음 목표" : ""));
+        if (isCurrent) item.setAttribute("aria-current", "step");
         var label = document.createElement("span");
-        label.textContent = entry.level === student.level ? "현재" : guide.next && entry.level === guide.next.level ? "다음 목표" : "";
+        label.textContent = isCurrent ? "현재" : isNext ? "다음 목표" : "";
         item.appendChild(label);
         roadmap.appendChild(item);
       });
@@ -210,8 +299,8 @@
   function staticRecord(student) {
     var students = staticReport.students;
     var mates = students.filter(function (s) { return s.school === student.school; });
-    var guide = staticGuides[student.level];
-    if (!guide) throw new TypeError("레벨 가이드가 리포트에 없습니다.");
+    var guide = staticGuides[window.PcoStudio.stageForPoints(student.points)];
+    if (!guide) throw new TypeError("단계 가이드가 리포트에 없습니다.");
     return {
       student: student, guide: guide, collectedAt: staticReport.collectedAt,
       ranking: {

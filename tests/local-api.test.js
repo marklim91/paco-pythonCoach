@@ -96,7 +96,7 @@ test('login verifies against active rows, creates a session and serves personal 
   const mine = (await env.call('me/learning')).body;
   assert.equal(mine.student.name, '가상하나');
   assert.deepEqual(mine.ranking, { overall: 2, overallStudents: 2, school: 2, schoolStudents: 2 });
-  assert.equal(mine.guide.current.level, 5);
+  assert.equal(mine.guide.current.stage, 3);
   assert.equal((await env.call('me/learning?student=x')).status, 400);
   assert.equal((await env.call('session/heartbeat', { method: 'POST' })).status, 200);
   const presence = (await env.call('presence')).body;

@@ -18,7 +18,41 @@
   function number(value) { return formatNumber.format(value); }
   function time(value) { return formatTime.format(new Date(value)); }
   function displayName(student) { return student.name || "이름 미등록"; }
-  function growth(value) { return value === null ? "관측 대기" : (value > 0 ? "+" : "") + number(value); }
+  var growthPendingHint = "점수 기록이 하나뿐이라 아직 비교할 수 없어요.";
+  function growth(value) { return value === null ? "—" : (value > 0 ? "+" : "") + number(value); }
+  var studio = window.PcoStudio || null;
+  function percentOfMax(points) {
+    return points > 0 ? Math.min(100, Math.max(1, Math.floor(points / studio.maxPoints * 100))) : 0;
+  }
+  function meter(percent, label) {
+    var bar = document.createElement("div");
+    bar.className = "meter";
+    bar.setAttribute("role", "img");
+    bar.setAttribute("aria-label", label);
+    var fill = document.createElement("span");
+    fill.setAttribute("style", "width:" + percent + "%");
+    bar.appendChild(fill);
+    return bar;
+  }
+  function pointsCell(row, points) {
+    var td = cell(row, number(points), "points");
+    if (!studio) return td;
+    var percent = percentOfMax(points);
+    var small = document.createElement("small");
+    small.className = "points-percent";
+    small.textContent = " · " + percent + "%";
+    td.append(small, meter(percent, "스튜디오 만점 " + number(studio.maxPoints) + "점 중 " + percent + "%"));
+    return td;
+  }
+  function hintGrowth(element, value) {
+    if (value === null) {
+      element.title = growthPendingHint;
+      element.setAttribute("aria-label", growthPendingHint);
+    } else {
+      element.removeAttribute("title");
+      element.removeAttribute("aria-label");
+    }
+  }
   function cell(row, text, className) {
     var td = document.createElement("td");
     td.textContent = text;
@@ -59,6 +93,71 @@
       return Object.assign({}, s, { rank: rank });
     });
   }
+  function distributionBins() {
+    var max = studio.maxPoints;
+    return [
+      { label: "0점", min: 0, max: 0 },
+      { label: "1~100점", min: 1, max: 100 },
+      { label: "101~500점", min: 101, max: 500 },
+      { label: "501~1,000점", min: 501, max: 1000 },
+      { label: "1,001~2,000점", min: 1001, max: 2000 },
+      { label: "2,001~" + number(max - 1) + "점", min: 2001, max: max - 1 },
+      { label: "만점 " + number(max) + "점 이상", min: max, max: Infinity },
+    ];
+  }
+  function renderDistribution(rows) {
+    if (!studio) return;
+    var bins = distributionBins();
+    var counts = bins.map(function (bin) {
+      return rows.filter(function (s) { return s.points >= bin.min && s.points <= bin.max; }).length;
+    });
+    var largest = Math.max.apply(null, counts.concat(1));
+    var school = byId("school-filter").value;
+    byId("distribution-scope").textContent = school || "전체 학교";
+    byId("distribution-note").textContent = rows.length ?
+      "스튜디오 100문제 만점 " + number(studio.maxPoints) + "점을 기준으로 나눈 구간별 학생 수입니다. 만점을 넘는 점수는 마지막 구간에 포함합니다." :
+      "선택한 학교에 집계할 학생이 없습니다.";
+    var list = byId("distribution-list");
+    list.replaceChildren();
+    bins.forEach(function (bin, i) {
+      var item = document.createElement("li");
+      var label = document.createElement("span");
+      label.className = "distribution-label";
+      label.textContent = bin.label;
+      var count = document.createElement("strong");
+      var percent = rows.length ? Math.round(counts[i] / rows.length * 100) : 0;
+      count.textContent = number(counts[i]) + "명 · " + percent + "%";
+      item.append(label, meter(Math.round(counts[i] / largest * 100), bin.label + " " + number(counts[i]) + "명"), count);
+      list.appendChild(item);
+    });
+  }
+  function renderScoring() {
+    if (!studio) return;
+    var body = byId("scoring-body");
+    body.replaceChildren();
+    studio.LEVELS.forEach(function (level) {
+      var count = studio.problems.filter(function (p) { return p.level === level; }).length;
+      var tr = document.createElement("tr");
+      cell(tr, level);
+      cell(tr, studio.POINTS[level] + "점");
+      cell(tr, count + "문제");
+      cell(tr, number(count * studio.POINTS[level]) + "점");
+      body.appendChild(tr);
+    });
+    byId("scoring-total").textContent = studio.problems.length + "문제 · 만점 " + number(studio.maxPoints) + "점";
+    var tracks = byId("scoring-tracks");
+    tracks.replaceChildren();
+    studio.tracks.forEach(function (track) {
+      var item = document.createElement("li");
+      var title = document.createElement("strong");
+      title.textContent = track.name + " · " + track.label;
+      var detail = document.createElement("small");
+      detail.textContent = track.topics + " · " + track.problems.length + "문제 · " + number(track.totalPoints) + "점";
+      item.append(title, detail);
+      tracks.appendChild(item);
+    });
+    byId("studio-panels").hidden = false;
+  }
   function renderRanking() {
     if (!data) return;
     var rows = schoolRows();
@@ -66,6 +165,7 @@
     byId("metric-points").textContent = number(rows.reduce(function (sum, s) { return sum + s.points; }, 0));
     byId("metric-level").textContent = rows.length ?
       (rows.reduce(function (sum, s) { return sum + s.level; }, 0) / rows.length).toFixed(1) : "—";
+    renderDistribution(rows);
     var query = byId("student-search").value.trim().toLowerCase();
     var matches = rows.filter(function (s) {
       return s.school.toLowerCase().includes(query) || (s.name && s.name.toLowerCase().includes(query));
@@ -92,9 +192,9 @@
       school.textContent = student.school;
       name.append(button, school);
       cell(tr, "Lv." + number(student.level));
-      cell(tr, number(student.points), "points");
-      cell(tr, growth(student.observedGrowth), student.observedGrowth > 0 ? "growth-positive" :
-        student.observedGrowth < 0 ? "growth-negative" : "");
+      pointsCell(tr, student.points);
+      hintGrowth(cell(tr, growth(student.observedGrowth), student.observedGrowth > 0 ? "growth-positive" :
+        student.observedGrowth < 0 ? "growth-negative" : ""), student.observedGrowth);
       body.appendChild(tr);
     });
     byId("ranking-count").textContent = number(matches.length) + "명" + (pages ? " · " + (page + 1) + " / " + pages + "페이지" : "");
@@ -129,7 +229,7 @@
     var svg = element("svg", { viewBox: "0 0 " + width + " " + height, role: "img", "aria-label": "관측된 학습 점수 추이. 아래 표에서 정확한 값을 확인할 수 있습니다." });
     [0, .5, 1].forEach(function (fraction) {
       var y = padding + (height - padding * 2) * fraction;
-      svg.appendChild(element("line", { x1: padding, y1: y, x2: width - 10, y2: y, stroke: "#2b3c58", "stroke-dasharray": "3 5" }));
+      svg.appendChild(element("line", { x1: padding, y1: y, x2: width - 10, y2: y, class: "chart-grid", stroke: "#2b3c58", "stroke-dasharray": "3 5" }));
     });
     var points = history.map(function (p) {
       return [
@@ -137,16 +237,16 @@
         height - padding - ((p.points - minPoints) / range) * (height - padding * 2),
       ];
     });
-    svg.appendChild(element("polyline", { points: points.map(function (p) { return p.join(","); }).join(" "), fill: "none", stroke: "#6de3ba", "stroke-width": "3", "stroke-linejoin": "round" }));
+    svg.appendChild(element("polyline", { points: points.map(function (p) { return p.join(","); }).join(" "), fill: "none", class: "chart-line", stroke: "#6de3ba", "stroke-width": "3", "stroke-linejoin": "round" }));
     points.forEach(function (p, i) {
-      var circle = element("circle", { cx: p[0], cy: p[1], r: 3, fill: "#b9ffe6" });
+      var circle = element("circle", { cx: p[0], cy: p[1], r: 3, class: "chart-dot", fill: "#b9ffe6" });
       var title = element("title", {});
       title.textContent = time(history[i].at) + " · " + number(history[i].points) + "점";
       circle.appendChild(title);
       svg.appendChild(circle);
     });
     [[padding, 16, number(maxPoints) + "점"], [padding, height - 8, time(history[0].at)]].forEach(function (label) {
-      var text = element("text", { x: label[0], y: label[1], fill: "#a4b3cc", "font-size": "11" });
+      var text = element("text", { x: label[0], y: label[1], class: "chart-label", fill: "#a4b3cc", "font-size": "11" });
       text.textContent = label[2];
       svg.appendChild(text);
     });
@@ -161,6 +261,7 @@
     byId("report-school").textContent = student.school;
     byId("report-points").textContent = number(student.points);
     byId("report-growth").textContent = growth(student.observedGrowth);
+    hintGrowth(byId("report-growth"), student.observedGrowth);
     byId("report-updated").textContent = "Dataverse 최종 수정: " + time(student.modifiedAt) + " (한국 시간)";
     byId("history-status").textContent = student.history.length ?
       "관측 " + student.history.length + "회 · 시작 " + time(student.history[0].at) + " (한국 시간)" : "수집 기록 없음";
@@ -283,6 +384,7 @@
   window.addEventListener("pco-session-changed", loadPresence);
   setInterval(function () { if (!document.hidden) loadDashboard(); }, 60000);
   setInterval(function () { if (!document.hidden) loadPresence(); }, 15000);
+  renderScoring();
   loadDashboard();
   loadPresence();
 })();

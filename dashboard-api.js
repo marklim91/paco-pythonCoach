@@ -198,7 +198,7 @@ function createDashboardHandlers({
             school: schoolStudents.filter(entry => entry.points > student.points).length + 1,
             schoolStudents: schoolStudents.length,
           },
-          guide: getLearningGuide(student.level),
+          guide: getLearningGuide(stageForPoints(student.points)),
           historyNote: '이 서버가 수집한 최근 90일 점수 관측값입니다. 최초 수집 이전의 성장이나 실제 학습 횟수는 포함하지 않습니다.',
         });
       } else {
@@ -247,4 +247,4 @@ async function fetchDashboardStudents({ flowUrl, fetchImpl = globalThis.fetch, t
 }
 
 module.exports = { createDashboardHandlers, latestStudents, rankStudents, fetchDashboardStudents };
-const { getLearningGuide } = require('./learning-guide');
+const { getLearningGuide, stageForPoints } = require('./learning-guide');

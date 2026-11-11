@@ -60,7 +60,7 @@
     schools: schools,
     isLoggedIn: isLoggedIn,
     saveLogin: saveLogin,
-    homeUrl: new URL("index.html", baseUrl).href,
+    homeUrl: new URL("new.html", baseUrl).href,
     verifyUrl: new URL("api/login/verify", baseUrl).href,
   };
 

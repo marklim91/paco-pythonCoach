@@ -9,9 +9,9 @@ const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
 const ROUTE_ALIASES = {
-  '/': '/index.html',
+  '/': '/new.html',
   '/파코v3': '/index.html',
-  '/dge.go.kr/pco': '/index.html',
+  '/dge.go.kr/pco': '/new.html',
   '/dge.go.kr/pco/파코v3': '/index.html',
   '/dashboard': '/dashboard.html',
   '/대시보드': '/dashboard.html',

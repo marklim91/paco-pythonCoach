@@ -75,6 +75,7 @@ test('static shell retains repository-relative navigation without a presence scr
   assert.equal(inserted.length, 1);
   assert.match(inserted[0].innerHTML, /href="\/paco-pythonCoach\/dashboard.html"/);
   assert.match(inserted[0].innerHTML, /href="\/paco-pythonCoach\/my-learning.html"/);
+  assert.doesNotMatch(inserted[0].innerHTML, /파코\(v3\)|index\.html/);
   assert.equal(nodes['pco-session-status'].textContent, '공개 정적 리포트 · 로그인 미지원');
   assert.equal(nodes['pco-session-login'].hidden, true);
 });
