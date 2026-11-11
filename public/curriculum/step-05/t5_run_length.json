@@ -1,0 +1,52 @@
+{
+  "id": "t5_run_length",
+  "title": "같은 글자는 한 번에 줄여요",
+  "topic": "연속 글자 압축",
+  "level": "응용",
+  "minutes": 20,
+  "description": [
+    "문자열을 짧게 저장하려고 연속해서 같은 글자가 나오면 글자 뒤에 반복 횟수를 붙여 줄이는 방법이 있어요.",
+    "영어 소문자 문자열을 입력받아, 연속으로 같은 글자가 나오는 구간마다 글자와 그 개수를 차례로 이어 붙여 출력해주세요. 한 번만 나온 글자도 뒤에 1을 붙여요. (예: aaabb → a3b2)"
+  ],
+  "input": "영어 소문자로 이루어진 문자열 한 줄이 주어집니다.",
+  "output": "압축한 문자열을 한 줄로 출력합니다.",
+  "constraints": [
+    "문자열 길이는 1 이상 100 이하입니다.",
+    "떨어져 있는 같은 글자는 따로 셉니다. (예: aabaa → a2b1a2)",
+    "개수가 두 자리여도 그대로 붙입니다. (예: 12개 → 12)"
+  ],
+  "concept": "문자열을 앞에서부터 훑으면서 지금 글자가 바로 앞 글자와 같으면 개수를 늘리고, 다르면 지금까지의 결과를 저장한 뒤 새로 세기 시작해요. 마지막 구간은 반복문이 끝난 뒤에도 저장해야 한다는 점을 잊지 마세요. 정수를 문자열로 붙일 때는 str()을 사용해요.",
+  "conceptCode": "text = \"hi\"\nprev = text[0]\ncount = 1\nprint(prev + str(count))",
+  "starter": "text = input().strip()\n\n# 앞 글자와 같은지 비교하며 개수를 세어보세요.\n",
+  "solution": "text = input().strip()\nresult = \"\"\nprev = text[0]\ncount = 1\nfor ch in text[1:]:\n    if ch == prev:\n        count += 1\n    else:\n        result += prev + str(count)\n        prev = ch\n        count = 1\nresult += prev + str(count)\nprint(result)\n",
+  "hints": [
+    "현재 구간의 글자(prev)와 개수(count)를 변수로 기억하세요. 처음에는 첫 글자와 1로 시작해요.",
+    "두 번째 글자부터 보면서 같으면 count를 늘리고, 다르면 prev + str(count)를 결과에 붙이고 새 구간을 시작해요. 반복문이 끝난 뒤 마지막 구간도 결과에 붙여야 해요."
+  ],
+  "tests": [
+    {
+      "input": "aaabb",
+      "output": "a3b2"
+    },
+    {
+      "input": "abc",
+      "output": "a1b1c1"
+    },
+    {
+      "input": "a",
+      "output": "a1"
+    },
+    {
+      "input": "zzzzzzzzzzzz",
+      "output": "z12"
+    },
+    {
+      "input": "aabaa",
+      "output": "a2b1a2"
+    },
+    {
+      "input": "wwwwbbbwwwx",
+      "output": "w4b3w3x1"
+    }
+  ]
+}

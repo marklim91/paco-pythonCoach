@@ -1,0 +1,48 @@
+{
+  "id": "t6_walk_steps",
+  "title": "일주일 걸음 수 기록",
+  "topic": "리스트 합계",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "건강 앱에는 매일 걸은 걸음 수가 차곡차곡 쌓여 있어요.",
+    "공백으로 구분된 걸음 수들을 입력받아 첫째 줄에 전체 합계를, 둘째 줄에 평균을 소수 둘째 자리까지 출력해주세요."
+  ],
+  "input": "한 줄에 정수 1개 이상 20개 이하가 공백으로 구분되어 주어집니다.",
+  "output": "첫째 줄에 합계, 둘째 줄에 평균(소수 둘째 자리까지, 예: 12.50)을 출력합니다.",
+  "constraints": [
+    "1 ≤ 정수의 개수 ≤ 20",
+    "-10,000 ≤ 각 정수 ≤ 10,000",
+    "평균은 f\"{값:.2f}\" 형식으로 출력하세요."
+  ],
+  "concept": "리스트는 여러 값을 한 줄로 묶어 담는 상자예요. input().split()으로 나눈 글자들을 map(int, ...)로 정수로 바꾼 뒤 list()로 감싸면 리스트가 돼요. sum(리스트)는 모든 값의 합, len(리스트)는 값의 개수를 알려줘요.",
+  "conceptCode": "scores = list(map(int, input().split()))\nprint(sum(scores))\nprint(len(scores))",
+  "starter": "nums = list(map(int, input().split()))\n\n# 합계와 평균을 출력해주세요.\n",
+  "solution": "nums = list(map(int, input().split()))\ntotal = sum(nums)\nprint(total)\nprint(f\"{total / len(nums):.2f}\")\n",
+  "hints": [
+    "합계는 sum()으로, 개수는 len()으로 구할 수 있어요.",
+    "평균은 합계를 개수로 나눈 값이에요. 소수 둘째 자리는 f\"{값:.2f}\" 형식을 사용해요."
+  ],
+  "tests": [
+    {
+      "input": "6000 7500 8200",
+      "output": "21700\n7233.33"
+    },
+    {
+      "input": "12 7 9 12",
+      "output": "40\n10.00"
+    },
+    {
+      "input": "-30 10 -5 4",
+      "output": "-21\n-5.25"
+    },
+    {
+      "input": "9999",
+      "output": "9999\n9999.00"
+    },
+    {
+      "input": "0 0 0 0 0",
+      "output": "0\n0.00"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "t9_sticker_sums",
+  "title": "칭찬 스티커 합계표",
+  "topic": "행·열 합",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "우리 반 자리표에는 자리마다 그 학생이 받은 칭찬 스티커 개수가 적혀 있어요.",
+    "R줄 C칸의 표가 주어질 때, 첫째 줄에 각 줄(가로)의 합을 순서대로, 둘째 줄에 각 칸 세로줄(열)의 합을 순서대로 출력해주세요. 숫자 사이는 공백 한 칸으로 구분해요."
+  ],
+  "input": "첫째 줄에 정수 R, C가 주어집니다. 다음 R개의 줄에는 각각 C개의 정수가 공백으로 구분되어 주어집니다.",
+  "output": "첫째 줄에 R개의 가로줄 합, 둘째 줄에 C개의 세로줄 합을 공백으로 구분해 출력합니다.",
+  "constraints": [
+    "1 ≤ R, C ≤ 10",
+    "0 ≤ 각 칸의 값 ≤ 100"
+  ],
+  "concept": "2차원 리스트는 리스트 안에 리스트가 들어 있는 표예요. grid[r][c]는 r번째 줄의 c번째 칸이고, 번호는 0부터 시작해요. 가로줄 합은 줄 하나를 sum()으로 더하면 되고, 세로줄 합은 줄 번호를 바꿔가며 같은 칸 번호의 값을 더해야 해요.",
+  "conceptCode": "grid = [[1, 2, 3], [4, 5, 6]]\nprint(grid[1][2])\nprint(sum(grid[0]))\nprint(grid[0][1] + grid[1][1])",
+  "starter": "R, C = map(int, input().split())\ngrid = [list(map(int, input().split())) for _ in range(R)]\n\n# 가로줄 합을 출력하고, 이어서 세로줄 합을 출력해보세요.\n",
+  "solution": "R, C = map(int, input().split())\ngrid = [list(map(int, input().split())) for _ in range(R)]\n\nrow_sums = [sum(row) for row in grid]\ncol_sums = []\nfor c in range(C):\n    total = 0\n    for r in range(R):\n        total += grid[r][c]\n    col_sums.append(total)\nprint(*row_sums)\nprint(*col_sums)\n",
+  "hints": [
+    "가로줄 합은 grid의 각 줄(row)에 sum()을 쓰면 돼요.",
+    "세로줄 합은 바깥 반복이 칸 번호 c, 안쪽 반복이 줄 번호 r이 되도록 이중 반복문을 만들어 grid[r][c]를 더해보세요.",
+    "리스트를 공백으로 구분해 출력하려면 print(*리스트)를 사용할 수 있어요."
+  ],
+  "tests": [
+    {
+      "input": "2 3\n1 2 3\n4 5 6",
+      "output": "6 15\n5 7 9"
+    },
+    {
+      "input": "3 3\n0 0 0\n0 0 0\n0 0 0",
+      "output": "0 0 0\n0 0 0"
+    },
+    {
+      "input": "1 1\n7",
+      "output": "7\n7"
+    },
+    {
+      "input": "1 4\n5 0 3 9",
+      "output": "17\n5 0 3 9"
+    },
+    {
+      "input": "4 1\n2\n4\n6\n8",
+      "output": "2 4 6 8\n20"
+    },
+    {
+      "input": "3 4\n100 100 100 100\n100 100 100 100\n100 100 100 100",
+      "output": "400 400 400\n300 300 300 300"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "t10_change_coins",
+  "title": "최소 동전으로 거스름돈",
+  "topic": "동적 계획법",
+  "level": "심화",
+  "minutes": 35,
+  "description": [
+    "편의점 직원이 거스름돈을 주려는데, 가진 동전 종류가 특이해서 큰 동전부터 주는 방법이 항상 최선은 아니에요.",
+    "동전 종류 n가지(각 종류는 무제한으로 사용 가능)와 거슬러 줄 금액 amount가 주어질 때, 금액을 정확히 만드는 데 필요한 동전의 최소 개수를 출력해주세요. 만들 수 없으면 -1을 출력해주세요."
+  ],
+  "input": "첫 줄에 n과 amount가 주어지고, 둘째 줄에 n개의 동전 금액이 공백으로 구분되어 주어집니다.",
+  "output": "필요한 동전의 최소 개수를 출력합니다. 만들 수 없으면 -1을 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 20",
+    "0 ≤ amount ≤ 10,000",
+    "1 ≤ 동전 금액 ≤ 10,000, 동전 금액은 서로 다릅니다.",
+    "amount가 0이면 동전이 필요 없으니 0을 출력합니다."
+  ],
+  "concept": "큰 문제를 작은 문제의 답으로 풀고, 이미 구한 답을 표에 저장해 재사용하는 방법을 동적 계획법(DP)이라고 해요. dp[x]를 \"x원을 만드는 최소 동전 수\"로 정의하면, 마지막에 쓴 동전 c에 대해 dp[x - c] + 1 중 가장 작은 값이 dp[x]가 돼요.",
+  "conceptCode": "INF = 10**9\ndp = [0] + [INF] * 5\nprint(dp)\nprint(min(INF, 3 + 1))",
+  "starter": "n, amount = map(int, input().split())\ncoins = list(map(int, input().split()))\n\nINF = 10 ** 9\n# dp[x] = x원을 만드는 최소 동전 수 (아직 못 만들면 INF)\ndp = [0] + [INF] * amount\n\n# 1원부터 amount원까지 차례로 채워보세요.\n\n# 만들 수 없으면 -1을 출력해요.\n",
+  "solution": "n, amount = map(int, input().split())\ncoins = list(map(int, input().split()))\nINF = 10 ** 9\ndp = [0] + [INF] * amount\nfor x in range(1, amount + 1):\n    for c in coins:\n        if c <= x and dp[x - c] + 1 < dp[x]:\n            dp[x] = dp[x - c] + 1\nprint(dp[amount] if dp[amount] < INF else -1)\n",
+  "hints": [
+    "dp[0] = 0으로 두고, 나머지는 \"아직 못 만듦\"을 뜻하는 아주 큰 값으로 시작해요.",
+    "x원마다 모든 동전 c를 시험해 보세요. c <= x 이고 dp[x - c]를 만들 수 있으면 dp[x - c] + 1이 후보예요.",
+    "후보 중 가장 작은 값을 dp[x]에 저장하고, 마지막에 dp[amount]가 여전히 큰 값이면 -1을 출력해요."
+  ],
+  "tests": [
+    {
+      "input": "3 11\n1 2 5",
+      "output": "3"
+    },
+    {
+      "input": "2 7\n2 4",
+      "output": "-1"
+    },
+    {
+      "input": "3 6\n1 3 4",
+      "output": "2"
+    },
+    {
+      "input": "1 0\n7",
+      "output": "0"
+    },
+    {
+      "input": "2 3\n2 5",
+      "output": "-1"
+    },
+    {
+      "input": "4 9999\n7 13 29 101",
+      "output": "99"
+    },
+    {
+      "input": "3 10000\n5 25 100",
+      "output": "100"
+    }
+  ]
+}

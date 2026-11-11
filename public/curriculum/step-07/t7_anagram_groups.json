@@ -1,0 +1,53 @@
+{
+  "id": "t7_anagram_groups",
+  "title": "글자만 바꾼 낱말 모으기",
+  "topic": "애너그램",
+  "level": "도전",
+  "minutes": 25,
+  "description": [
+    "eat, tea, ate는 글자 순서만 다를 뿐 쓰이는 글자가 똑같은 낱말이에요. 이런 낱말을 애너그램이라고 불러요.",
+    "서로 다른 영어 소문자 낱말 n개가 주어져요. 애너그램인 낱말끼리 묶어서, 2개 이상 모인 묶음만 출력해주세요. 한 묶음은 낱말을 사전순으로 정렬해 공백으로 이은 한 줄로 쓰고, 묶음(줄)들은 각 줄의 첫 낱말 기준 사전순으로 출력해요. 묶음이 하나도 없으면 '없음'을 출력해요."
+  ],
+  "input": "첫 줄에 n, 둘째 줄에 공백으로 구분된 n개의 낱말이 주어집니다.",
+  "output": "묶음마다 한 줄씩, 낱말을 공백으로 이어 출력합니다. 묶음이 없으면 '없음'을 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 200",
+    "낱말은 영어 소문자로만 이루어지고 길이는 1 이상 20 이하이며, 모두 서로 다릅니다.",
+    "낱말이 1개뿐인 묶음은 출력하지 않습니다."
+  ],
+  "concept": "낱말의 글자를 정렬하면 애너그램끼리는 똑같은 모양이 돼요. 예: 'eat'과 'tea' 모두 'aet'. 이렇게 정렬한 글자를 딕셔너리의 키로 쓰고, 값에는 원래 낱말 리스트를 모아요. 문자열 리스트는 ''.join(sorted(word))로 다시 문자열로 만들 수 있어요.",
+  "conceptCode": "word = 'tea'\nkey = ''.join(sorted(word))\nprint(key)\nprint(sorted(['b', 'a']))",
+  "starter": "n = int(input())\nwords = input().split()\n\n# 글자를 정렬한 모양을 키로 사용해 낱말을 모아보세요.\n",
+  "solution": "n = int(input())\nwords = input().split()\ngroups = {}\nfor w in words:\n    key = \"\".join(sorted(w))\n    groups.setdefault(key, []).append(w)\n\nlines = []\nfor members in groups.values():\n    if len(members) >= 2:\n        lines.append(sorted(members))\nlines.sort()\n\nif not lines:\n    print(\"없음\")\nfor members in lines:\n    print(\" \".join(members))\n",
+  "hints": [
+    "각 낱말의 글자를 정렬해서 만든 문자열이 같으면 애너그램이에요. 그 문자열을 딕셔너리 키로 써보세요.",
+    "키별로 낱말 리스트를 모은 뒤, 길이가 2 이상인 묶음만 골라요.",
+    "각 묶음을 sorted()로 정렬한 리스트들을 다시 sort()하면 첫 낱말 기준으로 줄 순서가 정해져요. 리스트끼리의 비교는 앞 원소부터 해요."
+  ],
+  "tests": [
+    {
+      "input": "6\neat tea tan ate nat bat",
+      "output": "ate eat tea\nnat tan"
+    },
+    {
+      "input": "3\ncat dog bird",
+      "output": "없음"
+    },
+    {
+      "input": "1\nsolo",
+      "output": "없음"
+    },
+    {
+      "input": "5\nlisten silent enlist google gogole",
+      "output": "enlist listen silent\ngogole google"
+    },
+    {
+      "input": "4\nab ba ac ca",
+      "output": "ab ba\nac ca"
+    },
+    {
+      "input": "7\nstar rats arts tars tsar a b",
+      "output": "arts rats star tars tsar"
+    }
+  ]
+}

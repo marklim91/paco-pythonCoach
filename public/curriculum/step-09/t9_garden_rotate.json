@@ -1,0 +1,52 @@
+{
+  "id": "t9_garden_rotate",
+  "title": "화분 배치도 돌리기",
+  "topic": "표 회전",
+  "level": "응용",
+  "minutes": 15,
+  "description": [
+    "옥상 정원의 화분 배치도를 시계 방향으로 90도 돌려서 다른 방향에서 바라본 모습으로 바꾸고 싶어요.",
+    "R줄 C칸의 배치도가 주어지면, 시계 방향으로 90도 돌린 결과를 출력해주세요. 돌린 결과는 C줄 R칸이 됩니다."
+  ],
+  "input": "첫째 줄에 정수 R, C가 주어집니다. 다음 R개의 줄에는 공백 없이 C개의 문자(영문자, 숫자, '.', '#')가 주어집니다.",
+  "output": "시계 방향으로 90도 돌린 C줄 R칸의 배치도를 공백 없이 출력합니다.",
+  "constraints": [
+    "1 ≤ R, C ≤ 10",
+    "문자열에는 공백이 없습니다."
+  ],
+  "concept": "표를 시계 방향으로 돌리면 원래의 왼쪽 열이 새로운 맨 윗줄이 되는데, 이때 원래 아래쪽 줄부터 위쪽 줄 순서로 읽어요. 새 표의 한 줄을 만들 때 원래 표의 같은 칸 번호를 아래에서 위로 모으면 돼요. range(R - 1, -1, -1)은 R-1부터 0까지 거꾸로 세요.",
+  "conceptCode": "for i in range(3, -1, -1):\n    print(i, end=' ')\nprint()\nprint(''.join(['a', 'b', 'c']))",
+  "starter": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\n# 새 표의 한 줄은 원래 표의 같은 칸 번호를 아래에서 위로 모은 것이에요.\n",
+  "solution": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\nfor c in range(C):\n    line = \"\"\n    for r in range(R - 1, -1, -1):\n        line += grid[r][c]\n    print(line)\n",
+  "hints": [
+    "결과는 C줄이에요. 바깥 반복은 칸 번호 c가 0부터 C-1까지 돌아요.",
+    "새로운 한 줄은 원래 표의 줄 번호를 R-1부터 0까지 거꾸로 돌면서 grid[r][c]를 이어 붙여 만들어요.",
+    "'ABC'와 'DEF' 두 줄을 돌리면 첫 줄은 'DA'가 되는지 손으로 확인해보세요."
+  ],
+  "tests": [
+    {
+      "input": "2 3\nABC\nDEF",
+      "output": "DA\nEB\nFC"
+    },
+    {
+      "input": "3 3\n.T.\nTTT\n.T.",
+      "output": ".T.\nTTT\n.T."
+    },
+    {
+      "input": "1 1\nR",
+      "output": "R"
+    },
+    {
+      "input": "1 4\nabcd",
+      "output": "a\nb\nc\nd"
+    },
+    {
+      "input": "4 1\nx\ny\nz\n1",
+      "output": "1zyx"
+    },
+    {
+      "input": "3 5\n#...#\n.#.#.\n..#..",
+      "output": "..#\n.#.\n#..\n.#.\n..#"
+    }
+  ]
+}

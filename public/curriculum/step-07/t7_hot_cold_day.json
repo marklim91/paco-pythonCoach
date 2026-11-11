@@ -1,0 +1,52 @@
+{
+  "id": "t7_hot_cold_day",
+  "title": "가장 더운 날, 가장 추운 날",
+  "topic": "튜플",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "일기예보를 보면 이번 주에 가장 더운 날과 가장 추운 날이 언제인지 궁금해져요.",
+    "n일 동안의 낮 최고기온이 날짜 순서대로 주어져요. 가장 높았던 날과 가장 낮았던 날의 (날짜, 기온)을 찾아 첫째 줄에 '최고 날짜일 기온', 둘째 줄에 '최저 날짜일 기온' 형식으로 출력해주세요. 같은 기온이 여러 날이라면 가장 빠른 날짜를 골라요. 날짜는 1일부터 세어요."
+  ],
+  "input": "첫 줄에 일수 n, 둘째 줄에 공백으로 구분된 n개의 정수(기온)가 주어집니다.",
+  "output": "두 줄을 출력합니다. 예: 최고 3일 31 / 최저 4일 19 (각각 한 줄)",
+  "constraints": [
+    "1 ≤ n ≤ 31",
+    "-30 ≤ 기온 ≤ 50",
+    "출력 형식은 '최고 3일 31'처럼 단어 사이에 공백 하나씩만 둡니다."
+  ],
+  "concept": "튜플은 (3, 31)처럼 여러 값을 소괄호로 묶은 한 쌍이에요. 한 번 만들면 바꿀 수 없고, a, b = pair 처럼 한꺼번에 풀어서 변수에 담을 수 있어요(언패킹). enumerate(리스트, 1)은 (번호, 값) 튜플을 1번부터 차례로 만들어줘요.",
+  "conceptCode": "pair = (3, 31)\nday, temp = pair\nprint(day, temp)\nfor no, x in enumerate([5, 7], 1):\n    print(no, x)",
+  "starter": "n = int(input())\ntemps = list(map(int, input().split()))\n\n# (날짜, 기온) 튜플로 가장 더운 날과 추운 날을 기억해보세요.\n",
+  "solution": "n = int(input())\ntemps = list(map(int, input().split()))\nhot = (1, temps[0])\ncold = (1, temps[0])\nfor day, t in enumerate(temps, 1):\n    if t > hot[1]:\n        hot = (day, t)\n    if t < cold[1]:\n        cold = (day, t)\nhot_day, hot_temp = hot\ncold_day, cold_temp = cold\nprint(f\"최고 {hot_day}일 {hot_temp}\")\nprint(f\"최저 {cold_day}일 {cold_temp}\")\n",
+  "hints": [
+    "지금까지 가장 더웠던 날을 (날짜, 기온) 튜플 하나로 들고 다니며, 더 더운 날을 만나면 통째로 바꿔요.",
+    "시작값은 첫째 날로 두세요. 기온이 '같을 때'는 바꾸지 않아야 가장 빠른 날짜가 남아요. 비교는 > 와 < 를 써요."
+  ],
+  "tests": [
+    {
+      "input": "5\n21 25 31 19 25",
+      "output": "최고 3일 31\n최저 4일 19"
+    },
+    {
+      "input": "7\n12 15 15 9 20 20 11",
+      "output": "최고 5일 20\n최저 4일 9"
+    },
+    {
+      "input": "1\n10",
+      "output": "최고 1일 10\n최저 1일 10"
+    },
+    {
+      "input": "4\n5 5 5 5",
+      "output": "최고 1일 5\n최저 1일 5"
+    },
+    {
+      "input": "3\n-3 -10 -10",
+      "output": "최고 1일 -3\n최저 2일 -10"
+    },
+    {
+      "input": "6\n-5 -2 -8 -8 0 0",
+      "output": "최고 5일 0\n최저 3일 -8"
+    }
+  ]
+}

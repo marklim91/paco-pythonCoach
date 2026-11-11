@@ -102,6 +102,13 @@ test('studio page and connectivity probes are never cached or answered from cach
   assert.equal(probe.intercepted, false);
 });
 
+test('studio problem files are left to the network and never cached', async () => {
+  const worker = loadWorker({ online: true });
+  const problem = await worker.run('https://example.test/paco/curriculum/step-01/hello.json', 'cors');
+  assert.equal(problem.intercepted, false);
+  assert.equal(worker.puts.length, 0);
+});
+
 test('offline page is precached and self-contained', () => {
   const sw = fs.readFileSync(path.join(__dirname, '..', 'public', 'sw.js'), 'utf8');
   assert.match(sw, /const OFFLINE_URL = '\.\/offline\.html'/);

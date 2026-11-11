@@ -1,0 +1,48 @@
+{
+  "id": "t3_vending",
+  "title": "자판기 음료수 살 수 있을까?",
+  "topic": "비교 연산",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": [
+    "자판기 앞에서 지갑을 열어 보니 돈이 모자랄지도 모르겠어요.",
+    "음료수 가격 p와 내가 가진 돈 m을 입력받아, 살 수 있으면 YES, 살 수 없으면 NO를 출력해주세요. 가진 돈이 가격과 똑같아도 살 수 있어요."
+  ],
+  "input": "한 줄에 공백으로 구분된 두 정수 p, m이 주어집니다.",
+  "output": "YES 또는 NO를 출력합니다.",
+  "constraints": [
+    "100 ≤ p ≤ 5,000",
+    "0 ≤ m ≤ 10,000",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "비교 연산자 >=, <=, >, <, ==, !=는 두 값을 비교해서 True 또는 False를 만들어요. if와 else를 함께 쓰면 비교 결과에 따라 다른 글자를 출력할 수 있어요.",
+  "conceptCode": "a = 5\nb = 3\nprint(a >= b)\nif a >= b:\n    print(\"a가 더 크거나 같아요\")",
+  "starter": "p, m = map(int, input().split())\n\n# m이 p 이상인지 비교해보세요.\n",
+  "solution": "p, m = map(int, input().split())\nif m >= p:\n    print(\"YES\")\nelse:\n    print(\"NO\")\n",
+  "hints": [
+    "내 돈 m이 가격 p보다 크거나 같은지 비교하면 돼요.",
+    "크거나 같다는 >= 로 쓰고, if 조건 뒤에는 콜론(:)을 붙여주세요."
+  ],
+  "tests": [
+    {
+      "input": "1500 2000",
+      "output": "YES"
+    },
+    {
+      "input": "1500 1000",
+      "output": "NO"
+    },
+    {
+      "input": "1200 1200",
+      "output": "YES"
+    },
+    {
+      "input": "1200 1199",
+      "output": "NO"
+    },
+    {
+      "input": "100 0",
+      "output": "NO"
+    }
+  ]
+}

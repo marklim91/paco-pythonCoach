@@ -1,0 +1,43 @@
+{
+  "id": "sum",
+  "title": "두 숫자의 합",
+  "topic": "변수와 입력",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "친구와 모은 구슬은 모두 몇 개일까요?",
+    "공백으로 구분된 두 정수 a, b를 입력받아 합을 출력해주세요."
+  ],
+  "input": "한 줄에 두 정수 a, b가 주어집니다.",
+  "output": "a + b의 값을 출력합니다.",
+  "constraints": [
+    "-1,000 ≤ a, b ≤ 1,000",
+    "입력은 정수 두 개입니다."
+  ],
+  "concept": "input()은 한 줄을 읽고, split()은 공백으로 나눠요. map(int, ...)를 사용하면 글자를 정수로 바꿀 수 있어요.",
+  "conceptCode": "a, b = map(int, input().split())\nprint(a)\nprint(b)",
+  "starter": "# 두 정수를 입력받아요.\na, b = map(int, input().split())\n\n# 두 수의 합을 출력해주세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(a + b)\n",
+  "hints": [
+    "덧셈에는 + 기호를 사용해요.",
+    "print(a + b)를 사용하면 두 변수의 합을 출력할 수 있어요."
+  ],
+  "tests": [
+    {
+      "input": "3 5",
+      "output": "8"
+    },
+    {
+      "input": "0 0",
+      "output": "0"
+    },
+    {
+      "input": "-8 3",
+      "output": "-5"
+    },
+    {
+      "input": "1000 1000",
+      "output": "2000"
+    }
+  ]
+}

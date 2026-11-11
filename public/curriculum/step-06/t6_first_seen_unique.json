@@ -1,0 +1,53 @@
+{
+  "id": "t6_first_seen_unique",
+  "title": "중복 신청 정리하기",
+  "topic": "중복 제거",
+  "level": "응용",
+  "minutes": 15,
+  "description": [
+    "동아리 신청서에 번호를 적었는데 같은 번호를 여러 번 낸 친구들이 있어요.",
+    "번호들을 입력받아 처음 나온 순서는 그대로 두고 중복된 번호는 뒤에서 지운 리스트를 첫째 줄에 공백으로 구분해 출력해주세요. 둘째 줄에는 지워진 번호의 개수를 출력해요."
+  ],
+  "input": "한 줄에 정수 1개 이상 30개 이하가 공백으로 구분되어 주어집니다.",
+  "output": "첫째 줄에 중복을 제거한 번호들을, 둘째 줄에 제거된 개수를 출력합니다.",
+  "constraints": [
+    "1 ≤ 정수의 개수 ≤ 30",
+    "-100 ≤ 각 정수 ≤ 100",
+    "처음 나온 순서를 유지해야 하므로 sorted나 set 순서에 기대면 안 됩니다."
+  ],
+  "concept": "새 빈 리스트를 만들고 원래 값을 하나씩 꺼내면서, 아직 들어 있지 않은 값만 append로 추가할 수 있어요. 어떤 값이 리스트 안에 있는지는 x in 리스트, 없는지는 x not in 리스트로 확인해요. 이 방법은 처음 나온 순서를 그대로 지켜줘요.",
+  "conceptCode": "seen = []\nfor x in [2, 7, 2]:\n    if x not in seen:\n        seen.append(x)\nprint(seen)",
+  "starter": "nums = list(map(int, input().split()))\n\n# 처음 나온 순서를 지키며 중복을 없애보세요.\n",
+  "solution": "nums = list(map(int, input().split()))\nunique = []\nfor x in nums:\n    if x not in unique:\n        unique.append(x)\nprint(*unique)\nprint(len(nums) - len(unique))\n",
+  "hints": [
+    "빈 리스트를 하나 만들어서 '이미 본 번호'를 모아두세요.",
+    "번호를 하나씩 보면서 x not in 리스트일 때만 append 해요.",
+    "지워진 개수는 처음 개수에서 남은 개수를 빼면 돼요."
+  ],
+  "tests": [
+    {
+      "input": "3 1 3 2 1",
+      "output": "3 1 2\n2"
+    },
+    {
+      "input": "1 2 3",
+      "output": "1 2 3\n0"
+    },
+    {
+      "input": "5 5 5 5",
+      "output": "5\n3"
+    },
+    {
+      "input": "7",
+      "output": "7\n0"
+    },
+    {
+      "input": "-1 2 -1 0 2 0",
+      "output": "-1 2 0\n3"
+    },
+    {
+      "input": "9 8 9 7 8 6 9",
+      "output": "9 8 7 6\n3"
+    }
+  ]
+}

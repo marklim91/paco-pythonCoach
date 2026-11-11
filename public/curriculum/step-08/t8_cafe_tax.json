@@ -1,0 +1,53 @@
+{
+  "id": "t8_cafe_tax",
+  "title": "카페 주문 금액 계산기",
+  "topic": "기본값 매개변수",
+  "level": "기초",
+  "minutes": 10,
+  "description": [
+    "카페에서는 음료 가격에 부가세가 붙는데, 특별한 말이 없으면 보통 10%를 적용해요.",
+    "한 줄에 가격 price가 주어지고, 선택적으로 세율 rate(%)가 함께 주어져요. 세율이 없으면 10%를 사용해 합계 price + price × rate ÷ 100 을 구해 출력해주세요. 세금 부분은 소수점 이하를 버려요(정수 나눗셈)."
+  ],
+  "input": "한 줄에 정수 price가 주어지고, 뒤에 정수 rate가 있을 수도 있습니다. (공백으로 구분)",
+  "output": "세금을 포함한 금액을 정수로 출력합니다.",
+  "constraints": [
+    "0 ≤ price ≤ 100,000",
+    "0 ≤ rate ≤ 100",
+    "rate가 주어지지 않으면 10을 사용합니다."
+  ],
+  "concept": "매개변수에 rate=10 처럼 기본값을 적어두면, 호출할 때 값을 생략해도 그 기본값이 사용돼요. 값을 넘기면 기본값 대신 그 값이 쓰여요. 리스트 앞에 *를 붙이면 리스트의 원소들을 하나씩 풀어서 함수에 넘겨줄 수 있어요.",
+  "conceptCode": "def hello(name, greeting=\"안녕\"):\n    return greeting + \", \" + name\n\nprint(hello(\"민수\"))\nprint(hello(\"민수\", \"반가워\"))",
+  "starter": "def total_price(price, rate=10):\n    # TODO: 세금(price * rate // 100)을 더한 금액을 돌려주세요.\n    return 0\n\nvalues = list(map(int, input().split()))\n# TODO: values의 개수에 상관없이 total_price를 호출해 결과를 출력하세요.\n",
+  "solution": "def total_price(price, rate=10):\n    return price + price * rate // 100\n\nvalues = list(map(int, input().split()))\nprint(total_price(*values))\n",
+  "hints": [
+    "입력이 한 개일 수도 두 개일 수도 있으니 split() 결과를 리스트로 받아 두면 편해요.",
+    "total_price(*values)처럼 리스트 앞에 *를 쓰면 원소 개수만큼 인자로 전달돼요.",
+    "세금은 price * rate // 100 이에요. 함수 안에서 price에 더해서 돌려주세요."
+  ],
+  "tests": [
+    {
+      "input": "4500",
+      "output": "4950"
+    },
+    {
+      "input": "4500 0",
+      "output": "4500"
+    },
+    {
+      "input": "12000 5",
+      "output": "12600"
+    },
+    {
+      "input": "999 3",
+      "output": "1028"
+    },
+    {
+      "input": "0",
+      "output": "0"
+    },
+    {
+      "input": "100000 100",
+      "output": "200000"
+    }
+  ]
+}

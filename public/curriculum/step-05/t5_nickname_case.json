@@ -1,0 +1,51 @@
+{
+  "id": "t5_nickname_case",
+  "title": "닉네임 대문자 · 소문자",
+  "topic": "대소문자",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "게임 닉네임을 등록하려는데 대문자 버전과 소문자 버전이 모두 필요해요.",
+    "닉네임 한 줄을 입력받아 첫째 줄에는 모두 대문자로, 둘째 줄에는 모두 소문자로 바꾼 닉네임을 출력해주세요."
+  ],
+  "input": "영어 글자, 숫자, 공백으로 이루어진 닉네임 한 줄이 주어집니다.",
+  "output": "첫째 줄에 대문자 닉네임, 둘째 줄에 소문자 닉네임을 출력합니다.",
+  "constraints": [
+    "닉네임 길이는 1 이상 40 이하입니다.",
+    "숫자와 공백은 그대로 출력합니다."
+  ],
+  "concept": "문자열 뒤에 .upper()를 붙이면 영어 글자가 모두 대문자가 되고, .lower()는 모두 소문자로 바꿔요. 원래 문자열은 그대로이고 새 문자열이 만들어져요.",
+  "conceptCode": "name = \"Paco Py\"\nprint(name.upper())\nprint(name.lower())",
+  "starter": "nick = input()\n\n# 대문자 버전과 소문자 버전을 각각 출력해주세요.\n",
+  "solution": "nick = input()\nprint(nick.upper())\nprint(nick.lower())\n",
+  "hints": [
+    "문자열 메서드 upper()와 lower()를 사용해요.",
+    "print를 두 번 호출하면 두 줄이 출력돼요."
+  ],
+  "tests": [
+    {
+      "input": "PacoKing99",
+      "output": "PACOKING99\npacoking99"
+    },
+    {
+      "input": "hello",
+      "output": "HELLO\nhello"
+    },
+    {
+      "input": "ABC",
+      "output": "ABC\nabc"
+    },
+    {
+      "input": "a",
+      "output": "A\na"
+    },
+    {
+      "input": "Hello World 2024",
+      "output": "HELLO WORLD 2024\nhello world 2024"
+    },
+    {
+      "input": "Mixed CaSe Id 7",
+      "output": "MIXED CASE ID 7\nmixed case id 7"
+    }
+  ]
+}

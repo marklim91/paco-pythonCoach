@@ -1,0 +1,53 @@
+{
+  "id": "t6_merge_sorted",
+  "title": "두 줄 합쳐 줄 세우기",
+  "topic": "정렬 병합",
+  "level": "도전",
+  "minutes": 25,
+  "description": [
+    "A반과 B반이 각각 키 순서대로 줄을 섰어요. 이제 두 줄을 합쳐 전체가 키 순서가 되도록 한 줄로 세우려 해요.",
+    "작은 것부터 정렬된 두 리스트가 주어질 때, sorted()나 sort()를 쓰지 말고 두 리스트를 앞에서부터 비교하며 하나의 정렬된 리스트로 합쳐 공백으로 구분해 출력해주세요. 같은 값도 모두 출력해요."
+  ],
+  "input": "첫째 줄에 A반의 정렬된 정수들이, 둘째 줄에 B반의 정렬된 정수들이 공백으로 구분되어 주어집니다.",
+  "output": "합쳐진 정렬 결과를 공백으로 구분해 한 줄에 출력합니다.",
+  "constraints": [
+    "각 줄의 정수는 1개 이상 20개 이하이며 작은 값부터 정렬되어 있습니다.",
+    "-1,000 ≤ 각 정수 ≤ 1,000",
+    "sorted()와 sort()는 사용하지 않고 직접 병합해보세요."
+  ],
+  "concept": "두 줄 모두 이미 정렬되어 있으니 각 줄의 맨 앞 값만 비교하면 돼요. 인덱스 변수 i, j로 각 리스트의 현재 위치를 가리키고, 더 작은 쪽을 결과에 넣은 뒤 그 쪽 인덱스만 한 칸 옮겨요. 한쪽이 끝나면 남은 다른 쪽을 그대로 이어 붙이면 돼요.",
+  "conceptCode": "a = [1, 5]\nb = [2, 3]\ni = 0\nj = 0\nprint(a[i] <= b[j])\nprint(len(a) - i)",
+  "starter": "a = list(map(int, input().split()))\nb = list(map(int, input().split()))\n\n# i, j로 두 리스트의 현재 위치를 가리키며 병합해보세요.\n",
+  "solution": "a = list(map(int, input().split()))\nb = list(map(int, input().split()))\ni = 0\nj = 0\nresult = []\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        result.append(a[i])\n        i += 1\n    else:\n        result.append(b[j])\n        j += 1\nresult += a[i:]\nresult += b[j:]\nprint(*result)\n",
+  "hints": [
+    "i = 0, j = 0으로 시작하고, a[i]와 b[j] 중 더 작은 값을 결과에 넣어요.",
+    "값을 넣은 쪽의 인덱스만 1 증가시키고, i < len(a) and j < len(b) 동안 반복해요.",
+    "반복이 끝나면 한쪽이 남아 있을 수 있어요. a[i:]와 b[j:]를 결과 뒤에 붙여주세요."
+  ],
+  "tests": [
+    {
+      "input": "1 3 5\n2 4 6",
+      "output": "1 2 3 4 5 6"
+    },
+    {
+      "input": "1 2 3\n4 5 6",
+      "output": "1 2 3 4 5 6"
+    },
+    {
+      "input": "-5 0 5\n-5 0 5",
+      "output": "-5 -5 0 0 5 5"
+    },
+    {
+      "input": "4 8\n1 2 3 9",
+      "output": "1 2 3 4 8 9"
+    },
+    {
+      "input": "7\n7",
+      "output": "7 7"
+    },
+    {
+      "input": "1 1 2\n1 3",
+      "output": "1 1 1 2 3"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "t8_magic_twice",
+  "title": "마법 주문을 두 번 외우면",
+  "topic": "함수를 인자로",
+  "level": "기초",
+  "minutes": 14,
+  "description": [
+    "게임 속 마법사는 같은 주문을 두 번 연속으로 외우면 효과가 겹쳐져요.",
+    "주문 이름과 정수 x가 주어져요. double은 2배, square는 제곱, dec는 1 감소예요. 이 세 주문을 함수로 만들고, 주문 함수와 값을 받아 그 주문을 두 번 연속 적용하는 함수 apply_twice(f, x)를 만들어 결과를 출력해주세요."
+  ],
+  "input": "한 줄에 주문 이름(double, square, dec 중 하나)과 정수 x가 공백으로 주어집니다.",
+  "output": "주문을 두 번 적용한 결과를 출력합니다.",
+  "constraints": [
+    "-100 ≤ x ≤ 100",
+    "주문 이름은 double, square, dec 중 하나입니다."
+  ],
+  "concept": "파이썬에서는 함수도 값처럼 다룰 수 있어서 다른 함수의 인자로 넘길 수 있어요. 인자로 받은 함수는 f(x)처럼 호출하면 돼요. 이때 함수 이름 뒤에 괄호를 붙이지 않으면 함수 자체를 가리켜요.",
+  "conceptCode": "def add_one(x):\n    return x + 1\n\ndef run(func, value):\n    return func(value)\n\nprint(run(add_one, 5))",
+  "starter": "def double(x):\n    # TODO: 2배\n    return 0\n\ndef square(x):\n    # TODO: 제곱\n    return 0\n\ndef dec(x):\n    # TODO: 1 감소\n    return 0\n\ndef apply_twice(f, x):\n    # TODO: f를 두 번 연속 적용한 결과를 돌려주세요.\n    return 0\n\nname, x = input().split()\nx = int(x)\nspells = {\"double\": double, \"square\": square, \"dec\": dec}\nprint(apply_twice(spells[name], x))\n",
+  "solution": "def double(x):\n    return x * 2\n\ndef square(x):\n    return x * x\n\ndef dec(x):\n    return x - 1\n\ndef apply_twice(f, x):\n    return f(f(x))\n\nname, x = input().split()\nx = int(x)\nspells = {\"double\": double, \"square\": square, \"dec\": dec}\nprint(apply_twice(spells[name], x))\n",
+  "hints": [
+    "apply_twice 안에서는 받은 함수 f를 그냥 f(...) 로 호출하면 돼요.",
+    "두 번 연속 적용은 f의 결과를 다시 f에 넣는 것이에요. f(f(x))를 생각해보세요."
+  ],
+  "tests": [
+    {
+      "input": "double 3",
+      "output": "12"
+    },
+    {
+      "input": "square 3",
+      "output": "81"
+    },
+    {
+      "input": "dec 0",
+      "output": "-2"
+    },
+    {
+      "input": "square -4",
+      "output": "256"
+    },
+    {
+      "input": "double -7",
+      "output": "-28"
+    },
+    {
+      "input": "square 0",
+      "output": "0"
+    },
+    {
+      "input": "square 12",
+      "output": "20736"
+    }
+  ]
+}

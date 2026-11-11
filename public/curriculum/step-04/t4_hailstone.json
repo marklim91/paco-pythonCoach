@@ -1,0 +1,56 @@
+{
+  "id": "t4_hailstone",
+  "title": "우박 숫자의 여행",
+  "topic": "규칙 반복",
+  "level": "도전",
+  "minutes": 25,
+  "description": [
+    "우박이 구름 속에서 오르락내리락하다 떨어지듯, 아래 규칙대로 숫자를 바꾸면 신기하게도 항상 1에 도착해요.",
+    "정수 n에서 시작해 현재 값이 짝수면 2로 나누고, 홀수면 3배 한 뒤 1을 더해요. 값이 1이 될 때까지 이 과정을 반복할 때, 규칙을 적용한 횟수와 도중에 등장한 가장 큰 값(시작값 n 포함)을 공백으로 구분해 출력해주세요."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "한 줄에 `횟수 최댓값`을 공백 하나로 구분해 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100,000",
+    "n이 1이면 규칙을 한 번도 적용하지 않으므로 횟수는 0, 최댓값은 1입니다."
+  ],
+  "concept": "몇 번 반복해야 하는지 모를 때는 while 문이 알맞아요. 조건은 \"아직 1이 아니다\"로 두고, 반복할 때마다 규칙에 따라 값을 바꾸며 횟수를 세요. 최댓값은 값이 바뀔 때마다 지금까지의 최대와 비교해서 갱신해요.",
+  "conceptCode": "x = 5\nbest = x\nwhile x != 1:\n    x = x // 2 if x % 2 == 0 else 3 * x + 1\n    best = max(best, x)\nprint(best)",
+  "starter": "n = int(input())\nsteps = 0\nbiggest = n\n\n# n이 1이 될 때까지 규칙을 적용해보세요.\n\nprint(steps, biggest)\n",
+  "solution": "n = int(input())\nsteps = 0\nbiggest = n\nwhile n != 1:\n    if n % 2 == 0:\n        n //= 2\n    else:\n        n = 3 * n + 1\n    steps += 1\n    if n > biggest:\n        biggest = n\nprint(steps, biggest)\n",
+  "hints": [
+    "반복 횟수를 모르니 while n != 1: 로 시작해 보세요.",
+    "짝수면 n //= 2, 홀수면 n = 3 * n + 1 로 바꾸고, 바꿀 때마다 steps를 1 늘려요.",
+    "값이 바뀐 직후마다 biggest와 비교해 더 크면 갱신해요. 시작값 n도 후보라는 점을 잊지 마세요."
+  ],
+  "tests": [
+    {
+      "input": "1",
+      "output": "0 1"
+    },
+    {
+      "input": "2",
+      "output": "1 2"
+    },
+    {
+      "input": "6",
+      "output": "8 16"
+    },
+    {
+      "input": "7",
+      "output": "16 52"
+    },
+    {
+      "input": "27",
+      "output": "111 9232"
+    },
+    {
+      "input": "97",
+      "output": "118 9232"
+    },
+    {
+      "input": "77671",
+      "output": "231 1570824736"
+    }
+  ]
+}

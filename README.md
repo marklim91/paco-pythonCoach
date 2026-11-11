@@ -34,8 +34,8 @@ npm run build:new    # dist-new/ 에 정적 파일 생성
 npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 ```
 
-- 구현은 [`public/new.html`](./public/new.html) 하나에 포함됩니다(설정: [`vite.config.js`](./vite.config.js)). React와 shadcn/ui의 Button·Tabs·Dialog 구성 방식을 인라인 CSS에 맞게 적용하며, 접근성 동작은 Radix UI를 사용합니다. 화면 라이브러리는 npm 의존성으로 설치됩니다.
-- 10개 트랙(출력·변수부터 알고리즘까지)에 **문제 100개**를 제공합니다. 트랙 안에서 문제는 쉬운 것부터 어려운 것 순서이며 난이도는 맛보기·입문·기초·응용·도전·심화 6단계입니다. 문제는 파일의 `curriculum` JSON에서 설명·입출력·시작 코드·정답·힌트·테스트 케이스를 수정하거나 교체합니다. `tests/studio.test.js`가 정답 코드를 실제로 실행해 모든 테스트 케이스를 통과하는지, 시작 코드는 그대로 통과하지 않는지 확인하므로 문제를 추가·수정한 뒤 `npm test`를 실행하세요.
+- 화면은 얇은 [`public/new.html`](./public/new.html)(약 5KB)에 스타일 [`studio.css`](./public/studio.css), 스튜디오 코드 [`studio-core.js`](./public/studio-core.js)(설정·저장·포인트·문제 불러오기)와 [`studio-app.js`](./public/studio-app.js)(React 화면), 문제 목록 [`studio-catalog.js`](./public/studio-catalog.js), 문제 본문 [`curriculum/`](./public/curriculum)을 연결해 구성합니다(설정: [`vite.config.js`](./vite.config.js)). React와 shadcn/ui의 Button·Tabs·Dialog 구성 방식을 CSS에 맞게 적용하며, 접근성 동작은 Radix UI를 사용합니다. 화면 라이브러리는 npm 의존성으로 설치됩니다.
+- 10개 트랙(출력·변수부터 알고리즘까지)에 **문제 100개**를 제공합니다. 트랙 안에서 문제는 쉬운 것부터 어려운 것 순서이며 난이도는 맛보기·입문·기초·응용·도전·심화 6단계입니다. 문제 본문(설명·입출력·시작 코드·정답·힌트·테스트 케이스)은 단계별 폴더 `public/curriculum/step-01` … `step-10`의 `<문제ID>.json`(문제당 파일 1개)에서 수정하거나 교체합니다. 학생이 문제를 열 때 그 파일만 불러오므로 첫 화면이 가볍게 열립니다. 문제를 새로 만들 때는 같은 폴더에 파일을 추가한 뒤 `public/studio-catalog.js`의 해당 단계 목록(`id`·`title`·`level`·`topic`·`minutes`)에도 항목을 넣으세요. `tests/studio.test.js`가 정답 코드를 실제로 실행해 모든 테스트 케이스를 통과하는지, 시작 코드는 그대로 통과하지 않는지 확인하므로 문제를 추가·수정한 뒤 `npm test`를 실행하세요.
 - **실행**은 직접 입력한 값으로 Python을 실행하고, **제출하기**는 해당 문제의 전체 테스트를 실행합니다. 모두 통과해야 해결 처리됩니다. 줄 끝 공백·마지막 개행만 무시하며 출력의 대소문자와 줄 내부 공백은 비교합니다.
 - Python은 Pyodide Web Worker에서 실행됩니다. 각 실행·제출은 새 실행기를 사용하며 로딩 제한은 90초, 테스트별 실행 제한은 5초, 출력 스트림별 한도는 20,000자입니다. 중지 버튼으로 종료할 수 있습니다. 브라우저 안의 학습용 채점이므로 보안 격리 서버나 부정행위 방지용 채점기는 아닙니다.
 - 코드·선택 문제·완료 기록·코치 주소는 전용 `localStorage` 키 `paco-studio-v1`에 저장됩니다. 다른 브라우저·기기로 동기화하지 않습니다. 저장소 접근·용량·데이터 오류는 화면에 경고하고 임시 모드로 전환합니다.
@@ -131,7 +131,7 @@ python -m http.server 8080 --bind 127.0.0.1 --directory public   # 또는 VS Cod
 - 기존 `POWER_AUTOMATE_DASHBOARD_URL`과 최대 60초 공유 캐시를 재사용하므로 **새 Power Automate 흐름이나 Dataverse 열을 추가할 필요가 없습니다.** 기존 필수 열(실명 포함)은 모두 필요합니다. 화면은 보이는 동안 1분마다 새로 조회하고 수동 새로고침도 지원합니다.
 - 실제 현재 레벨·누적 점수·전체/학교 공동 순위·수집 이후 점수 변화·최근 관측 최대 7건을 표시합니다. 원본 학번·Dataverse GUID나 다른 학생의 프로필은 이 API로 반환하지 않습니다.
 - [`learning-guide.js`](./learning-guide.js)의 안내는 스튜디오 **10개 트랙(10단계 로드맵)**에 맞춘 현재 단계 복습, 다음 단계 목표, 연습 과제·자기 점검 질문 및 Python 공식 문서 링크입니다. **현재 단계는 누적 학습 점수가 속한 트랙**으로 정합니다(트랙별 만점 합계를 이어 붙인 구간: 1단계 0~84점, 2단계 85~204점, … 10단계 2,300점 이상). 점수에 따른 권장 가이드이지 개인 오답·취약점·학습 완료를 분석한 결과가 아니며 별도의 승급 심사는 없습니다. Dataverse에 기록된 레벨(`Lv.`)은 그대로 표시합니다.
-- 스튜디오 문제 목록·난이도별 점수·만점(2,930점)은 [`public/studio-catalog.js`](./public/studio-catalog.js)에 있으며 `new.html`의 `curriculum`과 같은 내용인지 `tests/studio-catalog.test.js`가 확인합니다. 문제를 바꾸면 이 파일도 함께 고치세요.
+- 스튜디오 문제 목록·난이도별 점수·만점(2,930점)은 [`public/studio-catalog.js`](./public/studio-catalog.js)에 있으며 스튜디오와 대시보드가 함께 씁니다. 이 목록이 `public/curriculum/`의 문제 파일(제목·난이도·주제·시간)과 같은지, 목록에 없는 문제 파일이 남아 있지 않은지 `tests/studio-catalog.test.js`가 확인합니다. 문제를 바꾸면 두 곳을 함께 고치세요.
 - 화면에는 **만점 대비 내 점수**, **난이도별 점수 체계**, **스튜디오 문제 진도**(트랙별 해결 수), **다음에 풀면 좋은 문제**(스튜디오 `?problem=문제ID` 바로가기)가 표시됩니다. 문제 진도와 추천은 스튜디오가 **이 브라우저**에 저장한 기록(`localStorage`의 `paco-studio-v1`)만 사용하며 Dataverse 점수와 별개입니다.
 - 전체 대시보드에는 **점수 구간별 학생 분포**(선택한 학교 기준), **난이도별 점수 체계·10개 트랙 소개**, 랭킹 표의 **만점 대비 진행률**이 표시됩니다. 만점을 넘는 점수는 100%로 표시합니다.
 - 현재 데이터에는 **승급 점수·평가 규칙이 없으므로** 남은 XP, 승급 진행률, 확정 승급 조건을 생성하지 않습니다. 과제 답변·완료 여부도 저장하거나 점수·레벨에 반영하지 않습니다. 실제 승급 정책을 연결하기 전까지 안내와 실제 기록을 구분합니다.
@@ -301,7 +301,7 @@ new.html (제출 통과) → 브라우저가 Power Automate HTTP 트리거를 �
   → { "updated": true, "awarded": true|false, "points": <누적 점수> }
 ```
 
-- 포인트는 `new.html`의 `POINTS_BY_LEVEL`이 문제의 `level`에 따라 정합니다(맛보기 5 · 입문 10 · 기초 20 · 응용 30 · 도전 50 · 심화 80점). 100문제를 모두 해결하면 2,930점입니다. 학교·학번·이름은 로그인 쿠키 `school`, `studentId`, `studentName`에서 가져옵니다(이 값들은 브라우저에서 수정할 수 있습니다).
+- 포인트는 `studio-core.js`의 `POINTS_BY_LEVEL`이 문제의 `level`에 따라 정합니다(맛보기 5 · 입문 10 · 기초 20 · 응용 30 · 도전 50 · 심화 80점). 100문제를 모두 해결하면 2,930점입니다. 학교·학번·이름은 로그인 쿠키 `school`, `studentId`, `studentName`에서 가져옵니다(이 값들은 브라우저에서 수정할 수 있습니다).
 - **중복 적립은 Dataverse의 `Solved Problems`(쉼표로 구분한 문제 ID, 예: `hello,sum`)로 막습니다.** 브라우저·기기가 달라도 한 학생은 같은 문제로 한 번만 적립됩니다. 브라우저의 `paco-studio-v1`(`awarded`)은 불필요한 호출을 줄이는 보조 기록입니다. 흐름 호출이 실패하면 기록하지 않습니다. 단, 응답을 읽지 못한 네트워크 오류는 흐름이 이미 실행됐을 수 있으니 같은 문제를 반복 제출하기 전에 흐름 실행 기록을 확인하세요.
 - **보안 제약(프로젝트 한계)**: 브라우저에서 직접 호출하므로 흐름 URL의 서명이 사용자에게 노출되고, 점수·학생 정보도 조작할 수 있습니다. 서명이 노출되면 트리거의 URL을 재생성하세요. 신뢰할 수 있는 점수가 필요하면 서버 경유 방식이 필요합니다.
 - CORS: Power Automate 게이트웨이가 `Access-Control-Allow-Origin: *`와 사전 요청(OPTIONS) 응답을 제공하므로 별도 설정 없이 `application/json`으로 호출할 수 있습니다.
@@ -427,6 +427,7 @@ setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', tru
   - Step 6: 크로스 브라우징([CanIUse](https://caniuse.com/), [BrowserStack](https://www.browserstack.com/)) 및 스토어 패키징([PWA Builder](https://www.pwabuilder.com/))
 - `public/` — 정적 배포(GitHub Pages) 및 로컬 실행 가능한 PWA 리소스
   - `/index.html` (`/파코v3`): 파코 v3 통합 메인 페이지 (홈 + AI 코치 + 레벨 로드맵). 첫 페이지는 `/new.html`(파코 스튜디오)입니다.
+  - `/new.html` (`/스튜디오`): 파코 스튜디오. 스타일(`studio.css`)·코드(`studio-core.js`, `studio-app.js`)·문제 목록(`studio-catalog.js`)을 불러오고, 문제 본문은 학생이 문제를 열 때 `curriculum/step-01`~`step-10/<문제ID>.json`에서 한 문제씩 불러옵니다(서비스 워커는 이 파일들을 캐시하지 않습니다).
   - `/dashboard.html` (`/대시보드`): Dataverse 전체 학생 성장·랭킹·접속 현황
   - `/my-learning.html` (`/내학습`): 로그인 학생의 실제 레벨·점수와 로드맵 기반 학습 가이드
   - `/v3_4/roadmap.html` (`/파코v3_4/레벨-로드맵`): 15단계 레벨 로드맵 페이지 (기존 메인 화면용, 내 학습은 스튜디오 10단계 로드맵을 사용)
@@ -447,5 +448,7 @@ setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', tru
   → 봇 응답을 실시간 채팅 화면에 표시
 ```
 
-- **v3 / v3.4 에이전트**: `https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoachv3_YEkNfz/webchat?__version__=2&enableFileAttachment=false&cliAgent=true`
-- **v2 에이전트**: `https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoach_s_FJsw/webchat?__version__=2&enableFileAttachment=false&cliAgent=true`
+- **현재 에이전트**(메인 코치 `public/index.html`, 스튜디오 기본 코치 `public/studio-core.js`): `https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_QSDFLs/webchat?__version__=2&enableFileAttachment=false&cliAgent=true`
+  - 주소를 바꿀 때는 `public/index.html`의 `#chat-frame` `src`와 `public/studio-core.js`의 `DEFAULT_COACH_URL`을 함께 바꾸고, 이전 기본 주소는 `LEGACY_COACH_URLS`에 추가합니다. 그러면 이전 기본 주소를 저장해 둔 브라우저도 새 주소로 옮겨집니다. 직접 입력해 둔 다른 주소는 스튜디오 **연결 설정**의 **기본 주소 → 주소 저장**으로 되돌립니다.
+- **이전 v3 / v3.4 에이전트**: `https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoachv3_YEkNfz/webchat?__version__=2&enableFileAttachment=false&cliAgent=true`
+- **이전 v2 에이전트**: `https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_newcoach_s_FJsw/webchat?__version__=2&enableFileAttachment=false&cliAgent=true`

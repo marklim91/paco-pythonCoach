@@ -1,0 +1,53 @@
+{
+  "id": "t7_stock_commands",
+  "title": "문구점 재고 관리",
+  "topic": "딕셔너리 명령",
+  "level": "응용",
+  "minutes": 22,
+  "description": [
+    "학교 문구점에서 물건이 들어오고 팔릴 때마다 재고를 정리하려고 해요.",
+    "명령이 순서대로 주어져요. 'ADD 물건 개수'는 그 물건을 개수만큼 들여오고, 'USE 물건 개수'는 그만큼 팔아요. 재고가 모자라거나 창고에 없는 물건을 팔려고 하면 재고는 그대로 두고 즉시 '부족 물건'을 출력해요. 모든 명령이 끝나면 재고가 1개 이상인 물건을 이름 사전순으로 '물건 개수' 형식으로 한 줄씩 출력하고, 남은 물건이 하나도 없으면 '재고 없음'을 출력해주세요."
+  ],
+  "input": "첫 줄에 명령 수 n, 다음 n줄에 'ADD 물건 개수' 또는 'USE 물건 개수'가 주어집니다.",
+  "output": "처리 중 부족한 경우의 '부족 물건' 줄들을 먼저(발생 순서대로), 그다음 최종 재고(또는 '재고 없음')를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "물건 이름은 영어 소문자 낱말이고, 1 ≤ 개수 ≤ 100",
+    "정확히 개수만큼 남아 있을 때 USE 하면 성공이고, 재고가 0이 된 물건은 최종 출력에서 빠집니다."
+  ],
+  "concept": "한 줄을 split()으로 나누면 명령, 이름, 개수를 얻을 수 있어요. 딕셔너리에 물건별 재고를 두고, 명령에 따라 더하거나 빼요. 없는 키는 stock.get(이름, 0)으로 0으로 취급할 수 있어요.",
+  "conceptCode": "stock = {}\nstock['pen'] = stock.get('pen', 0) + 5\nprint(stock.get('pen', 0))\nprint(stock.get('eraser', 0))",
+  "starter": "n = int(input())\nstock = {}\n\nfor _ in range(n):\n    command, name, amount = input().split()\n    amount = int(amount)\n    # ADD와 USE를 나누어 처리해보세요.\n\n# 남은 재고를 사전순으로 출력해보세요.\n",
+  "solution": "n = int(input())\nstock = {}\nfor _ in range(n):\n    command, name, amount = input().split()\n    amount = int(amount)\n    if command == \"ADD\":\n        stock[name] = stock.get(name, 0) + amount\n    else:\n        if stock.get(name, 0) >= amount:\n            stock[name] -= amount\n        else:\n            print(\"부족\", name)\n\nleft = False\nfor name in sorted(stock):\n    if stock[name] > 0:\n        print(name, stock[name])\n        left = True\nif not left:\n    print(\"재고 없음\")\n",
+  "hints": [
+    "command가 'ADD'이면 stock.get(name, 0) + amount 로 더해요.",
+    "'USE'는 먼저 stock.get(name, 0) >= amount 인지 확인하고, 충분할 때만 빼요. 아니면 '부족 이름'을 출력해요.",
+    "마지막에는 sorted(stock)으로 이름 순서를 만들고, 재고가 0보다 큰 것만 출력해요. 하나라도 출력했는지 기억해두면 '재고 없음' 처리가 쉬워요."
+  ],
+  "tests": [
+    {
+      "input": "4\nADD pen 5\nADD eraser 2\nUSE pen 3\nUSE eraser 1",
+      "output": "eraser 1\npen 2"
+    },
+    {
+      "input": "3\nADD ruler 4\nUSE ruler 4\nADD glue 1",
+      "output": "glue 1"
+    },
+    {
+      "input": "2\nUSE pen 1\nADD pen 2",
+      "output": "부족 pen\npen 2"
+    },
+    {
+      "input": "3\nADD note 3\nUSE note 3\nUSE note 1",
+      "output": "부족 note\n재고 없음"
+    },
+    {
+      "input": "5\nADD pen 2\nUSE pen 5\nUSE pen 2\nADD pen 1\nUSE pen 1",
+      "output": "부족 pen\n재고 없음"
+    },
+    {
+      "input": "6\nADD tape 10\nADD clip 7\nUSE tape 4\nUSE clip 8\nUSE glue 1\nADD tape 1",
+      "output": "부족 clip\n부족 glue\nclip 7\ntape 7"
+    }
+  ]
+}

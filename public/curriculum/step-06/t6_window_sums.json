@@ -1,0 +1,52 @@
+{
+  "id": "t6_window_sums",
+  "title": "연속 며칠 기온 합",
+  "topic": "구간 합",
+  "level": "응용",
+  "minutes": 20,
+  "description": [
+    "여행 계획을 세우려고 연속된 k일 동안의 기온 합을 하루씩 밀어가며 살펴보려 해요.",
+    "n일의 기온이 주어질 때 연속된 k일의 합을 처음부터 한 칸씩 이동하며 모두 구해 첫째 줄에 공백으로 구분해 출력하고, 둘째 줄에는 그중 가장 큰 합을 출력해주세요."
+  ],
+  "input": "첫째 줄에 n과 k가, 둘째 줄에 n개의 기온이 공백으로 구분되어 주어집니다.",
+  "output": "첫째 줄에 n-k+1개의 구간 합을, 둘째 줄에 그중 최댓값을 출력합니다.",
+  "constraints": [
+    "1 ≤ k ≤ n ≤ 30",
+    "-50 ≤ 기온 ≤ 50"
+  ],
+  "concept": "슬라이싱 temps[i:i+k]는 i번째부터 k개를 잘라낸 리스트예요. i를 0부터 하나씩 늘리며 구간의 합을 구하면 구간이 한 칸씩 이동해요. 구한 값들은 새 리스트에 append로 모아두고 max()로 가장 큰 값을 찾을 수 있어요.",
+  "conceptCode": "t = [5, 1, 4, 2]\nprint(t[1:3])\nprint(sum(t[1:3]))\nprint(len(t) - 3 + 1)",
+  "starter": "n, k = map(int, input().split())\ntemps = list(map(int, input().split()))\n\n# 연속된 k일의 합을 하루씩 밀어가며 구해보세요.\n",
+  "solution": "n, k = map(int, input().split())\ntemps = list(map(int, input().split()))\nsums = []\nfor i in range(n - k + 1):\n    sums.append(sum(temps[i:i + k]))\nprint(*sums)\nprint(max(sums))\n",
+  "hints": [
+    "시작 위치 i는 0부터 n-k까지 가능해요. range(n - k + 1)을 생각해보세요.",
+    "각 i마다 temps[i:i + k]를 잘라 합을 구해요.",
+    "구한 합들을 리스트에 모아 두면 출력과 max()에 모두 쓸 수 있어요."
+  ],
+  "tests": [
+    {
+      "input": "7 3\n3 1 4 1 5 9 2",
+      "output": "8 6 10 15 16\n16"
+    },
+    {
+      "input": "5 5\n1 2 3 4 5",
+      "output": "15\n15"
+    },
+    {
+      "input": "4 1\n-2 5 0 3",
+      "output": "-2 5 0 3\n5"
+    },
+    {
+      "input": "6 2\n-1 -2 -3 -4 -5 -6",
+      "output": "-3 -5 -7 -9 -11\n-3"
+    },
+    {
+      "input": "3 2\n0 0 0",
+      "output": "0 0\n0"
+    },
+    {
+      "input": "1 1\n-7",
+      "output": "-7\n-7"
+    }
+  ]
+}

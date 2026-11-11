@@ -5,19 +5,26 @@ const vm = require('node:vm');
 const test = require('node:test');
 const { spawnSync } = require('node:child_process');
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'new.html'), 'utf8');
+const studioCatalog = require('../public/studio-catalog');
+const { loadCurriculum } = require('./support/curriculum');
+
+const publicFile = name => fs.readFileSync(path.join(__dirname, '..', 'public', name), 'utf8');
+const html = publicFile('new.html');
+const core = publicFile('studio-core.js');
+const app = publicFile('studio-app.js');
+const pageSource = [html, core, app].join('\n');
 const script = id => html.match(new RegExp(`<script id="${id}"[^>]*>([\\s\\S]*?)<\\/script>`))[1];
-const curriculum = JSON.parse(script('curriculum'));
-const context = vm.createContext({
-  document: { getElementById: () => ({ textContent: script('curriculum') }) },
-  URL, AbortSignal,
-});
-vm.runInContext(script('studio-core'), context);
+const curriculum = loadCurriculum();
+const createStudio = (extra = {}) => {
+  const sandbox = vm.createContext({ PcoStudio: studioCatalog, URL, URLSearchParams, AbortSignal, ...extra });
+  vm.runInContext(core, sandbox);
+  return sandbox;
+};
+const context = createStudio();
 const evaluate = expression => vm.runInContext(expression, context);
 
 test('standalone studio module and Python worker have valid JavaScript syntax', () => {
-  const moduleSource = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
-  for (const source of [moduleSource, script('worker-source')]) {
+  for (const source of [app, script('worker-source')]) {
     const result = spawnSync(process.execPath, ['--check', '--input-type=module'], { input: source, encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
   }
@@ -145,10 +152,10 @@ test('coach configuration rejects insecure schemes and embedded credentials', ()
 
 test('new page uses the shared cookie guard but stays independent from legacy API scripts', () => {
   assert.match(html, /<script src="\.\/auth\.js"><\/script>/);
-  assert.doesNotMatch(html, /src=["'][^"']*(?:presence|app-shell)\.js/);
-  assert.deepEqual([...new Set(html.match(/\/api\/[\w/-]+/g))].sort(), ['/api/session', '/api/session/logout']);
-  assert.match(html, /new Worker\(workerUrl, \{ type: ['"]module['"] \}\)/);
-  assert.match(html, /worker\.terminate\(\)/);
+  assert.doesNotMatch(pageSource, /src=["'][^"']*(?:presence|app-shell)\.js/);
+  assert.deepEqual([...new Set(pageSource.match(/\/api\/[\w/-]+/g))].sort(), ['/api/session', '/api/session/logout']);
+  assert.match(app, /new Worker\(workerUrl, \{ type: ['"]module['"] \}\)/);
+  assert.match(app, /worker\.terminate\(\)/);
 });
 
 const flowUrl = 'https://example.environment.api.powerplatform.com/flow?sig=test-secret';
@@ -170,20 +177,16 @@ test('logout ends the server session when possible and always clears the login c
   cleared.length = 0;
   await evaluate('endSession({ fetchImpl: brokenFetch, setCookie: value => logoutCookies.push(value), cookiePath: "/" })');
   assert.equal(cleared.length, 3);
-  assert.match(html, /onClick: logout/);
-  assert.match(html, /window\.location\.replace\(\s*new URL\("login\.html\?reverify=1"/);
+  assert.match(app, /onClick: logout/);
+  assert.match(app, /window\.location\.replace\(\s*new URL\("login\.html\?reverify=1"/);
 });
 
 test('points flow address comes from the deploy-time runtime config, never from the source', () => {
   assert.match(html, /<script src="\.\/runtime-config\.js"><\/script>/);
   assert.equal(evaluate('DEFAULT_POINTS_URL'), '');
-  const configured = vm.createContext({
-    document: { getElementById: () => ({ textContent: script('curriculum') }) },
-    URL, AbortSignal, PcoConfig: { pointsUrl: 'https://x.api.powerplatform.com/a?sig=from-secret' },
-  });
-  vm.runInContext(script('studio-core'), configured);
+  const configured = createStudio({ PcoConfig: { pointsUrl: 'https://x.api.powerplatform.com/a?sig=from-secret' } });
   assert.equal(vm.runInContext('DEFAULT_POINTS_URL', configured), 'https://x.api.powerplatform.com/a?sig=from-secret');
-  assert.doesNotMatch(html, /powerautomate\/automations/);
+  assert.doesNotMatch(pageSource, /powerautomate\/automations/);
 });
 
 test('points flow address must be an https Power Automate trigger without credentials', () => {
@@ -283,4 +286,84 @@ test('saved studio state without the points fields still loads and invalid flow 
   const rejected = evaluate(`readStudioState({ getItem() { return ${JSON.stringify(JSON.stringify(hostile))}; } })`);
   assert.equal(rejected.state.pointsUrl, '');
   assert.match(rejected.warning, /Power Automate/);
+});
+
+test('new.html stays a thin shell: styles, code and problems live in their own files', () => {
+  assert.ok(Buffer.byteLength(html) < 16 * 1024, 'new.html must not inline the curriculum or the UI code again');
+  assert.doesNotMatch(html, /<style|id="curriculum"|application\/json/);
+  assert.match(html, /<link rel="stylesheet" href="\.\/studio\.css" \/>/);
+  assert.match(html, /<script src="\.\/studio-catalog\.js"><\/script>\s*<script src="\.\/studio-core\.js"><\/script>/);
+  assert.match(html, /<script type="module" src="\.\/studio-app\.js"><\/script>/);
+});
+
+test('problem files are found in their step folder and every file passes the loader checks', () => {
+  const url = id => evaluate(`problemDetailUrl(PROBLEMS.find((p) => p.id === ${JSON.stringify(id)}))`);
+  assert.equal(url('hello'), './curriculum/step-01/hello.json');
+  assert.equal(url('t3_vending'), './curriculum/step-03/t3_vending.json');
+  assert.equal(url('t10_library_shelf'), './curriculum/step-10/t10_library_shelf.json');
+
+  const fresh = createStudio();
+  assert.ok(vm.runInContext('PROBLEMS.every((p) => p.tests === undefined)', fresh), 'the list starts without problem text');
+  for (const problem of curriculum.flatMap(track => track.problems)) {
+    fresh.file = problem;
+    assert.doesNotThrow(() => vm.runInContext('parseProblemDetail(PROBLEMS.find((p) => p.id === file.id), file)', fresh), problem.id);
+  }
+});
+
+test('problem text is fetched once per problem, even for simultaneous requests, and merged into the list entry', async () => {
+  const fresh = createStudio();
+  const hello = curriculum[0].problems[0];
+  const urls = [];
+  fresh.fakeFetch = async url => { urls.push(url); return { ok: true, status: 200, json: async () => structuredClone(hello) }; };
+  const load = () => vm.runInContext('loadProblem("hello", fakeFetch)', fresh);
+  const [first, second] = await Promise.all([load(), load()]);
+  assert.equal(first, second);
+  assert.deepEqual(urls, ['./curriculum/step-01/hello.json']);
+  assert.deepEqual(JSON.parse(JSON.stringify(first.tests)), hello.tests);
+  assert.equal(first.starter, hello.starter);
+  assert.equal(first.trackId, 't1');
+  await load();
+  assert.equal(urls.length, 1, 'a loaded problem is not fetched again');
+});
+
+test('a failed or malformed problem file is rejected, leaves the problem unloaded and can be retried', async () => {
+  const fresh = createStudio();
+  const hello = curriculum[0].problems[0];
+  let reply;
+  fresh.fakeFetch = async () => reply;
+  const load = () => vm.runInContext('loadProblem("hello", fakeFetch)', fresh);
+  const ok = body => ({ ok: true, status: 200, json: async () => body });
+  reply = { ok: false, status: 404, json: async () => ({}) };
+  await assert.rejects(load, /\(404\)/);
+  for (const body of [null, { ...hello, id: 'sum' }, { ...hello, tests: [] }, { ...hello, hints: [] }, { ...hello, starter: 7 }, { ...hello, tests: [{ input: 1, output: '' }] }]) {
+    reply = ok(body);
+    await assert.rejects(load, /형식이 올바르지 않아요/);
+  }
+  reply = { ok: true, status: 200, json: async () => { throw new SyntaxError('bad json'); } };
+  await assert.rejects(load, /bad json/);
+  assert.equal(vm.runInContext('PROBLEMS.find((p) => p.id === "hello").tests', fresh), undefined);
+  reply = ok(hello);
+  assert.equal((await load()).title, hello.title);
+  await assert.rejects(() => vm.runInContext('loadProblem("missing", fakeFetch)', fresh), /알 수 없는 문제/);
+});
+
+test('the first screen shows the saved problem, or the one a link asks for when it exists', () => {
+  const record = selected => JSON.stringify({ selected, codes: {}, completed: [], coachUrl: 'https://example.com/chat' });
+  const startup = (search, saved) => {
+    context.saved = saved;
+    return evaluate(`startupProblemId(${JSON.stringify(search)}, { getItem() { return saved; } })`);
+  };
+  assert.equal(startup('', record('pair')), 'pair');
+  assert.equal(startup('?problem=t3_vending', record('pair')), 't3_vending');
+  assert.equal(startup('?problem=missing', record('pair')), 'pair');
+  assert.equal(startup('', null), 'hello');
+  assert.equal(startup('?problem=sum', '{broken'), 'sum');
+  assert.equal(evaluate('startupProblemId("?problem=sum", null)'), 'sum');
+  assert.equal(evaluate('startupProblemId("")'), 'hello');
+});
+
+test('the first problem is requested while the libraries download and the screen waits for it', () => {
+  assert.match(html, /loadProblem\(startupProblemId\(location\.search\)\)\.catch\(/);
+  assert.match(app, /loadProblem\(startupProblemId\(window\.location\.search\)\)\.then\(/);
+  assert.match(app, /await loadProblem\(id\)/);
 });

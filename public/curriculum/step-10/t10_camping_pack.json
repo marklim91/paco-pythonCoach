@@ -1,0 +1,56 @@
+{
+  "id": "t10_camping_pack",
+  "title": "캠핑 배낭 꾸리기",
+  "topic": "0/1 배낭 문제",
+  "level": "심화",
+  "minutes": 40,
+  "description": [
+    "캠핑을 떠나는 날, 배낭에는 무게 제한이 있어서 가져갈 물건을 골라야 해요.",
+    "물건이 n개 있고 각 물건은 무게와 만족도(가치)를 가져요. 배낭에 담는 무게의 합이 W 이하가 되도록 물건을 고를 때, 얻을 수 있는 만족도의 최댓값을 출력해주세요. 물건은 하나씩만 있고, 쪼갤 수 없어요."
+  ],
+  "input": "첫 줄에 n과 W가 주어지고, 이어서 n개의 줄에 각 물건의 무게와 만족도가 공백으로 구분되어 주어집니다.",
+  "output": "만족도 합의 최댓값을 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "1 ≤ W ≤ 1,000",
+    "1 ≤ 물건의 무게 ≤ 1,000",
+    "1 ≤ 물건의 만족도 ≤ 1,000",
+    "모두 담을 수 없거나, 아무것도 못 담는 경우도 있어요."
+  ],
+  "concept": "dp[w]를 \"무게 한도가 w일 때의 최대 만족도\"라고 해요. 물건 하나를 볼 때마다 w를 큰 값에서 작은 값으로 줄여가며 dp[w] = max(dp[w], dp[w - 무게] + 만족도)로 갱신하면, 같은 물건을 두 번 쓰지 않고 계산할 수 있어요.",
+  "conceptCode": "dp = [0] * 6\nweight, value = 2, 5\nprint(dp[5 - weight] + value)\nprint(list(range(5, weight - 1, -1)))",
+  "starter": "n, capacity = map(int, input().split())\nitems = []\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    items.append((weight, value))\n\n# dp[w] = 무게 한도가 w일 때의 최대 만족도\ndp = [0] * (capacity + 1)\n\n# 물건마다 무게 한도를 큰 값에서 작은 값 순서로 갱신해보세요.\n\nprint(dp[capacity])\n",
+  "solution": "n, capacity = map(int, input().split())\nitems = []\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    items.append((weight, value))\ndp = [0] * (capacity + 1)\nfor weight, value in items:\n    for w in range(capacity, weight - 1, -1):\n        dp[w] = max(dp[w], dp[w - weight] + value)\nprint(dp[capacity])\n",
+  "hints": [
+    "dp[w]는 무게 한도가 w일 때 얻을 수 있는 최대 만족도로, 처음에는 모두 0이에요.",
+    "물건 하나마다 w를 capacity부터 그 물건의 무게까지 거꾸로 줄여가며 살펴보세요.",
+    "거꾸로 돌려야 같은 물건이 한 번만 쓰여요. dp[w] = max(dp[w], dp[w - weight] + value)로 갱신하세요.",
+    "비율이 좋은 물건부터 담는 방법은 틀릴 수 있어요. 모든 무게 한도에 대해 표를 채워야 해요."
+  ],
+  "tests": [
+    {
+      "input": "3 5\n2 3\n3 4\n4 5",
+      "output": "7"
+    },
+    {
+      "input": "3 10\n6 30\n5 20\n5 20",
+      "output": "40"
+    },
+    {
+      "input": "1 5\n7 100",
+      "output": "0"
+    },
+    {
+      "input": "1 5\n5 9",
+      "output": "9"
+    },
+    {
+      "input": "4 7\n5 10\n4 7\n3 6\n1 1",
+      "output": "13"
+    },
+    {
+      "input": "100 1000\n57 75\n77 313\n97 167\n88 224\n32 146\n58 257\n57 11\n88 44\n17 293\n31 43\n84 29\n58 235\n22 202\n89 94\n83 87\n97 66\n79 371\n80 296\n42 451\n18 113\n41 413\n22 439\n47 394\n99 255\n45 384\n22 308\n79 304\n18 429\n41 344\n87 390\n61 288\n96 359\n28 364\n81 451\n29 359\n53 493\n57 53\n11 77\n25 325\n84 219\n26 399\n56 301\n52 394\n30 260\n53 121\n93 190\n75 297\n67 17\n73 473\n79 481\n42 491\n81 238\n16 469\n31 3\n24 252\n49 54\n68 21\n39 121\n33 240\n52 30\n33 375\n36 358\n87 350\n98 454\n41 121\n94 152\n59 451\n73 482\n62 324\n91 77\n50 367\n74 394\n61 500\n18 358\n30 394\n33 1\n96 265\n72 146\n79 116\n81 116\n12 74\n97 387\n22 320\n13 118\n75 448\n78 190\n46 335\n46 481\n63 415\n75 255\n91 112\n93 95\n14 390\n40 10\n95 205\n57 181\n92 95\n37 450\n31 312\n83 435",
+      "output": "11611"
+    }
+  ]
+}

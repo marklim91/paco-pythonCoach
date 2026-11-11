@@ -1,0 +1,51 @@
+{
+  "id": "t3_thermometer",
+  "title": "영상일까, 영하일까?",
+  "topic": "if/elif",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "겨울 아침, 창밖 온도계의 숫자가 영상인지 영하인지 알려 주는 프로그램을 만들어봐요.",
+    "정수 t를 입력받아 0보다 크면 PLUS, 0이면 ZERO, 0보다 작으면 MINUS를 출력해주세요."
+  ],
+  "input": "정수 t 하나가 주어집니다.",
+  "output": "PLUS, ZERO, MINUS 중 하나를 출력합니다.",
+  "constraints": [
+    "-50 ≤ t ≤ 50",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "갈림길이 세 개 이상일 때는 if, elif, else를 차례로 써요. 위에서부터 조건을 확인하다가 처음으로 참인 곳 하나만 실행하고 나머지는 건너뛰어요. 같은지 확인할 때는 = 가 아니라 == 를 써야 해요.",
+  "conceptCode": "n = 5\nif n > 10:\n    print(\"크다\")\nelif n > 3:\n    print(\"보통\")\nelse:\n    print(\"작다\")",
+  "starter": "t = int(input())\n\n# 0보다 큰지, 0인지, 0보다 작은지 나누어 출력해보세요.\n",
+  "solution": "t = int(input())\nif t > 0:\n    print(\"PLUS\")\nelif t == 0:\n    print(\"ZERO\")\nelse:\n    print(\"MINUS\")\n",
+  "hints": [
+    "경우가 세 가지이니 if, elif, else를 모두 사용해보세요.",
+    "먼저 t > 0 을 확인하고, 다음에 t == 0 을 확인하면 남는 경우가 음수예요."
+  ],
+  "tests": [
+    {
+      "input": "15",
+      "output": "PLUS"
+    },
+    {
+      "input": "-7",
+      "output": "MINUS"
+    },
+    {
+      "input": "0",
+      "output": "ZERO"
+    },
+    {
+      "input": "1",
+      "output": "PLUS"
+    },
+    {
+      "input": "-1",
+      "output": "MINUS"
+    },
+    {
+      "input": "50",
+      "output": "PLUS"
+    }
+  ]
+}

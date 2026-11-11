@@ -48,6 +48,8 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.indexOf(new URL('./api/', self.location.href).pathname) === 0) return;
   if (url.pathname === new URL('./reports/dashboard.json', self.location.href).pathname) return;
+  // 스튜디오 문제 파일은 스튜디오(오프라인 불가)와 함께 항상 네트워크에서 받고 캐시하지 않습니다.
+  if (url.pathname.indexOf(new URL('./curriculum/', self.location.href).pathname) === 0) return;
   // 연결 확인용 요청은 캐시 응답 없이 실제 네트워크 결과를 그대로 사용합니다.
   if (url.searchParams.has('pco-probe')) return;
 

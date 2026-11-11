@@ -1,0 +1,52 @@
+{
+  "id": "t4_pizza_share",
+  "title": "똑같이 나눠 먹는 방법",
+  "topic": "약수 세기",
+  "level": "응용",
+  "minutes": 15,
+  "description": [
+    "생일 파티에 쿠키가 n개 있어요. 모든 접시에 똑같은 개수만 담고 남기지 않으려고 해요.",
+    "정수 n을 입력받아 n개를 남김없이 똑같이 나눠 담을 수 있는 접시 수가 몇 가지인지 출력해주세요. 즉 n의 약수의 개수를 구하는 문제예요. 1접시와 n접시도 가능한 경우로 셉니다."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "n의 약수의 개수를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100,000",
+    "1과 n 자신도 약수입니다."
+  ],
+  "concept": "n을 어떤 수 d로 나누었을 때 나머지가 0이면 d는 n의 약수예요. 1부터 n까지 모든 d를 하나씩 확인하며 약수일 때마다 카운터를 늘리면 개수를 셀 수 있어요. 이렇게 모든 후보를 차례로 확인하는 방법은 기본이 되는 탐색 방식이에요.",
+  "conceptCode": "count = 0\nfor d in range(1, 7):\n    if 6 % d == 0:\n        count += 1\nprint(count)",
+  "starter": "n = int(input())\ncount = 0\n\n# 1부터 n까지 나누어떨어지는 수를 세어보세요.\n\nprint(count)\n",
+  "solution": "n = int(input())\ncount = 0\nfor d in range(1, n + 1):\n    if n % d == 0:\n        count += 1\nprint(count)\n",
+  "hints": [
+    "n % d == 0 이면 d는 n의 약수예요.",
+    "d를 1부터 n까지 모두 확인해야 해요. n = 1일 때는 약수가 1 하나뿐이에요.",
+    "소수는 약수가 1과 자기 자신뿐이라 2가 나와요. 97로 직접 따져 보세요."
+  ],
+  "tests": [
+    {
+      "input": "6",
+      "output": "4"
+    },
+    {
+      "input": "12",
+      "output": "6"
+    },
+    {
+      "input": "1",
+      "output": "1"
+    },
+    {
+      "input": "97",
+      "output": "2"
+    },
+    {
+      "input": "49",
+      "output": "3"
+    },
+    {
+      "input": "100000",
+      "output": "36"
+    }
+  ]
+}

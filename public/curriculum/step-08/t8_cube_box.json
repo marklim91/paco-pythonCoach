@@ -1,0 +1,47 @@
+{
+  "id": "t8_cube_box",
+  "title": "정육면체 상자의 부피",
+  "topic": "함수 만들기",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "택배 상자를 포장하다 보면 부피를 자주 계산하게 돼요. 매번 같은 계산을 쓰는 대신 함수로 만들어 두면 편리해요.",
+    "정수 n을 입력받아 한 변의 길이가 n인 정육면체의 부피를 반환하는 함수 cube(n)을 만들고, 그 결과를 출력해주세요."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "정육면체의 부피(n × n × n)를 출력합니다.",
+  "constraints": [
+    "0 ≤ n ≤ 1,000",
+    "함수 cube를 def로 만들어 사용하세요."
+  ],
+  "concept": "def 함수이름(매개변수): 로 함수를 만들고, return 뒤에 돌려줄 값을 적어요. 함수는 만들어 둔 뒤 이름(값)으로 호출해야 실행돼요.",
+  "conceptCode": "def double(x):\n    return x * 2\n\nprint(double(21))",
+  "starter": "def cube(n):\n    # TODO: n을 세 번 곱한 값을 돌려주세요.\n    pass\n\nn = int(input())\nprint(cube(n))\n",
+  "solution": "def cube(n):\n    return n * n * n\n\nn = int(input())\nprint(cube(n))\n",
+  "hints": [
+    "함수 안에서 계산한 값은 return으로 돌려줘야 바깥에서 print로 출력할 수 있어요.",
+    "return 뒤에 n을 세 번 곱하는 식을 써보세요. n ** 3도 같은 뜻이에요."
+  ],
+  "tests": [
+    {
+      "input": "3",
+      "output": "27"
+    },
+    {
+      "input": "5",
+      "output": "125"
+    },
+    {
+      "input": "0",
+      "output": "0"
+    },
+    {
+      "input": "1",
+      "output": "1"
+    },
+    {
+      "input": "1000",
+      "output": "1000000000"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "t5_name_tag",
+  "title": "이름표 만들기",
+  "topic": "인덱싱",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "새 학기에 이름표를 만들 때는 이름의 길이와 첫 글자, 끝 글자만 알아도 충분할 때가 있어요.",
+    "영어 단어 word를 입력받아 글자 수, 첫 글자, 마지막 글자를 공백으로 구분해 한 줄로 출력해주세요."
+  ],
+  "input": "영어 소문자로 이루어진 단어 하나가 한 줄에 주어집니다.",
+  "output": "글자 수, 첫 글자, 마지막 글자를 공백 하나로 구분해 한 줄에 출력합니다. (예: apple → 5 a e)",
+  "constraints": [
+    "단어 길이는 1 이상 30 이하입니다.",
+    "글자가 하나뿐이면 첫 글자와 마지막 글자가 같습니다."
+  ],
+  "concept": "len(word)는 글자 수를 알려줘요. 문자열의 각 글자는 번호(인덱스)를 가지는데, 첫 글자는 word[0]이고 마지막 글자는 word[-1]처럼 뒤에서부터 셀 수도 있어요.",
+  "conceptCode": "word = \"python\"\nprint(len(word))\nprint(word[0])\nprint(word[-1])",
+  "starter": "word = input().strip()\n\n# 글자 수, 첫 글자, 마지막 글자를 한 줄에 출력해주세요.\n",
+  "solution": "word = input().strip()\nprint(len(word), word[0], word[-1])\n",
+  "hints": [
+    "글자 수는 len(), 첫 글자는 번호 0을 사용해요.",
+    "마지막 글자는 word[-1]이에요. print(a, b, c)는 값 사이에 공백을 넣어 출력해요."
+  ],
+  "tests": [
+    {
+      "input": "apple",
+      "output": "5 a e"
+    },
+    {
+      "input": "python",
+      "output": "6 p n"
+    },
+    {
+      "input": "a",
+      "output": "1 a a"
+    },
+    {
+      "input": "kiwi",
+      "output": "4 k i"
+    },
+    {
+      "input": "zz",
+      "output": "2 z z"
+    },
+    {
+      "input": "banana",
+      "output": "6 b a"
+    }
+  ]
+}

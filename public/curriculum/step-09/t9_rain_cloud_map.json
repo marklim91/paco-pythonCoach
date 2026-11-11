@@ -1,0 +1,52 @@
+{
+  "id": "t9_rain_cloud_map",
+  "title": "비구름 근처 칸 세기",
+  "topic": "이웃 칸 세기",
+  "level": "응용",
+  "minutes": 20,
+  "description": [
+    "날씨 지도에는 비구름이 있는 칸이 '*', 맑은 칸이 '.'로 표시되어 있어요.",
+    "맑은 칸마다 상하좌우와 대각선까지 이웃한 8칸 중 비구름 칸이 몇 개인지 세어 그 숫자로 바꿔 출력해주세요. 비구름 칸('*')은 그대로 둡니다. 지도 밖은 비구름이 없는 것으로 생각해요."
+  ],
+  "input": "첫째 줄에 정수 R, C가 주어집니다. 다음 R개의 줄에는 공백 없이 C개의 문자('.' 또는 '*')가 주어집니다.",
+  "output": "맑은 칸을 이웃한 비구름 수(0~8)로 바꾼 R줄 C칸의 지도를 공백 없이 출력합니다.",
+  "constraints": [
+    "1 ≤ R, C ≤ 15",
+    "숫자 0도 그대로 '0'으로 출력합니다."
+  ],
+  "concept": "이웃 칸을 확인할 때는 행 변화량 dr과 열 변화량 dc를 -1, 0, 1로 바꿔가며 살펴요. 단, 지도 밖으로 나가면 세지 않도록 0 <= nr < R, 0 <= nc < C를 꼭 확인해야 해요. (dr, dc)가 (0, 0)이면 자기 자신이니 건너뛰어요.",
+  "conceptCode": "r, c = 1, 1\nfor dr in (-1, 0, 1):\n    for dc in (-1, 0, 1):\n        if dr == 0 and dc == 0:\n            continue\n        print(r + dr, c + dc)",
+  "starter": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\n# 각 칸마다 8방향 이웃을 살펴보세요.\n",
+  "solution": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\nfor r in range(R):\n    line = \"\"\n    for c in range(C):\n        if grid[r][c] == \"*\":\n            line += \"*\"\n            continue\n        count = 0\n        for dr in (-1, 0, 1):\n            for dc in (-1, 0, 1):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < R and 0 <= nc < C and grid[nr][nc] == \"*\":\n                    count += 1\n        line += str(count)\n    print(line)\n",
+  "hints": [
+    "칸마다 결과 한 글자를 만들어 한 줄 문자열에 이어 붙이고, 줄이 끝나면 출력해요.",
+    "맑은 칸이면 dr, dc를 -1~1로 돌며 이웃 칸이 '*'인지 세요. 자기 자신 (0, 0)은 칸이 '.'이라 세어지지 않아요.",
+    "지도 밖은 0 <= nr < R and 0 <= nc < C 조건으로 걸러내세요."
+  ],
+  "tests": [
+    {
+      "input": "3 4\n*...\n....\n..*.",
+      "output": "*100\n1211\n01*1"
+    },
+    {
+      "input": "1 1\n.",
+      "output": "0"
+    },
+    {
+      "input": "1 1\n*",
+      "output": "*"
+    },
+    {
+      "input": "2 2\n**\n**",
+      "output": "**\n**"
+    },
+    {
+      "input": "3 3\n...\n...\n...",
+      "output": "000\n000\n000"
+    },
+    {
+      "input": "4 5\n.*...\n..*.*\n.....\n*...*",
+      "output": "1*221\n12*2*\n12132\n*101*"
+    }
+  ]
+}

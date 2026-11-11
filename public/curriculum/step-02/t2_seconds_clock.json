@@ -1,0 +1,56 @@
+{
+  "id": "t2_seconds_clock",
+  "title": "초를 시·분·초로",
+  "topic": "시간 단위 변환",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "마라톤 기록이 '초' 단위로만 적혀 있으면 얼마나 걸렸는지 한눈에 알기 어려워요.",
+    "초 s를 입력받아 '시간 분 초'(h, m, s)로 바꿔 출력해주세요. 출력 형식은 3h 5m 9s 처럼 숫자 뒤에 영어 단위(h, m, s)를 붙이고 사이에 공백을 둬요. 0인 단위도 생략하지 않고 출력해요."
+  ],
+  "input": "초를 나타내는 정수 s 하나가 주어집니다.",
+  "output": "'Hh Mm Ss' 형태(예: 1h 1m 1s)로 한 줄에 출력합니다. 분과 초는 0~59예요.",
+  "constraints": [
+    "0 ≤ s ≤ 359,999",
+    "0인 단위도 0h, 0m, 0s처럼 출력하세요."
+  ],
+  "concept": "1시간은 3600초, 1분은 60초예요. 전체를 3600으로 나눈 몫이 시간이고, 남은 나머지를 다시 60으로 나누면 분과 초가 나와요. 나머지를 다음 단계의 입력으로 이어 쓰는 방식이에요.",
+  "conceptCode": "rest = 130\nprint(rest // 60)\nrest = rest % 60\nprint(rest)",
+  "starter": "s = int(input())\n\n# 시간, 분, 초를 차례로 구해보세요.\n",
+  "solution": "s = int(input())\nhours = s // 3600\nrest = s % 3600\nminutes = rest // 60\nseconds = rest % 60\nprint(f\"{hours}h {minutes}m {seconds}s\")\n",
+  "hints": [
+    "먼저 3600으로 나눈 몫이 시간이에요. 남은 초는 나머지로 구해요.",
+    "남은 초를 60으로 나눈 몫이 분, 그 나머지가 초예요.",
+    "f\"{hours}h {minutes}m {seconds}s\" 처럼 출력하면 형식을 맞출 수 있어요."
+  ],
+  "tests": [
+    {
+      "input": "3661",
+      "output": "1h 1m 1s"
+    },
+    {
+      "input": "59",
+      "output": "0h 0m 59s"
+    },
+    {
+      "input": "60",
+      "output": "0h 1m 0s"
+    },
+    {
+      "input": "3600",
+      "output": "1h 0m 0s"
+    },
+    {
+      "input": "0",
+      "output": "0h 0m 0s"
+    },
+    {
+      "input": "86399",
+      "output": "23h 59m 59s"
+    },
+    {
+      "input": "359999",
+      "output": "99h 59m 59s"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "t6_rotate_conveyor",
+  "title": "회전 초밥 레일",
+  "topic": "리스트 회전",
+  "level": "응용",
+  "minutes": 18,
+  "description": [
+    "회전 초밥집 레일 위의 접시 번호들이 오른쪽으로 한 칸씩 돌고 있어요.",
+    "접시 n개의 번호가 왼쪽부터 순서대로 주어질 때, 레일이 오른쪽으로 k칸 돌았다면 접시 번호가 어떤 순서가 되는지 출력해주세요. 맨 오른쪽 접시는 맨 왼쪽으로 돌아와요."
+  ],
+  "input": "첫째 줄에 접시 수 n과 칸 수 k가, 둘째 줄에 n개의 접시 번호가 공백으로 구분되어 주어집니다.",
+  "output": "회전한 뒤의 접시 번호를 공백으로 구분해 한 줄에 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 20",
+    "0 ≤ k ≤ 100 (k가 n보다 클 수도 있습니다)",
+    "-100 ≤ 접시 번호 ≤ 100"
+  ],
+  "concept": "슬라이싱 a[i:j]는 리스트의 일부를 잘라내고, 두 리스트는 +로 이어 붙일 수 있어요. 리스트를 n칸 돌리면 원래 모양으로 돌아오므로 k를 n으로 나눈 나머지만큼만 돌리면 충분해요.",
+  "conceptCode": "a = [1, 2, 3, 4]\nprint(a[1:])\nprint(a[:1])\nprint(a[1:] + a[:1])",
+  "starter": "n, k = map(int, input().split())\nplates = list(map(int, input().split()))\n\n# 오른쪽으로 k칸 돌린 결과를 출력해보세요.\n",
+  "solution": "n, k = map(int, input().split())\nplates = list(map(int, input().split()))\nk %= n\nrotated = plates[n - k:] + plates[:n - k]\nprint(*rotated)\n",
+  "hints": [
+    "k가 n 이상이어도 한 바퀴 돌면 제자리이니 k를 n으로 나눈 나머지를 사용해요.",
+    "오른쪽으로 k칸 돌면 뒤쪽 k개가 맨 앞으로 와요. 슬라이싱으로 나눠보세요.",
+    "뒤쪽 k개와 앞쪽 n-k개를 순서를 바꿔 이어 붙여요. k가 0일 때도 확인해보세요."
+  ],
+  "tests": [
+    {
+      "input": "5 2\n1 2 3 4 5",
+      "output": "4 5 1 2 3"
+    },
+    {
+      "input": "4 1\n10 20 30 40",
+      "output": "40 10 20 30"
+    },
+    {
+      "input": "3 0\n5 6 7",
+      "output": "5 6 7"
+    },
+    {
+      "input": "3 7\n1 2 3",
+      "output": "3 1 2"
+    },
+    {
+      "input": "1 5\n9",
+      "output": "9"
+    },
+    {
+      "input": "4 4\n-1 -2 -3 -4",
+      "output": "-1 -2 -3 -4"
+    },
+    {
+      "input": "6 15\n1 2 3 4 5 6",
+      "output": "4 5 6 1 2 3"
+    }
+  ]
+}

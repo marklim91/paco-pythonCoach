@@ -1,0 +1,56 @@
+{
+  "id": "t3_ride",
+  "title": "놀이기구 탈 수 있을까?",
+  "topic": "and/or",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "놀이공원의 롤러코스터 앞에는 나이와 키 제한이 적혀 있어요.",
+    "나이 age와 키 h(cm)를 입력받아, 나이가 8세 이상이고 키가 125 이상이면 OK, 둘 중 하나만 만족하면 ASK(직원에게 문의), 둘 다 만족하지 못하면 NO를 출력해주세요."
+  ],
+  "input": "한 줄에 공백으로 구분된 두 정수 age, h가 주어집니다.",
+  "output": "OK, ASK, NO 중 하나를 출력합니다.",
+  "constraints": [
+    "1 ≤ age ≤ 100",
+    "50 ≤ h ≤ 220",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "and는 두 조건이 모두 참일 때만 참이고, or는 둘 중 하나라도 참이면 참이에요. 'and 조건'을 먼저 확인하고 그다음에 'or 조건'을 확인하면 '둘 중 하나만'인 경우를 쉽게 나눌 수 있어요.",
+  "conceptCode": "x = 7\nprint(x > 5 and x < 10)\nprint(x < 5 or x == 7)",
+  "starter": "age, h = map(int, input().split())\n\n# 두 조건을 모두 만족하는지, 하나라도 만족하는지 확인해보세요.\n",
+  "solution": "age, h = map(int, input().split())\nif age >= 8 and h >= 125:\n    print(\"OK\")\nelif age >= 8 or h >= 125:\n    print(\"ASK\")\nelse:\n    print(\"NO\")\n",
+  "hints": [
+    "먼저 나이와 키 조건을 and로 묶어 둘 다 만족하는 경우를 처리해요.",
+    "둘 다 만족하는 경우를 먼저 확인했다면, 다음 elif에서 or로 '하나라도 만족'을 확인하면 돼요."
+  ],
+  "tests": [
+    {
+      "input": "10 130",
+      "output": "OK"
+    },
+    {
+      "input": "6 110",
+      "output": "NO"
+    },
+    {
+      "input": "8 125",
+      "output": "OK"
+    },
+    {
+      "input": "7 125",
+      "output": "ASK"
+    },
+    {
+      "input": "8 124",
+      "output": "ASK"
+    },
+    {
+      "input": "7 124",
+      "output": "NO"
+    },
+    {
+      "input": "30 200",
+      "output": "OK"
+    }
+  ]
+}

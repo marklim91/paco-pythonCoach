@@ -1,5 +1,6 @@
 // 파코 스튜디오(new.html) 문제 목록의 공개 요약입니다. 정답·설명·테스트는 포함하지 않습니다.
-// new.html의 curriculum과 같은 내용인지 tests/studio-catalog.test.js가 확인하므로 문제를 바꾸면 이 파일도 함께 고치세요.
+// 스튜디오는 이 목록을 그대로 쓰고, 문제 본문은 curriculum/step-NN/<문제ID>.json에서 불러옵니다.
+// 두 곳이 같은 내용인지 tests/studio-catalog.test.js가 확인하므로 문제를 바꾸면 이 파일도 함께 고치세요.
 (function (root) {
   var POINTS = { 맛보기: 5, 입문: 10, 기초: 20, 응용: 30, 도전: 50, 심화: 80 };
   var LEVELS = ["맛보기", "입문", "기초", "응용", "도전", "심화"];

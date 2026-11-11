@@ -34,13 +34,17 @@ function publicSnapshot(students, collectedAt) {
   };
 }
 
+// JSON 중에는 스튜디오가 문제를 열 때 불러오는 문제 본문(curriculum/step-NN/<문제ID>.json)만 공개합니다.
+const STUDIO_PROBLEM_FILE = /^curriculum[\\/]step-\d\d[\\/][a-z0-9_]+\.json$/;
+
 function collectAssets(directory, relative = '') {
   const assets = [];
   for (const entry of fs.readdirSync(path.join(directory, relative), { withFileTypes: true })) {
     const name = path.join(relative, entry.name);
     if (entry.isSymbolicLink()) throw new Error('PAGES_SYMLINK_NOT_ALLOWED');
     if (entry.isDirectory()) assets.push(...collectAssets(directory, name));
-    else if (/\.(html|css|js|svg|png|ico|webmanifest)$/i.test(entry.name) || entry.name === 'manifest.json') {
+    else if (/\.(html|css|js|svg|png|ico|webmanifest)$/i.test(entry.name) || entry.name === 'manifest.json' ||
+        STUDIO_PROBLEM_FILE.test(name)) {
       assets.push(name);
     }
   }

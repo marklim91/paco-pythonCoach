@@ -1,0 +1,57 @@
+{
+  "id": "t8_hanoi_plates",
+  "title": "하노이의 접시 탑",
+  "topic": "재귀 분할",
+  "level": "도전",
+  "minutes": 30,
+  "description": [
+    "기둥 A에 크기가 다른 접시 n개가 큰 것이 아래, 작은 것이 위로 쌓여 있어요. 한 번에 접시 하나만 옮길 수 있고, 작은 접시 위에 큰 접시를 올릴 수 없어요.",
+    "접시를 모두 기둥 C로 옮기려 해요(기둥 B는 보조). 첫 줄에 필요한 최소 이동 횟수를 출력하고, n이 4 이하일 때에만 이어서 이동 과정을 한 줄에 하나씩 `A -> C` 형식(화살표 양옆에 공백 한 칸)으로 출력해주세요."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "첫 줄에 최소 이동 횟수, n ≤ 4이면 그 뒤로 이동 과정을 순서대로 한 줄씩 출력합니다. (n = 0이면 0만 출력)",
+  "constraints": [
+    "0 ≤ n ≤ 30",
+    "n ≥ 5이면 이동 과정은 출력하지 않고 횟수만 출력합니다.",
+    "여러 방법이 있어도 큰 원판이 가장 아래에서 한 번만 이동하는 표준 방법(A → C, 보조 B)을 따르세요."
+  ],
+  "concept": "n개를 옮기려면 (1) 위의 n-1개를 보조 기둥으로 옮기고 (2) 가장 큰 접시를 목적지로 옮기고 (3) n-1개를 다시 목적지로 옮기면 돼요. 이 중 (1)과 (3)은 같은 문제가 더 작아진 모양이라 재귀로 쓸 수 있어요. 이동 횟수 f(n)은 f(n) = 2 × f(n-1) + 1 이에요.",
+  "conceptCode": "def f(n):\n    if n == 0:\n        return 0\n    return 2 * f(n - 1) + 1\n\nprint(f(1), f(2), f(3))",
+  "starter": "def count(n):\n    # TODO: 최소 이동 횟수를 재귀로 구하세요.\n    return 0\n\ndef hanoi(n, src, dst, via, moves):\n    # TODO: n개의 접시를 src에서 dst로 옮기는 과정을 moves 리스트에 추가하세요.\n    pass\n\nn = int(input())\nprint(count(n))\nif n <= 4:\n    moves = []\n    hanoi(n, \"A\", \"C\", \"B\", moves)\n    for move in moves:\n        print(move)\n",
+  "solution": "def count(n):\n    if n == 0:\n        return 0\n    return 2 * count(n - 1) + 1\n\ndef hanoi(n, src, dst, via, moves):\n    if n == 0:\n        return\n    hanoi(n - 1, src, via, dst, moves)\n    moves.append(src + \" -> \" + dst)\n    hanoi(n - 1, via, dst, src, moves)\n\nn = int(input())\nprint(count(n))\nif n <= 4:\n    moves = []\n    hanoi(n, \"A\", \"C\", \"B\", moves)\n    for move in moves:\n        print(move)\n",
+  "hints": [
+    "n이 0이면 옮길 접시가 없으니 아무것도 하지 않고 돌아와요.",
+    "n-1개를 src에서 via로 옮기고, 가장 큰 접시를 src에서 dst로 옮기고, n-1개를 via에서 dst로 옮겨요.",
+    "재귀 호출에서 기둥의 역할(출발, 도착, 보조)이 바뀌는 순서에 주의하세요. 이동은 moves.append(...)로 기록해요."
+  ],
+  "tests": [
+    {
+      "input": "1",
+      "output": "1\nA -> C"
+    },
+    {
+      "input": "2",
+      "output": "3\nA -> B\nA -> C\nB -> C"
+    },
+    {
+      "input": "3",
+      "output": "7\nA -> C\nA -> B\nC -> B\nA -> C\nB -> A\nB -> C\nA -> C"
+    },
+    {
+      "input": "4",
+      "output": "15\nA -> B\nA -> C\nB -> C\nA -> B\nC -> A\nC -> B\nA -> B\nA -> C\nB -> C\nB -> A\nC -> A\nB -> C\nA -> B\nA -> C\nB -> C"
+    },
+    {
+      "input": "0",
+      "output": "0"
+    },
+    {
+      "input": "10",
+      "output": "1023"
+    },
+    {
+      "input": "30",
+      "output": "1073741823"
+    }
+  ]
+}

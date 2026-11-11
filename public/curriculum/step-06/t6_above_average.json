@@ -1,0 +1,52 @@
+{
+  "id": "t6_above_average",
+  "title": "평균보다 높은 점수",
+  "topic": "평균과 비교",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "퀴즈 시간이 끝나고 선생님이 \"평균보다 잘한 친구는 몇 명일까?\" 하고 물어보세요.",
+    "학생 수 n과 점수들을 입력받아 평균보다 점수가 엄격하게 높은 학생이 몇 명인지 출력해주세요. 평균과 같은 점수는 세지 않아요."
+  ],
+  "input": "첫째 줄에 학생 수 n이, 둘째 줄에 n개의 점수가 공백으로 구분되어 주어집니다.",
+  "output": "평균보다 높은 점수의 개수를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "-100 ≤ 점수 ≤ 100",
+    "평균과 같은 점수는 세지 않습니다."
+  ],
+  "concept": "for 문으로 리스트의 값을 하나씩 꺼내면서 조건을 검사하고, 조건에 맞을 때마다 카운터 변수를 1씩 올릴 수 있어요. 평균은 sum(리스트) / len(리스트)로 구할 수 있고, 평균과 비교할 때는 크다(>)와 크거나 같다(>=)를 잘 구분해야 해요.",
+  "conceptCode": "nums = [4, 8, 6]\nbig = 0\nfor x in nums:\n    if x > 5:\n        big += 1\nprint(big)",
+  "starter": "n = int(input())\nscores = list(map(int, input().split()))\n\n# 평균을 구하고, 평균보다 높은 점수를 세어보세요.\n",
+  "solution": "n = int(input())\nscores = list(map(int, input().split()))\navg = sum(scores) / n\ncount = 0\nfor s in scores:\n    if s > avg:\n        count += 1\nprint(count)\n",
+  "hints": [
+    "먼저 평균을 구하고, 그다음 모든 점수를 하나씩 평균과 비교해요.",
+    "count = 0으로 시작해서 평균보다 큰 점수를 만날 때마다 count를 1 늘려요."
+  ],
+  "tests": [
+    {
+      "input": "5\n80 90 70 100 60",
+      "output": "2"
+    },
+    {
+      "input": "6\n9 8 7 3 2 1",
+      "output": "3"
+    },
+    {
+      "input": "4\n50 50 50 50",
+      "output": "0"
+    },
+    {
+      "input": "1\n77",
+      "output": "0"
+    },
+    {
+      "input": "6\n1 1 1 1 1 9",
+      "output": "1"
+    },
+    {
+      "input": "5\n-5 -1 -3 -10 4",
+      "output": "2"
+    }
+  ]
+}

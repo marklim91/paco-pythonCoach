@@ -1,0 +1,52 @@
+{
+  "id": "t9_germ_dish",
+  "title": "세균 배양 한 세대",
+  "topic": "상태 갱신",
+  "level": "도전",
+  "minutes": 28,
+  "description": [
+    "과학 시간에 접시 위 세균이 한 세대 지나면 어떻게 변하는지 시뮬레이션하고 있어요.",
+    "접시는 R x C 칸이고 세균이 사는 칸은 '#', 빈 칸은 '.'예요. 이웃(상하좌우·대각선 8칸) 세균 수에 따라 모든 칸이 동시에 바뀌어요. 세균이 있는 칸은 이웃이 2개 또는 3개면 살아남고 아니면 사라져요. 빈 칸은 이웃이 정확히 3개면 새 세균이 생겨요. 접시 밖에는 세균이 없다고 생각해요. 한 세대 뒤의 접시를 출력해주세요."
+  ],
+  "input": "첫째 줄에 정수 R, C가 주어집니다. 다음 R개의 줄에는 공백 없이 C개의 문자('.' 또는 '#')가 주어집니다.",
+  "output": "한 세대 뒤의 R줄 C칸의 접시를 공백 없이 출력합니다.",
+  "constraints": [
+    "1 ≤ R, C ≤ 12",
+    "모든 칸은 같은 시점의 상태를 기준으로 동시에 바뀝니다."
+  ],
+  "concept": "시뮬레이션에서 한 칸을 바꾸면 이웃 칸의 계산에 영향을 줘요. 그래서 원래 표(grid)는 그대로 두고, 새 표(new_grid)를 따로 만들어 결과를 적는 것이 안전해요. 새 표는 [[...] for _ in range(R)]처럼 만들 수 있어요.",
+  "conceptCode": "old = ['#.', '.#']\nnew = [['.'] * 2 for _ in range(2)]\nnew[0][0] = old[1][1]\nprint(''.join(new[0]))",
+  "starter": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\n# 원래 표를 바꾸지 말고 새 표를 따로 만들어 결과를 적어보세요.\n",
+  "solution": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\nnew_grid = []\nfor r in range(R):\n    line = \"\"\n    for c in range(C):\n        count = 0\n        for dr in (-1, 0, 1):\n            for dc in (-1, 0, 1):\n                if dr == 0 and dc == 0:\n                    continue\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < R and 0 <= nc < C and grid[nr][nc] == \"#\":\n                    count += 1\n        if grid[r][c] == \"#\":\n            alive = count == 2 or count == 3\n        else:\n            alive = count == 3\n        line += \"#\" if alive else \".\"\n    new_grid.append(line)\nfor line in new_grid:\n    print(line)\n",
+  "hints": [
+    "먼저 한 칸 주변의 세균 수를 세는 부분을 만들어보세요. 자기 자신은 세지 않아야 해요.",
+    "세균이 있는 칸은 이웃이 2 또는 3개일 때, 빈 칸은 이웃이 3개일 때만 다음 세대에 세균이 있어요.",
+    "원래 표는 그대로 두고 새 표(또는 새 문자열 목록)에 결과를 쌓은 뒤 마지막에 출력하세요."
+  ],
+  "tests": [
+    {
+      "input": "5 5\n.....\n..#..\n..#..\n..#..\n.....",
+      "output": ".....\n.....\n.###.\n.....\n....."
+    },
+    {
+      "input": "4 4\n....\n.##.\n.##.\n....",
+      "output": "....\n.##.\n.##.\n...."
+    },
+    {
+      "input": "1 1\n#",
+      "output": "."
+    },
+    {
+      "input": "3 3\n...\n...\n...",
+      "output": "...\n...\n..."
+    },
+    {
+      "input": "3 3\n###\n###\n###",
+      "output": "#.#\n...\n#.#"
+    },
+    {
+      "input": "5 6\n.#....\n..#...\n###...\n......\n....##",
+      "output": "......\n#.#...\n.##...\n.#....\n......"
+    }
+  ]
+}

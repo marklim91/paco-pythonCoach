@@ -1,0 +1,53 @@
+{
+  "id": "t7_friend_groups",
+  "title": "두 친구 모임의 공통점",
+  "topic": "집합 연산",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "내가 속한 두 동아리에 같은 친구가 몇 명이나 있는지 궁금해요.",
+    "A동아리와 B동아리의 부원 이름이 한 줄씩 주어져요. 두 동아리에 모두 있는 사람 수, 두 동아리를 합쳐 중복 없이 센 전체 사람 수, 그리고 모두 있는 사람의 이름을 가나다(사전) 순서로 출력해주세요."
+  ],
+  "input": "첫 줄에 A동아리 부원, 둘째 줄에 B동아리 부원의 이름이 공백으로 구분되어 주어집니다.",
+  "output": "첫째 줄에 '공통 숫자명', 둘째 줄에 '전체 숫자명', 셋째 줄에 공통 이름을 공백으로 이어 출력합니다. 공통 이름이 없으면 셋째 줄에 '없음'을 출력합니다.",
+  "constraints": [
+    "각 줄에는 1명 이상 30명 이하의 이름이 있고, 한 줄 안에서 이름은 중복되지 않습니다.",
+    "이름은 공백 없는 한글 또는 영어 낱말입니다.",
+    "정렬은 파이썬 sorted()의 기본 순서를 따릅니다."
+  ],
+  "concept": "집합(set)은 중복 없이 값을 모아요. a & b는 둘 다에 있는 값(교집합), a | b는 둘을 합친 값(합집합)이에요. len()으로 개수를, sorted()로 정렬된 리스트를 얻을 수 있어요.",
+  "conceptCode": "a = {'가', '나', '다'}\nb = {'나', '다', '라'}\nprint(a & b)\nprint(len(a | b))",
+  "starter": "club_a = set(input().split())\nclub_b = set(input().split())\n\n# 교집합과 합집합을 이용해보세요.\n",
+  "solution": "club_a = set(input().split())\nclub_b = set(input().split())\n\nboth = club_a & club_b\neveryone = club_a | club_b\nprint(f\"공통 {len(both)}명\")\nprint(f\"전체 {len(everyone)}명\")\nif both:\n    print(\" \".join(sorted(both)))\nelse:\n    print(\"없음\")\n",
+  "hints": [
+    "각 줄을 split()으로 나눈 뒤 set()으로 감싸면 중복이 없는 집합이 돼요.",
+    "교집합은 &, 합집합은 | 예요. 공통 이름이 비어 있는 경우는 if both: 로 나누어 처리해보세요.",
+    "이름을 한 줄로 출력할 때는 ' '.join(sorted(both))를 써보세요."
+  ],
+  "tests": [
+    {
+      "input": "지민 하늘 도윤 서아\n하늘 서아 민재",
+      "output": "공통 2명\n전체 5명\n서아 하늘"
+    },
+    {
+      "input": "가온 나래\n다솜 라온 마루",
+      "output": "공통 0명\n전체 5명\n없음"
+    },
+    {
+      "input": "mina sam\nsam mina",
+      "output": "공통 2명\n전체 2명\nmina sam"
+    },
+    {
+      "input": "철수\n철수",
+      "output": "공통 1명\n전체 1명\n철수"
+    },
+    {
+      "input": "a b c d e\nz y x e a",
+      "output": "공통 2명\n전체 8명\na e"
+    },
+    {
+      "input": "소라\n바다 하늘 구름",
+      "output": "공통 0명\n전체 4명\n없음"
+    }
+  ]
+}

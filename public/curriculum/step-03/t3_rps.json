@@ -1,0 +1,56 @@
+{
+  "id": "t3_rps",
+  "title": "가위바위보 승부",
+  "topic": "중첩 조건",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "점심시간, 두 친구가 가위바위보로 청소 당번을 정하고 있어요.",
+    "첫 번째 친구의 손 a와 두 번째 친구의 손 b가 주어져요. 손은 R(바위), S(가위), P(보) 중 하나예요. 첫 번째 친구가 이기면 A, 두 번째 친구가 이기면 B, 비기면 DRAW를 출력해주세요."
+  ],
+  "input": "한 줄에 공백으로 구분된 두 글자 a, b가 주어집니다. 각각 R, S, P 중 하나입니다.",
+  "output": "A, B, DRAW 중 하나를 출력합니다.",
+  "constraints": [
+    "a, b는 영어 대문자 R, S, P 중 하나입니다.",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "먼저 비기는 경우를 처리하면 나머지는 누군가 이기는 경우예요. 이기는 조합은 3가지뿐이니 (바위, 가위), (가위, 보), (보, 바위)를 or로 이어 적을 수 있어요. 문자열도 == 로 비교할 수 있어요.",
+  "conceptCode": "x = \"R\"\nprint(x == \"R\")\nprint(x == \"S\" or x == \"P\")",
+  "starter": "a, b = input().split()\n\n# 비기는 경우, A가 이기는 경우, 나머지 경우로 나누어보세요.\n",
+  "solution": "a, b = input().split()\nif a == b:\n    print(\"DRAW\")\nelif (a == \"R\" and b == \"S\") or (a == \"S\" and b == \"P\") or (a == \"P\" and b == \"R\"):\n    print(\"A\")\nelse:\n    print(\"B\")\n",
+  "hints": [
+    "a == b 이면 비긴 거예요. 이 경우를 가장 먼저 처리해보세요.",
+    "A가 이기는 조합은 R-S, S-P, P-R 세 가지예요. 각각 a == ... and b == ... 로 쓰고 or로 이어보세요.",
+    "비기지도 않고 A도 못 이겼다면 남은 경우는 B의 승리예요. else에 넣으면 돼요."
+  ],
+  "tests": [
+    {
+      "input": "R S",
+      "output": "A"
+    },
+    {
+      "input": "S R",
+      "output": "B"
+    },
+    {
+      "input": "P P",
+      "output": "DRAW"
+    },
+    {
+      "input": "R P",
+      "output": "B"
+    },
+    {
+      "input": "S P",
+      "output": "A"
+    },
+    {
+      "input": "P R",
+      "output": "A"
+    },
+    {
+      "input": "S S",
+      "output": "DRAW"
+    }
+  ]
+}

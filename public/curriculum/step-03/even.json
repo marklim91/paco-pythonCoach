@@ -1,0 +1,43 @@
+{
+  "id": "even",
+  "title": "홀수일까, 짝수일까?",
+  "topic": "조건문",
+  "level": "입문",
+  "minutes": 10,
+  "description": [
+    "숫자에도 두 가지 팀이 있어요. 홀수 팀과 짝수 팀!",
+    "정수 n을 입력받아 짝수이면 EVEN, 홀수이면 ODD를 출력해주세요."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "EVEN 또는 ODD를 출력합니다.",
+  "constraints": [
+    "0 ≤ n ≤ 10,000",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "%는 나눈 나머지를 구해요. 2로 나눈 나머지가 0이면 짝수예요. if와 else로 조건에 따라 다른 코드를 실행해보세요.",
+  "conceptCode": "if 4 % 2 == 0:\n    print(\"짝수\")\nelse:\n    print(\"홀수\")",
+  "starter": "n = int(input())\n\n# n을 2로 나눈 나머지를 확인해보세요.\n",
+  "solution": "n = int(input())\nif n % 2 == 0:\n    print(\"EVEN\")\nelse:\n    print(\"ODD\")\n",
+  "hints": [
+    "n % 2 == 0 으로 짝수인지 확인해요.",
+    "if 뒤에는 콜론(:)을 쓰고, 실행할 줄은 들여쓰기해주세요."
+  ],
+  "tests": [
+    {
+      "input": "4",
+      "output": "EVEN"
+    },
+    {
+      "input": "7",
+      "output": "ODD"
+    },
+    {
+      "input": "0",
+      "output": "EVEN"
+    },
+    {
+      "input": "10000",
+      "output": "EVEN"
+    }
+  ]
+}

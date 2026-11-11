@@ -1,0 +1,46 @@
+{
+  "id": "brackets",
+  "title": "괄호의 짝 맞추기",
+  "topic": "스택",
+  "level": "도전",
+  "minutes": 20,
+  "description": [
+    "열린 괄호와 닫힌 괄호가 올바르게 짝을 이루는지 확인해요.",
+    "(와 )만으로 이루어진 문자열이 올바르면 YES, 아니면 NO를 출력해주세요. 모든 여는 괄호는 나중에 나오는 닫는 괄호와 짝을 이루어야 해요."
+  ],
+  "input": "괄호로 이루어진 문자열 한 줄이 주어집니다.",
+  "output": "올바른 괄호 문자열이면 YES, 아니면 NO를 출력합니다.",
+  "constraints": [
+    "문자열 길이는 1 이상 10,000 이하입니다."
+  ],
+  "concept": "아직 닫히지 않은 괄호 수를 세어보세요. 도중에 음수가 되면 잘못된 순서이고, 마지막에 0이 되어야 올바른 짝이에요.",
+  "conceptCode": "balance = 0\nfor ch in \"(())\":\n    balance += 1 if ch == \"(\" else -1\nprint(balance)",
+  "starter": "text = input().strip()\n\n# 괄호의 균형을 확인해주세요.\n",
+  "solution": "text = input().strip()\nbalance = 0\nvalid = True\nfor ch in text:\n    balance += 1 if ch == \"(\" else -1\n    if balance < 0:\n        valid = False\n        break\nprint(\"YES\" if valid and balance == 0 else \"NO\")\n",
+  "hints": [
+    "여는 괄호는 +1, 닫는 괄호는 -1로 세어보세요.",
+    "개수가 같아도 )(는 올바르지 않아요. 중간에 음수가 되는지 확인하세요."
+  ],
+  "tests": [
+    {
+      "input": "(())()",
+      "output": "YES"
+    },
+    {
+      "input": ")(",
+      "output": "NO"
+    },
+    {
+      "input": "(()",
+      "output": "NO"
+    },
+    {
+      "input": "()",
+      "output": "YES"
+    },
+    {
+      "input": "())(",
+      "output": "NO"
+    }
+  ]
+}

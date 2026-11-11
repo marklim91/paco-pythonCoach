@@ -11,7 +11,6 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const ROUTE_ALIASES = {
   '/': '/new.html',
   '/파코v3': '/index.html',
-  '/dge.go.kr/pco': '/new.html',
   '/dge.go.kr/pco/파코v3': '/index.html',
   '/dashboard': '/dashboard.html',
   '/대시보드': '/dashboard.html',
@@ -26,6 +25,11 @@ const ROUTE_ALIASES = {
   '/dge.go.kr/pco/파코v3_4/레벨-로드맵': '/v3_4/roadmap.html',
   '/pwa-sample': '/pwa-sample/index.html',
   '/pwa-sample/': '/pwa-sample/index.html'
+};
+
+// new.html은 스타일·스크립트·문제 파일을 같은 폴더에서 상대 경로로 불러오므로, 한 단계 깊은 옛 주소는 실제 주소로 보냅니다.
+const REDIRECTS = {
+  '/dge.go.kr/pco': '/new.html'
 };
 
 const MIME_TYPES = {
@@ -57,6 +61,11 @@ function createServer({ loginHandler, dashboardStore = createDashboardStore(), d
       return;
     }
     const decodedPath = decodeURIComponent(parsedUrl.pathname);
+    if (REDIRECTS[decodedPath]) {
+      res.writeHead(302, { Location: REDIRECTS[decodedPath] });
+      res.end();
+      return;
+    }
     const targetRel = ROUTE_ALIASES[decodedPath] || decodedPath;
 
     const safePath = path.normalize(targetRel).replace(/^(\.\.[\/\\])+/, '');

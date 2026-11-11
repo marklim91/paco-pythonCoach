@@ -1,0 +1,58 @@
+{
+  "id": "t8_frog_stairs",
+  "title": "개구리의 징검다리 계단",
+  "topic": "메모이제이션",
+  "level": "심화",
+  "minutes": 35,
+  "description": [
+    "개구리가 땅(0번)에서 출발해 n번 계단 꼭대기로 올라가려고 해요. 한 번에 1칸, 2칸, 3칸 중 하나만큼 오를 수 있어요.",
+    "일부 계단은 부서져서 밟을 수 없어요. 부서진 계단을 밟지 않고 n번 계단에 도착하는 서로 다른 방법의 수를 출력해주세요. 방법이 매우 클 수 있지만 나머지 연산 없이 정확한 값을 출력합니다. 재귀와 함께 이미 계산한 값을 저장(메모이제이션)해서 풀어보세요."
+  ],
+  "input": "한 줄에 n, m, 그리고 부서진 계단 번호 m개가 공백으로 구분되어 주어집니다. (m이 0이면 n과 m만 주어집니다.)",
+  "output": "n번 계단에 도착하는 방법의 수를 출력합니다. 도착할 수 없으면 0입니다.",
+  "constraints": [
+    "0 ≤ n ≤ 80",
+    "0 ≤ m ≤ n",
+    "부서진 계단 번호는 1 이상 n 이하이며 서로 다릅니다.",
+    "n = 0이면 땅에 이미 있으므로 방법은 1가지입니다."
+  ],
+  "concept": "ways(k)를 'k번 계단에 도착하는 방법의 수'라고 하면 ways(k) = ways(k-1) + ways(k-2) + ways(k-3) 이에요. 그냥 재귀로 쓰면 같은 값을 수없이 다시 계산해 매우 느려져요. 한 번 구한 값을 딕셔너리에 저장하거나 functools.lru_cache를 함수 위에 붙이면 각 값을 한 번만 계산해요.",
+  "conceptCode": "from functools import lru_cache\n\n@lru_cache(None)\ndef fib(k):\n    if k < 2:\n        return k\n    return fib(k - 1) + fib(k - 2)\n\nprint(fib(50))",
+  "starter": "from functools import lru_cache\n\ndata = list(map(int, input().split()))\nn, m = data[0], data[1]\nbroken = set(data[2:2 + m])\n\n@lru_cache(None)\ndef ways(k):\n    # TODO: 종료 조건(범위 밖, 부서진 계단, 땅)과 점화식을 작성하세요.\n    return 0\n\nprint(ways(n))\n",
+  "solution": "from functools import lru_cache\n\ndata = list(map(int, input().split()))\nn, m = data[0], data[1]\nbroken = set(data[2:2 + m])\n\n@lru_cache(None)\ndef ways(k):\n    if k < 0 or k in broken:\n        return 0\n    if k == 0:\n        return 1\n    return ways(k - 1) + ways(k - 2) + ways(k - 3)\n\nprint(ways(n))\n",
+  "hints": [
+    "k가 음수이거나 부서진 계단이면 0, k가 0(땅)이면 1을 돌려주는 종료 조건을 먼저 쓰세요.",
+    "그 밖의 경우 ways(k)는 바로 아래 세 칸에서 오는 방법의 수를 모두 더한 값이에요.",
+    "함수 바로 위에 @lru_cache(None)을 붙이거나, 딕셔너리에 값을 저장해두면 n = 80에서도 금방 끝나요."
+  ],
+  "tests": [
+    {
+      "input": "3 0",
+      "output": "4"
+    },
+    {
+      "input": "4 1 2",
+      "output": "3"
+    },
+    {
+      "input": "0 0",
+      "output": "1"
+    },
+    {
+      "input": "5 1 5",
+      "output": "0"
+    },
+    {
+      "input": "10 0",
+      "output": "274"
+    },
+    {
+      "input": "80 0",
+      "output": "918838005896863447985"
+    },
+    {
+      "input": "80 3 20 40 60",
+      "output": "51050033586995619744"
+    }
+  ]
+}

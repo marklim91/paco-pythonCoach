@@ -1,0 +1,47 @@
+{
+  "id": "t1_swap_cups",
+  "title": "컵 속 음료 바꾸기",
+  "topic": "변수 바꾸기",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "컵 A에는 첫 번째 음료가, 컵 B에는 두 번째 음료가 담겨 있는데 서로 바꿔 담기로 했어요.",
+    "첫째 줄에 컵 A의 음료 a, 둘째 줄에 컵 B의 음료 b가 주어져요. 두 변수의 값을 서로 바꾼 뒤 a를 먼저, b를 다음 줄에 출력해주세요."
+  ],
+  "input": "첫째 줄에 a, 둘째 줄에 b가 주어집니다. (둘 다 공백 없는 글자)",
+  "output": "바꾼 뒤의 a와 b를 한 줄에 하나씩 출력합니다.",
+  "constraints": [
+    "a와 b는 1~10글자예요.",
+    "두 값이 같은 경우도 있어요."
+  ],
+  "concept": "변수에 새 값을 넣으면 이전 값은 사라져요. 그래서 두 변수를 바꾸려면 값을 잠깐 보관할 곳이 필요해요. 파이썬에서는 x, y = y, x 처럼 한 줄로 두 값을 한꺼번에 바꿀 수도 있어요.",
+  "conceptCode": "x = \"왼쪽\"\ny = \"오른쪽\"\nx, y = y, x\nprint(x)\nprint(y)",
+  "starter": "a = input()\nb = input()\n\n# a와 b의 값을 서로 바꿔보세요.\n\nprint(a)\nprint(b)\n",
+  "solution": "a = input()\nb = input()\n\na, b = b, a\n\nprint(a)\nprint(b)\n",
+  "hints": [
+    "a = b 를 먼저 쓰면 a의 원래 값이 사라져 버려요.",
+    "임시 변수 하나에 a의 값을 보관하거나, 한 줄로 두 값을 동시에 바꾸는 방법을 써보세요."
+  ],
+  "tests": [
+    {
+      "input": "우유\n주스",
+      "output": "주스\n우유"
+    },
+    {
+      "input": "cola\nsoda",
+      "output": "soda\ncola"
+    },
+    {
+      "input": "물\n물",
+      "output": "물\n물"
+    },
+    {
+      "input": "아이스티\n오렌지주스",
+      "output": "오렌지주스\n아이스티"
+    },
+    {
+      "input": "a\nb",
+      "output": "b\na"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "t7_first_repeat_card",
+  "title": "처음으로 두 번 찍힌 카드",
+  "topic": "집합 탐색",
+  "level": "응용",
+  "minutes": 15,
+  "description": [
+    "도서관 출입 게이트에서 카드를 찍다 보면 같은 카드가 두 번 찍히는 일이 생겨요.",
+    "카드 번호가 찍힌 순서대로 주어져요. '이미 한 번 찍혔던 번호가 다시 찍히는 순간'이 가장 먼저 오는 번호와, 그 두 번째 찍힘의 순서(1부터)를 '번호 순서' 형식으로 출력해주세요. 한 번도 반복되지 않으면 '반복 없음'을 출력해요."
+  ],
+  "input": "첫 줄에 찍힌 횟수 n, 둘째 줄에 공백으로 구분된 n개의 카드 번호가 주어집니다.",
+  "output": "'번호 순서'(공백 하나로 구분) 또는 '반복 없음'을 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 10,000",
+    "1 ≤ 카드 번호 ≤ 1,000,000",
+    "예: 7 3 5 3 7 이면 3이 4번째에서 먼저 반복되므로 '3 4'입니다."
+  ],
+  "concept": "'이미 봤는지'를 빠르게 확인하려면 집합을 써요. 값을 차례로 보면서 x in seen 이면 반복이고, 아니면 seen.add(x)로 기록해요. 반복을 찾는 즉시 break로 멈출 수 있어요.",
+  "conceptCode": "seen = set()\nseen.add(7)\nprint(7 in seen)\nprint(3 in seen)",
+  "starter": "n = int(input())\ncards = list(map(int, input().split()))\n\n# 이미 본 카드 번호를 집합에 모아보세요.\n",
+  "solution": "n = int(input())\ncards = list(map(int, input().split()))\nseen = set()\nanswer = \"반복 없음\"\nfor order, card in enumerate(cards, 1):\n    if card in seen:\n        answer = f\"{card} {order}\"\n        break\n    seen.add(card)\nprint(answer)\n",
+  "hints": [
+    "카드를 한 장씩 보면서 '지금까지 본 번호 집합'에 이미 있는지 확인해요.",
+    "처음으로 '이미 있다'를 만난 카드가 정답이에요. 값이 먼저 나온 위치가 아니라, 반복이 일어난 두 번째 위치를 기준으로 해요.",
+    "순서를 1부터 세려면 enumerate(cards, 1)을 쓰세요. 반복이 없을 때를 대비해 결과 변수를 미리 '반복 없음'으로 두면 편해요."
+  ],
+  "tests": [
+    {
+      "input": "5\n7 3 5 3 7",
+      "output": "3 4"
+    },
+    {
+      "input": "4\n10 20 30 40",
+      "output": "반복 없음"
+    },
+    {
+      "input": "1\n99",
+      "output": "반복 없음"
+    },
+    {
+      "input": "2\n5 5",
+      "output": "5 2"
+    },
+    {
+      "input": "6\n1 2 3 4 5 1",
+      "output": "1 6"
+    },
+    {
+      "input": "8\n9 8 7 8 9 7 6 6",
+      "output": "8 4"
+    },
+    {
+      "input": "5\n4 4 4 4 4",
+      "output": "4 2"
+    }
+  ]
+}

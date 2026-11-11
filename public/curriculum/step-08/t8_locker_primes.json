@@ -1,0 +1,52 @@
+{
+  "id": "t8_locker_primes",
+  "title": "소수 사물함 찾기",
+  "topic": "소수 판별 함수",
+  "level": "응용",
+  "minutes": 18,
+  "description": [
+    "학교 사물함에 1번부터 n번까지 번호가 붙어 있는데, 소수인 번호의 사물함만 특별 점검을 하기로 했어요.",
+    "정수 x가 소수이면 True, 아니면 False를 돌려주는 함수 is_prime(x)를 만들고, 1부터 n까지 소수의 개수를 출력해주세요. 소수는 1과 자기 자신으로만 나누어떨어지는 2 이상의 수예요."
+  ],
+  "input": "정수 n 하나가 주어집니다.",
+  "output": "1 이상 n 이하의 소수의 개수를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 20,000",
+    "1은 소수가 아닙니다."
+  ],
+  "concept": "어떤 수 x가 소수인지는 2부터 x의 제곱근까지만 나누어 보면 충분해요. 나누어떨어지는 수가 하나라도 있으면 소수가 아니에요. 함수 안에서 return을 만나면 바로 끝나므로 조건을 찾자마자 False를 돌려줄 수 있어요.",
+  "conceptCode": "x = 12\nd = 2\nwhile d * d <= x:\n    if x % d == 0:\n        print(d, \"로 나누어떨어져요\")\n        break\n    d += 1",
+  "starter": "def is_prime(x):\n    # TODO: 소수이면 True, 아니면 False를 돌려주세요. (1은 소수가 아니에요)\n    pass\n\nn = int(input())\ncount = 0\n# TODO: 1부터 n까지 is_prime으로 소수를 세어주세요.\nprint(count)\n",
+  "solution": "def is_prime(x):\n    if x < 2:\n        return False\n    d = 2\n    while d * d <= x:\n        if x % d == 0:\n            return False\n        d += 1\n    return True\n\nn = int(input())\ncount = 0\nfor x in range(1, n + 1):\n    if is_prime(x):\n        count += 1\nprint(count)\n",
+  "hints": [
+    "x가 2보다 작으면 바로 False를 돌려주세요.",
+    "d를 2부터 시작해 d * d <= x 인 동안만 x % d == 0 인지 확인해요.",
+    "반복문을 끝까지 돌아도 나누어떨어지지 않았다면 마지막에 True를 돌려주세요."
+  ],
+  "tests": [
+    {
+      "input": "10",
+      "output": "4"
+    },
+    {
+      "input": "30",
+      "output": "10"
+    },
+    {
+      "input": "1",
+      "output": "0"
+    },
+    {
+      "input": "2",
+      "output": "1"
+    },
+    {
+      "input": "100",
+      "output": "25"
+    },
+    {
+      "input": "20000",
+      "output": "2262"
+    }
+  ]
+}

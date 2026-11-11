@@ -1,0 +1,31 @@
+{
+  "id": "t1_snack_total",
+  "title": "분식집 계산서",
+  "topic": "변수와 계산",
+  "level": "맛보기",
+  "minutes": 6,
+  "description": [
+    "분식집에서 떡볶이 3인분과 음료 2잔을 시켰어요. 얼마를 내야 할까요?",
+    "떡볶이 한 접시는 2500원, 음료 한 잔은 1200원이에요. 가격과 개수를 변수에 저장한 뒤 계산해서 세 줄을 출력해주세요. 첫 줄은 떡볶이 합계, 둘째 줄은 음료 합계, 셋째 줄은 전체 합계예요."
+  ],
+  "input": "입력은 없습니다.",
+  "output": "떡볶이 합계, 음료 합계, 전체 합계를 숫자만 한 줄에 하나씩 출력합니다.",
+  "constraints": [
+    "가격과 개수는 변수에 저장해서 사용해보세요.",
+    "단위(원)는 붙이지 말고 숫자만 출력하세요."
+  ],
+  "concept": "변수는 값에 이름표를 붙여 저장해두는 상자예요. 변수끼리 *(곱하기), +(더하기)로 계산할 수 있고, 계산 결과를 다른 변수에 다시 저장해서 쓸 수도 있어요.",
+  "conceptCode": "apple = 800\ncount = 5\ntotal = apple * count\nprint(total)",
+  "starter": "tteok_price = 2500\ntteok_count = 3\ndrink_price = 1200\ndrink_count = 2\n\n# 세 줄을 출력해보세요.\n",
+  "solution": "tteok_price = 2500\ntteok_count = 3\ndrink_price = 1200\ndrink_count = 2\n\ntteok_total = tteok_price * tteok_count\ndrink_total = drink_price * drink_count\nprint(tteok_total)\nprint(drink_total)\nprint(tteok_total + drink_total)\n",
+  "hints": [
+    "(가격) * (개수)를 계산하면 한 종류의 합계가 나와요.",
+    "각 합계를 새 변수에 저장하면 마지막 줄에서 두 변수를 더하기만 하면 돼요."
+  ],
+  "tests": [
+    {
+      "input": "",
+      "output": "7500\n2400\n9900"
+    }
+  ]
+}

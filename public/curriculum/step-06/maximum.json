@@ -1,0 +1,43 @@
+{
+  "id": "maximum",
+  "title": "가장 큰 숫자 찾기",
+  "topic": "리스트",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "여러 개의 숫자 중 가장 큰 숫자를 찾아봐요.",
+    "첫 줄에 개수 n, 다음 줄에 n개의 정수가 주어집니다. 최댓값을 출력해주세요."
+  ],
+  "input": "첫 줄에 n, 둘째 줄에 공백으로 구분된 n개의 정수가 주어집니다.",
+  "output": "가장 큰 정수를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "각 정수는 -10,000 이상 10,000 이하입니다."
+  ],
+  "concept": "리스트는 여러 값을 하나로 묶어요. list(map(int, input().split()))로 숫자 리스트를 만들 수 있어요.",
+  "conceptCode": "numbers = [3, 8, 2]\nprint(numbers[0])\nprint(max(numbers))",
+  "starter": "n = int(input())\nnumbers = list(map(int, input().split()))\n\n# numbers에서 가장 큰 값을 출력해주세요.\n",
+  "solution": "n = int(input())\nnumbers = list(map(int, input().split()))\nprint(max(numbers))\n",
+  "hints": [
+    "max() 함수로 리스트에서 최댓값을 구할 수 있어요.",
+    "직접 비교한다면 시작값을 0이 아니라 numbers[0]으로 두세요. 음수만 있을 수도 있어요."
+  ],
+  "tests": [
+    {
+      "input": "5\n3 8 2 9 1",
+      "output": "9"
+    },
+    {
+      "input": "3\n-9 -2 -5",
+      "output": "-2"
+    },
+    {
+      "input": "1\n0",
+      "output": "0"
+    },
+    {
+      "input": "4\n7 7 7 7",
+      "output": "7"
+    }
+  ]
+}

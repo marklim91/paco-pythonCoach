@@ -3,11 +3,18 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const studio = require('../public/studio-catalog');
+const { loadCurriculum, curriculumFiles, stepFolder } = require('./support/curriculum');
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'new.html'), 'utf8');
-const curriculum = JSON.parse(html.match(/<script id="curriculum"[^>]*>([\s\S]*?)<\/script>/)[1]);
+const core = fs.readFileSync(path.join(__dirname, '..', 'public', 'studio-core.js'), 'utf8');
+const curriculum = loadCurriculum();
 
-test('studio catalog matches the studio curriculum, so dashboards never drift from the problems', () => {
+test('every catalog problem has one file in its step folder and no other problem files exist', () => {
+  const expected = studio.tracks.flatMap(track => track.problems.map(problem => `${stepFolder(track)}/${problem.id}.json`));
+  assert.equal(expected.length, 100);
+  assert.deepEqual(curriculumFiles(), [...expected].sort());
+});
+
+test('studio catalog matches the problem files, so dashboards never drift from the problems', () => {
   assert.equal(studio.tracks.length, curriculum.length);
   curriculum.forEach((track, i) => {
     const catalog = studio.tracks[i];
@@ -21,7 +28,7 @@ test('studio catalog matches the studio curriculum, so dashboards never drift fr
 });
 
 test('studio catalog points follow the studio POINTS_BY_LEVEL and add up to the full score', () => {
-  const block = html.match(/const POINTS_BY_LEVEL = \{([\s\S]*?)\};/)[1];
+  const block = core.match(/const POINTS_BY_LEVEL = \{([\s\S]*?)\};/)[1];
   const studioPoints = Object.fromEntries([...block.matchAll(/(\S+):\s*(\d+)/g)].map(match => [match[1], Number(match[2])]));
   assert.deepEqual(studio.POINTS, studioPoints);
   assert.deepEqual(studio.LEVELS, Object.keys(studioPoints));

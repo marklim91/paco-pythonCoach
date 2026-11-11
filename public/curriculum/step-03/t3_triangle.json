@@ -1,0 +1,56 @@
+{
+  "id": "t3_triangle",
+  "title": "어떤 삼각형일까?",
+  "topic": "조건 조합",
+  "level": "응용",
+  "minutes": 20,
+  "description": [
+    "막대기 세 개로 삼각형을 만들 수 있을까요? 만들 수 있다면 어떤 모양일까요?",
+    "세 변의 길이 a, b, c가 주어져요. 가장 긴 변이 나머지 두 변의 합보다 작아야만 삼각형을 만들 수 있어요(같거나 크면 만들 수 없어요). 만들 수 없으면 INVALID, 세 변이 모두 같으면 EQUILATERAL, 두 변만 같으면 ISOSCELES, 세 변이 모두 다르면서 직각삼각형이면 RIGHT, 그 외에는 SCALENE을 출력해주세요. 위에서부터 순서대로 먼저 해당하는 것을 출력해요."
+  ],
+  "input": "한 줄에 공백으로 구분된 세 정수 a, b, c가 주어집니다. 큰 순서로 주어진다는 보장은 없습니다.",
+  "output": "INVALID, EQUILATERAL, ISOSCELES, RIGHT, SCALENE 중 하나를 출력합니다.",
+  "constraints": [
+    "1 ≤ a, b, c ≤ 1,000",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "변이 몇 번째로 긴지 모를 때는 sorted()로 작은 순서대로 정렬하면 편해요. 가장 긴 변이 x, 나머지가 y, z일 때 삼각형 조건은 y + z > x 이고, 직각삼각형은 y*y + z*z == x*x 예요(피타고라스).",
+  "conceptCode": "a, b, c = sorted([5, 3, 4])\nprint(a, b, c)\nprint(a * a + b * b == c * c)",
+  "starter": "a, b, c = map(int, input().split())\n\n# 정렬해서 가장 긴 변을 찾고, 순서대로 조건을 확인해보세요.\n",
+  "solution": "a, b, c = map(int, input().split())\nx, y, z = sorted([a, b, c])\nif x + y <= z:\n    print(\"INVALID\")\nelif x == y == z:\n    print(\"EQUILATERAL\")\nelif x == y or y == z:\n    print(\"ISOSCELES\")\nelif x * x + y * y == z * z:\n    print(\"RIGHT\")\nelse:\n    print(\"SCALENE\")\n",
+  "hints": [
+    "sorted()로 세 변을 작은 순서로 정렬하면 마지막 값이 가장 긴 변이에요.",
+    "INVALID를 가장 먼저 걸러 내야 해요. 삼각형이 아닌데 두 변이 같다고 ISOSCELES가 되면 안 돼요.",
+    "정렬한 뒤에는 이웃한 두 값만 비교해도 '두 변이 같은지' 알 수 있어요."
+  ],
+  "tests": [
+    {
+      "input": "5 5 5",
+      "output": "EQUILATERAL"
+    },
+    {
+      "input": "3 4 5",
+      "output": "RIGHT"
+    },
+    {
+      "input": "6 6 9",
+      "output": "ISOSCELES"
+    },
+    {
+      "input": "1 2 3",
+      "output": "INVALID"
+    },
+    {
+      "input": "13 5 12",
+      "output": "RIGHT"
+    },
+    {
+      "input": "4 5 6",
+      "output": "SCALENE"
+    },
+    {
+      "input": "2 5 2",
+      "output": "INVALID"
+    }
+  ]
+}

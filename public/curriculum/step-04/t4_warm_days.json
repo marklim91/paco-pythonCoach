@@ -1,0 +1,47 @@
+{
+  "id": "t4_warm_days",
+  "title": "영상인 날은 며칠?",
+  "topic": "입력 반복",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "기상청 아저씨가 며칠 동안 낮 기온을 하루에 하나씩 알려 주었어요.",
+    "첫 줄에 날짜 수 n, 이어서 n개의 줄에 하루씩 기온이 정수로 주어져요. 기온이 0도보다 높은 날(영상인 날)이 며칠인지 출력해주세요. 0도는 영상이 아니에요."
+  ],
+  "input": "첫 줄에 n이 주어지고, 다음 n개의 줄에 각각 정수 하나(그날의 기온)가 주어집니다.",
+  "output": "0보다 큰 기온의 개수를 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "각 기온은 -50 이상 50 이하의 정수입니다."
+  ],
+  "concept": "입력이 여러 줄이면 for 문 안에서 input()을 여러 번 호출해요. `for _ in range(n):`은 n번 반복하되 반복 번호는 쓰지 않을 때 자주 쓰는 모양이에요. 조건에 맞을 때마다 count를 1씩 늘리는 방법을 카운터 패턴이라고 해요.",
+  "conceptCode": "count = 0\nfor _ in range(3):\n    word = input()\n    if word == \"yes\":\n        count += 1\nprint(count)",
+  "starter": "n = int(input())\ncount = 0\n\n# n번 반복하며 기온을 한 줄씩 읽어보세요.\n\nprint(count)\n",
+  "solution": "n = int(input())\ncount = 0\nfor _ in range(n):\n    temp = int(input())\n    if temp > 0:\n        count += 1\nprint(count)\n",
+  "hints": [
+    "for _ in range(n): 안에서 input()을 호출하면 n줄을 읽을 수 있어요.",
+    "읽은 값을 int()로 바꾼 뒤 0보다 클 때만 count += 1 을 해요. 0은 세지 않아요."
+  ],
+  "tests": [
+    {
+      "input": "5\n3\n-2\n0\n7\n-1",
+      "output": "2"
+    },
+    {
+      "input": "3\n-5\n-1\n-9",
+      "output": "0"
+    },
+    {
+      "input": "1\n10",
+      "output": "1"
+    },
+    {
+      "input": "4\n0\n0\n0\n0",
+      "output": "0"
+    },
+    {
+      "input": "6\n1\n2\n3\n4\n5\n6",
+      "output": "6"
+    }
+  ]
+}

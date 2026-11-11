@@ -1,0 +1,51 @@
+{
+  "id": "t2_temperature_gap",
+  "title": "두 도시의 기온 차이",
+  "topic": "절댓값",
+  "level": "입문",
+  "minutes": 8,
+  "description": [
+    "오늘 서울과 강릉의 기온을 비교해 보려고 해요. 어느 쪽이 더 따뜻한지에 상관없이 차이가 얼마나 나는지가 궁금해요.",
+    "두 도시의 기온 a, b가 공백으로 구분되어 주어집니다. 두 기온의 차이를 항상 0 이상의 값으로 출력해주세요."
+  ],
+  "input": "한 줄에 정수 a, b가 공백으로 구분되어 주어집니다.",
+  "output": "a와 b의 차이(절댓값)를 출력합니다.",
+  "constraints": [
+    "-50 ≤ a, b ≤ 50",
+    "기온은 영하일 수도 있어요."
+  ],
+  "concept": "abs()는 절댓값, 즉 부호를 뗀 크기를 돌려주는 함수예요. abs(-7)은 7이고 abs(7)도 7이에요. 두 수의 차이는 어느 쪽에서 빼든 부호만 다르니 abs()로 감싸면 돼요.",
+  "conceptCode": "print(abs(-7))\nprint(abs(4))\nprint(abs(3 - 10))",
+  "starter": "a, b = map(int, input().split())\n\n# 두 기온의 차이를 출력해주세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(abs(a - b))\n",
+  "hints": [
+    "a - b는 b가 더 클 때 음수가 돼요. 부호를 없애주는 함수를 떠올려보세요.",
+    "abs(a - b)를 출력해보세요. 영하 기온이 섞여도 같은 방식으로 풀려요."
+  ],
+  "tests": [
+    {
+      "input": "10 3",
+      "output": "7"
+    },
+    {
+      "input": "3 10",
+      "output": "7"
+    },
+    {
+      "input": "-5 4",
+      "output": "9"
+    },
+    {
+      "input": "-8 -2",
+      "output": "6"
+    },
+    {
+      "input": "0 0",
+      "output": "0"
+    },
+    {
+      "input": "-50 50",
+      "output": "100"
+    }
+  ]
+}

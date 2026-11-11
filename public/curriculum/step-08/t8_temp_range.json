@@ -1,0 +1,47 @@
+{
+  "id": "t8_temp_range",
+  "title": "일주일 기온의 최저와 최고",
+  "topic": "값 두 개 반환",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "일기예보에서는 하루의 가장 낮은 기온과 가장 높은 기온을 함께 알려줘요.",
+    "n개의 기온이 주어지면, 가장 낮은 값과 가장 높은 값을 한꺼번에 돌려주는 함수 get_range(values)를 만들어 두 값을 공백으로 구분해 출력해주세요."
+  ],
+  "input": "첫 줄에 개수 n, 둘째 줄에 공백으로 구분된 n개의 정수(기온)가 주어집니다.",
+  "output": "최솟값과 최댓값을 한 줄에 공백으로 구분해 출력합니다.",
+  "constraints": [
+    "1 ≤ n ≤ 100",
+    "각 기온은 -50 이상 50 이하의 정수입니다."
+  ],
+  "concept": "함수는 return a, b 처럼 쉼표로 값을 여러 개 돌려줄 수 있어요. 받는 쪽에서는 low, high = 함수(...) 처럼 같은 개수의 변수로 한 번에 풀어서(언패킹) 받아요.",
+  "conceptCode": "def first_last(items):\n    return items[0], items[-1]\n\nfirst, last = first_last([4, 8, 15])\nprint(first, last)",
+  "starter": "def get_range(values):\n    # TODO: 최솟값과 최댓값을 함께 돌려주세요.\n    return 0, 0\n\nn = int(input())\nvalues = list(map(int, input().split()))\nlow, high = get_range(values)\nprint(low, high)\n",
+  "solution": "def get_range(values):\n    return min(values), max(values)\n\nn = int(input())\nvalues = list(map(int, input().split()))\nlow, high = get_range(values)\nprint(low, high)\n",
+  "hints": [
+    "min()과 max()로 각각 최솟값과 최댓값을 구할 수 있어요.",
+    "return min(values), max(values) 처럼 쉼표로 두 값을 함께 돌려주세요."
+  ],
+  "tests": [
+    {
+      "input": "5\n12 15 9 20 17",
+      "output": "9 20"
+    },
+    {
+      "input": "3\n-5 -12 -1",
+      "output": "-12 -1"
+    },
+    {
+      "input": "1\n7",
+      "output": "7 7"
+    },
+    {
+      "input": "4\n5 5 5 5",
+      "output": "5 5"
+    },
+    {
+      "input": "6\n0 30 -30 15 8 2",
+      "output": "-30 30"
+    }
+  ]
+}

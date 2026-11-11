@@ -1,0 +1,31 @@
+{
+  "id": "hello",
+  "title": "안녕, 파이썬!",
+  "topic": "출력",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": [
+    "새로운 언어를 만났을 때는 가장 먼저 인사를 건네봐요.",
+    "화면에 Hello, Python! 을 출력하는 프로그램을 작성해주세요. 대문자, 쉼표, 띄어쓰기를 정확히 지켜주세요."
+  ],
+  "input": "입력은 없습니다.",
+  "output": "Hello, Python! 을 한 줄로 출력합니다.",
+  "constraints": [
+    "print() 함수를 사용해보세요.",
+    "따옴표 안의 글자가 화면에 나타납니다."
+  ],
+  "concept": "print()는 괄호 안에 있는 내용을 화면에 보여주는 함수예요. 글자는 작은따옴표나 큰따옴표로 감싸주세요.",
+  "conceptCode": "print(\"반가워요!\")\nprint(\"오늘부터 나도 개발자\")",
+  "starter": "# 나의 첫 번째 파이썬 코드!\n# 따옴표 안에 인사말을 넣어보세요.\n\nprint(\"\")\n",
+  "solution": "print(\"Hello, Python!\")\n",
+  "hints": [
+    "print()의 괄호 안에 큰따옴표를 넣어주세요.",
+    "따옴표 사이에 Hello, Python! 을 그대로 적어보세요."
+  ],
+  "tests": [
+    {
+      "input": "",
+      "output": "Hello, Python!"
+    }
+  ]
+}

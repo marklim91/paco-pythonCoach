@@ -1,0 +1,46 @@
+{
+  "id": "palindrome",
+  "title": "거꾸로 읽어도 똑같아",
+  "topic": "문자열",
+  "level": "기초",
+  "minutes": 12,
+  "description": [
+    "level처럼 거꾸로 읽어도 같은 단어를 회문이라고 해요.",
+    "주어진 단어가 회문이면 YES, 아니면 NO를 출력해주세요."
+  ],
+  "input": "영어 소문자로 이루어진 단어 하나가 주어집니다.",
+  "output": "회문이면 YES, 아니면 NO를 출력합니다.",
+  "constraints": [
+    "단어 길이는 1 이상 100 이하입니다."
+  ],
+  "concept": "문자열에 [::-1]을 붙이면 순서를 뒤집을 수 있어요. ==를 사용해 두 문자열이 같은지 비교해보세요.",
+  "conceptCode": "word = \"python\"\nprint(word[::-1])",
+  "starter": "word = input().strip()\n\n# 원래 단어와 뒤집은 단어를 비교해보세요.\n",
+  "solution": "word = input().strip()\nprint(\"YES\" if word == word[::-1] else \"NO\")\n",
+  "hints": [
+    "뒤집은 단어는 word[::-1]이에요.",
+    "word == word[::-1]이 참이면 YES를 출력해요."
+  ],
+  "tests": [
+    {
+      "input": "level",
+      "output": "YES"
+    },
+    {
+      "input": "python",
+      "output": "NO"
+    },
+    {
+      "input": "a",
+      "output": "YES"
+    },
+    {
+      "input": "abba",
+      "output": "YES"
+    },
+    {
+      "input": "abca",
+      "output": "NO"
+    }
+  ]
+}

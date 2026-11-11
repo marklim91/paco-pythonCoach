@@ -1,0 +1,47 @@
+{
+  "id": "t4_even_sum",
+  "title": "짝수 사물함의 열쇠 합",
+  "topic": "범위 안 누적",
+  "level": "기초",
+  "minutes": 10,
+  "description": [
+    "도서관 사물함에는 번호가 붙어 있고, 짝수 번호 사물함에만 특별 열쇠가 하나씩 들어 있어요.",
+    "두 정수 a, b를 입력받아 a번부터 b번까지(a와 b 포함) 중 짝수 번호의 합을 출력해주세요. 짝수가 하나도 없으면 0을 출력해요."
+  ],
+  "input": "한 줄에 두 정수 a, b가 공백으로 구분되어 주어집니다.",
+  "output": "a 이상 b 이하의 짝수를 모두 더한 값을 출력합니다.",
+  "constraints": [
+    "1 ≤ a ≤ b ≤ 10,000",
+    "a와 b도 범위에 포함됩니다."
+  ],
+  "concept": "range(시작, 끝, 간격)에서 끝은 포함되지 않아요. 반복하면서 조건에 맞는 값만 total에 더하면 원하는 숫자만 모을 수 있어요. 어떤 수가 짝수인지는 2로 나눈 나머지가 0인지로 확인해요.",
+  "conceptCode": "total = 0\nfor x in range(1, 6):\n    if x % 2 == 1:\n        total += x\nprint(total)",
+  "starter": "a, b = map(int, input().split())\ntotal = 0\n\n# a부터 b까지 살펴보며 짝수만 더해보세요.\n\nprint(total)\n",
+  "solution": "a, b = map(int, input().split())\ntotal = 0\nfor x in range(a, b + 1):\n    if x % 2 == 0:\n        total += x\nprint(total)\n",
+  "hints": [
+    "range(a, b + 1)로 a부터 b까지 모두 살펴볼 수 있어요.",
+    "x % 2 == 0 일 때만 total에 더해요. a와 b가 같고 홀수라면 한 번도 더하지 않아 0이 돼요."
+  ],
+  "tests": [
+    {
+      "input": "1 10",
+      "output": "30"
+    },
+    {
+      "input": "3 7",
+      "output": "10"
+    },
+    {
+      "input": "5 5",
+      "output": "0"
+    },
+    {
+      "input": "4 4",
+      "output": "4"
+    },
+    {
+      "input": "1 10000",
+      "output": "25005000"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "t3_grade",
+  "title": "점수로 등급 매기기",
+  "topic": "구간 나누기",
+  "level": "입문",
+  "minutes": 10,
+  "description": [
+    "수행평가 점수를 보고 선생님이 등급을 매겨 주려고 해요.",
+    "점수 s를 입력받아 90점 이상이면 A, 80점 이상 90점 미만이면 B, 70점 이상 80점 미만이면 C, 60점 이상 70점 미만이면 D, 60점 미만이면 F를 출력해주세요."
+  ],
+  "input": "정수 s 하나가 주어집니다.",
+  "output": "A, B, C, D, F 중 하나를 출력합니다.",
+  "constraints": [
+    "0 ≤ s ≤ 100",
+    "영어 대문자로 출력하세요."
+  ],
+  "concept": "elif는 앞의 조건이 모두 거짓일 때만 검사해요. 그래서 큰 점수부터 차례로 확인하면 'A가 아니면서 80 이상'처럼 범위를 따로 쓰지 않아도 구간이 자연스럽게 나뉘어요.",
+  "conceptCode": "n = 75\nif n >= 100:\n    print(\"백점\")\nelif n >= 50:\n    print(\"절반 이상\")\nelse:\n    print(\"절반 미만\")",
+  "starter": "s = int(input())\n\n# 높은 점수 구간부터 차례로 확인해보세요.\n",
+  "solution": "s = int(input())\nif s >= 90:\n    print(\"A\")\nelif s >= 80:\n    print(\"B\")\nelif s >= 70:\n    print(\"C\")\nelif s >= 60:\n    print(\"D\")\nelse:\n    print(\"F\")\n",
+  "hints": [
+    "90점 이상부터 확인하고, 아니라면 80점 이상인지 확인해요.",
+    "if s >= 90 다음에 elif s >= 80, elif s >= 70, elif s >= 60 을 이어 쓰고 마지막에 else를 두세요."
+  ],
+  "tests": [
+    {
+      "input": "95",
+      "output": "A"
+    },
+    {
+      "input": "83",
+      "output": "B"
+    },
+    {
+      "input": "70",
+      "output": "C"
+    },
+    {
+      "input": "89",
+      "output": "B"
+    },
+    {
+      "input": "60",
+      "output": "D"
+    },
+    {
+      "input": "59",
+      "output": "F"
+    },
+    {
+      "input": "90",
+      "output": "A"
+    }
+  ]
+}

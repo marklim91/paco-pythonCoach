@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const { spawnSync } = require('node:child_process');
 const { buildPages, publicSnapshot } = require('../scripts/build-pages');
 const { checkPages } = require('../scripts/check-pages');
+const studioCatalog = require('../public/studio-catalog');
 
 const flowUrl = 'https://test.environment.api.powerplatform.com/invoke?sig=private-pages-fixture';
 const at = '2026-10-30T06:00:00.000Z';
@@ -164,6 +165,32 @@ test('export omits arbitrary JSON, environment files and raw state from the asse
   await buildPages(opts);
   assert.equal(fs.existsSync(path.join(opts.outputDir, '.env')), false);
   assert.equal(fs.existsSync(path.join(opts.outputDir, 'raw.json')), false);
+});
+
+test('export keeps the studio problem files but still omits other JSON next to them', async t => {
+  const opts = options(t);
+  const source = path.join(temporary(t), 'public');
+  fs.mkdirSync(path.join(source, 'curriculum', 'step-01'), { recursive: true });
+  fs.writeFileSync(path.join(source, 'index.html'), '<html><head></head><body></body></html>');
+  fs.writeFileSync(path.join(source, 'curriculum', 'step-01', 'hello.json'), '{"id":"hello"}');
+  fs.writeFileSync(path.join(source, 'curriculum', 'step-01', 'Bad-Name.json'), '{"secret":"private"}');
+  fs.writeFileSync(path.join(source, 'curriculum', 'raw.json'), '{"secret":"private"}');
+  opts.sourceDir = source;
+  await buildPages(opts);
+  assert.ok(fs.existsSync(path.join(opts.outputDir, 'curriculum', 'step-01', 'hello.json')));
+  assert.equal(fs.existsSync(path.join(opts.outputDir, 'curriculum', 'step-01', 'Bad-Name.json')), false);
+  assert.equal(fs.existsSync(path.join(opts.outputDir, 'curriculum', 'raw.json')), false);
+});
+
+test('export from the real public folder contains everything the studio loads at run time', async t => {
+  const opts = options(t);
+  await buildPages(opts);
+  const output = files(opts.outputDir).map(file => file.split(path.sep).join('/'));
+  for (const file of ['new.html', 'studio.css', 'studio-core.js', 'studio-app.js', 'studio-catalog.js']) {
+    assert.ok(output.includes(file), file);
+  }
+  const problemFiles = output.filter(file => /^curriculum\/step-\d\d\/[a-z0-9_]+\.json$/.test(file));
+  assert.equal(problemFiles.length, studioCatalog.problems.length);
 });
 
 test('public snapshot IDs do not expose source identities or carry cross-deployment history', () => {
