@@ -18,6 +18,12 @@
   "conceptCode": "move = {'U': (-1, 0), 'R': (0, 1)}\nvisited = {(0, 0)}\nvisited.add((0, 1))\nvisited.add((0, 1))\nprint(move['U'], len(visited))",
   "starter": "R, C = map(int, input().split())\nboard = [input() for _ in range(R)]\ncommands = input()\n\n# 'S'의 위치를 찾아 시작점으로 삼고 명령을 하나씩 처리해보세요.\n",
   "solution": "R, C = map(int, input().split())\nboard = [input() for _ in range(R)]\ncommands = input()\n\nr = c = 0\nfor i in range(R):\n    for j in range(C):\n        if board[i][j] == \"S\":\n            r, c = i, j\nmove = {\"U\": (-1, 0), \"D\": (1, 0), \"L\": (0, -1), \"R\": (0, 1)}\nvisited = {(r, c)}\nfor ch in commands:\n    nr, nc = r + move[ch][0], c + move[ch][1]\n    if 0 <= nr < R and 0 <= nc < C and board[nr][nc] != \"#\":\n        r, c = nr, nc\n        visited.add((r, c))\nprint(r + 1, c + 1)\nprint(len(visited))\n",
+  "example": {
+    "intro": "물에 잠긴 돌을 피해 징검다리를 건너는 개구리 예제예요. 다음 칸을 먼저 계산하고, 갈 수 있을 때만 위치를 바꾸는 부분을 눈여겨보세요.",
+    "code": "# 돌은 0번부터 length-1번까지 있고 개구리는 0번 돌에서 시작해요. 둘째 줄은 물에 잠긴 돌 번호예요.\nlength = int(input())\nflooded = set(map(int, input().split()))\ncommands = input()\n\nstep = {\"L\": -1, \"R\": 1}\npos = 0\nstepped = {pos}\nfor ch in commands:\n    nxt = pos + step[ch]\n    # 다리 안이고 물에 잠기지 않은 돌일 때만 뛰어요.\n    if 0 <= nxt < length and nxt not in flooded:\n        pos = nxt\n        stepped.add(pos)\nprint(pos)\nprint(len(stepped))\n",
+    "input": "6\n4\nLRRRRRLLR",
+    "output": "2\n4"
+  },
   "hints": [
     "먼저 이중 반복문으로 'S'가 있는 줄 번호와 칸 번호를 찾아 현재 위치 변수에 저장해요.",
     "명령마다 다음 칸 (nr, nc)를 계산하고, 방 안이면서 '#'이 아닐 때만 현재 위치를 바꿔요.",

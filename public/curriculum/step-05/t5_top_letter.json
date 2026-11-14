@@ -19,9 +19,15 @@
   "conceptCode": "counts = {}\nfor ch in \"abca\":\n    counts[ch] = counts.get(ch, 0) + 1\nprint(counts)\nprint(sorted(counts))",
   "starter": "text = input()\ncounts = {}\n\n# 공백을 제외한 글자의 개수를 세어보세요.\n",
   "solution": "text = input()\ncounts = {}\nfor ch in text:\n    if ch != \" \":\n        counts[ch] = counts.get(ch, 0) + 1\nbest = \"\"\nfor ch in sorted(counts):\n    if best == \"\" or counts[ch] > counts[best]:\n        best = ch\nprint(best, counts[best])\n",
+  "example": {
+    "intro": "투표용지에 적힌 메뉴가 각각 몇 표인지 세어 이름순으로 보여주는 예제예요. counts.get(menu, 0) + 1로 개수를 쌓고 sorted()로 순서대로 꺼내는 부분을 눈여겨보세요.",
+    "code": "# 투표용지에 적힌 메뉴가 각각 몇 표인지 세어요.\nvotes = input().split()\ncounts = {}\nfor menu in votes:\n    # 처음 보는 메뉴는 0표에서 시작해 한 표를 더해요.\n    counts[menu] = counts.get(menu, 0) + 1\n# sorted()는 이름을 알파벳 순서대로 꺼내줘요.\nfor menu in sorted(counts):\n    print(menu, counts[menu])\n",
+    "input": "pizza ramen pizza kimbap ramen pizza",
+    "output": "kimbap 1\npizza 3\nramen 2"
+  },
   "hints": [
     "먼저 글자별 개수를 딕셔너리에 모아요. 공백은 건너뛰세요.",
-    "sorted(counts)는 키를 알파벳 순으로 돌려줘요. 이 순서로 확인하면서 현재 최고 횟수보다 클 때만 갱신하면 동점일 때 앞선 글자가 남아요."
+    "개수를 다 센 뒤 가장 많이 나온 글자를 고를 때는 동점이면 알파벳 순서가 앞선 글자가 남아야 해요. sorted(counts)로 글자를 알파벳 순서대로 꺼낼 수 있으니, 최고 기록을 언제 바꿀지 조건을 신중히 정해보세요."
   ],
   "tests": [
     {

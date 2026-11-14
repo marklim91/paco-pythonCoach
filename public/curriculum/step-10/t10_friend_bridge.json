@@ -20,10 +20,16 @@
   "conceptCode": "from collections import deque\ngraph = {1: [2], 2: [1, 3], 3: [2]}\nqueue = deque([1])\nprint(graph[queue.popleft()])",
   "starter": "from collections import deque\n\nn, m = map(int, input().split())\ngraph = [[] for _ in range(n + 1)]\nfor _ in range(m):\n    u, v = map(int, input().split())\n    graph[u].append(v)\n    graph[v].append(u)\ns, t = map(int, input().split())\n\n# dist[x] = s에서 x까지의 최소 거리 (-1이면 아직 방문 전)\ndist = [-1] * (n + 1)\n\n# 큐를 사용해 s부터 퍼져 나가보세요.\n\nprint(dist[t])\n",
   "solution": "from collections import deque\n\nn, m = map(int, input().split())\ngraph = [[] for _ in range(n + 1)]\nfor _ in range(m):\n    u, v = map(int, input().split())\n    graph[u].append(v)\n    graph[v].append(u)\ns, t = map(int, input().split())\ndist = [-1] * (n + 1)\ndist[s] = 0\nqueue = deque([s])\nwhile queue:\n    cur = queue.popleft()\n    for nxt in graph[cur]:\n        if dist[nxt] == -1:\n            dist[nxt] = dist[cur] + 1\n            queue.append(nxt)\nprint(dist[t])\n",
+  "example": {
+    "intro": "수 n을 1로 줄이는 최소 횟수를 구하는 예제예요. 현재 수에서 만들 수 있는 다음 수를 직접 계산해 큐로 퍼져 나가는 부분을 눈여겨보세요.",
+    "code": "from collections import deque\n\n# n을 1로 만드는 최소 횟수예요. (1 빼기, 2로 나누기, 3으로 나누기)\nn = int(input())\n\ndist = [-1] * (n + 1)\ndist[n] = 0\nqueue = deque([n])\nwhile queue:\n    cur = queue.popleft()\n    # 지금 수에서 만들 수 있는 다음 수들을 직접 계산해요.\n    nexts = [cur - 1]\n    if cur % 2 == 0:\n        nexts.append(cur // 2)\n    if cur % 3 == 0:\n        nexts.append(cur // 3)\n    for nxt in nexts:\n        if nxt >= 1 and dist[nxt] == -1:\n            dist[nxt] = dist[cur] + 1\n            queue.append(nxt)\nprint(dist[1])\n",
+    "input": "10",
+    "output": "3"
+  },
   "hints": [
     "친구 관계는 양방향이니 graph[u]와 graph[v]에 서로를 모두 추가해야 해요.",
     "dist[s] = 0으로 시작하고, 큐에서 꺼낸 학생의 친구 중 dist가 -1인 학생만 처리해요.",
-    "새로 방문한 친구의 dist는 현재 학생의 dist + 1이에요. 처음 방문할 때 정해진 값이 최단 거리예요.",
+    "새로 방문한 친구까지의 거리는 방금 꺼낸 학생까지의 거리보다 1 커요. 처음 방문할 때 정해진 값이 최단 거리예요.",
     "끝까지 t에 도착하지 못하면 dist[t]는 -1로 남아서 그대로 출력하면 돼요."
   ],
   "tests": [

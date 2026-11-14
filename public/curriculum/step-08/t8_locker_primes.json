@@ -18,10 +18,16 @@
   "conceptCode": "x = 12\nd = 2\nwhile d * d <= x:\n    if x % d == 0:\n        print(d, \"로 나누어떨어져요\")\n        break\n    d += 1",
   "starter": "def is_prime(x):\n    # TODO: 소수이면 True, 아니면 False를 돌려주세요. (1은 소수가 아니에요)\n    pass\n\nn = int(input())\ncount = 0\n# TODO: 1부터 n까지 is_prime으로 소수를 세어주세요.\nprint(count)\n",
   "solution": "def is_prime(x):\n    if x < 2:\n        return False\n    d = 2\n    while d * d <= x:\n        if x % d == 0:\n            return False\n        d += 1\n    return True\n\nn = int(input())\ncount = 0\nfor x in range(1, n + 1):\n    if is_prime(x):\n        count += 1\nprint(count)\n",
+  "example": {
+    "intro": "낱말이 회문(거꾸로 읽어도 같은 말)인지 알려주는 함수 예제예요. 마주 보는 글자가 다르면 바로 False를, 끝까지 통과하면 True를 돌려주는 부분을 눈여겨보세요.",
+    "code": "# 거꾸로 읽어도 같은 낱말(회문)인지 알려주는 함수예요.\ndef is_palindrome(word):\n    for i in range(len(word) // 2):\n        # 마주 보는 글자가 다르면 더 볼 필요 없이 바로 끝내요.\n        if word[i] != word[-1 - i]:\n            return False\n    # 끝까지 다르지 않았다면 회문이에요.\n    return True\n\nwords = input().split()\ncount = 0\nfor w in words:\n    if is_palindrome(w):\n        count += 1\nprint(count)\n",
+    "input": "level apple noon abc wow",
+    "output": "3"
+  },
   "hints": [
     "x가 2보다 작으면 바로 False를 돌려주세요.",
-    "d를 2부터 시작해 d * d <= x 인 동안만 x % d == 0 인지 확인해요.",
-    "반복문을 끝까지 돌아도 나누어떨어지지 않았다면 마지막에 True를 돌려주세요."
+    "2부터 시작하는 약수 후보 d를 하나씩 늘려가며 x가 d로 나누어떨어지는지 살펴보세요. 어디까지 확인하면 충분한지는 개념 설명을 다시 읽어보세요.",
+    "나누어떨어지는 수를 하나라도 찾으면 그 자리에서 바로 결과를 돌려줄 수 있어요. 끝까지 하나도 찾지 못했을 때는 어떤 값을 돌려줘야 할지 생각해보세요."
   ],
   "tests": [
     {

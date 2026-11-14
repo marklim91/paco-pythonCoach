@@ -21,10 +21,16 @@
   "conceptCode": "dp = [0] * 6\nweight, value = 2, 5\nprint(dp[5 - weight] + value)\nprint(list(range(5, weight - 1, -1)))",
   "starter": "n, capacity = map(int, input().split())\nitems = []\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    items.append((weight, value))\n\n# dp[w] = 무게 한도가 w일 때의 최대 만족도\ndp = [0] * (capacity + 1)\n\n# 물건마다 무게 한도를 큰 값에서 작은 값 순서로 갱신해보세요.\n\nprint(dp[capacity])\n",
   "solution": "n, capacity = map(int, input().split())\nitems = []\nfor _ in range(n):\n    weight, value = map(int, input().split())\n    items.append((weight, value))\ndp = [0] * (capacity + 1)\nfor weight, value in items:\n    for w in range(capacity, weight - 1, -1):\n        dp[w] = max(dp[w], dp[w - weight] + value)\nprint(dp[capacity])\n",
+  "example": {
+    "intro": "가진 동전을 한 번씩만 써서 정확히 목표 금액을 만들 수 있는지 확인하는 예제예요. 금액을 큰 쪽부터 거꾸로 갱신하는 부분을 눈여겨보세요.",
+    "code": "# 동전을 한 번씩만 써서 정확히 target원을 만들 수 있는지 확인해요.\nn, target = map(int, input().split())\ncoins = list(map(int, input().split()))\n\n# can[x] = x원을 정확히 만들 수 있으면 True\ncan = [False] * (target + 1)\ncan[0] = True\nfor coin in coins:\n    # 큰 금액부터 거꾸로 봐야 같은 동전을 두 번 쓰지 않아요.\n    for x in range(target, coin - 1, -1):\n        if can[x - coin]:\n            can[x] = True\nprint(\"YES\" if can[target] else \"NO\")\n",
+    "input": "4 11\n4 6 9 3",
+    "output": "NO"
+  },
   "hints": [
     "dp[w]는 무게 한도가 w일 때 얻을 수 있는 최대 만족도로, 처음에는 모두 0이에요.",
     "물건 하나마다 w를 capacity부터 그 물건의 무게까지 거꾸로 줄여가며 살펴보세요.",
-    "거꾸로 돌려야 같은 물건이 한 번만 쓰여요. dp[w] = max(dp[w], dp[w - weight] + value)로 갱신하세요.",
+    "거꾸로 돌려야 같은 물건이 한 번만 쓰여요. w 무게 한도에서 '이 물건을 넣지 않은 값'과 '이 물건을 넣고 남은 무게의 최댓값에 만족도를 더한 값' 중 더 큰 쪽을 dp[w]에 남겨요.",
     "비율이 좋은 물건부터 담는 방법은 틀릴 수 있어요. 모든 무게 한도에 대해 표를 채워야 해요."
   ],
   "tests": [

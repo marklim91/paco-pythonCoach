@@ -19,9 +19,64 @@
   "conceptCode": "a = 5\nb = 3\nprint(a >= b)\nif a >= b:\n    print(\"a가 더 크거나 같아요\")",
   "starter": "p, m = map(int, input().split())\n\n# m이 p 이상인지 비교해보세요.\n",
   "solution": "p, m = map(int, input().split())\nif m >= p:\n    print(\"YES\")\nelse:\n    print(\"NO\")\n",
+  "example": {
+    "intro": "키가 기준 이상인지 확인해 안내하는 예제예요. >= 로 비교한 결과에 따라 두 가지 중 하나를 출력하는 부분을 눈여겨보세요.",
+    "code": "height = int(input())\n# 기준과 같아도 괜찮다면 >= 를 써요.\nif height >= 120:\n    print(\"탈 수 있어요\")\nelse:\n    print(\"조금 더 자라서 와요\")\n",
+    "input": "120",
+    "output": "탈 수 있어요"
+  },
   "hints": [
     "내 돈 m이 가격 p보다 크거나 같은지 비교하면 돼요.",
     "크거나 같다는 >= 로 쓰고, if 조건 뒤에는 콜론(:)을 붙여주세요."
+  ],
+  "practice": [
+    {
+      "title": "체험학습 신청 마감",
+      "minutes": 5,
+      "description": [
+        "이번 주 체험학습은 신청할 수 있는 인원이 정해져 있어요.",
+        "정원 c명과 지금까지 신청한 사람 수 n명이 주어져요. 한 명이 더 신청할 수 있으면 OPEN, 이미 정원이 다 찼다면 FULL을 출력해주세요."
+      ],
+      "input": "한 줄에 공백으로 구분된 두 정수 c, n이 주어집니다.",
+      "output": "OPEN 또는 FULL을 출력합니다.",
+      "constraints": [
+        "1 ≤ c ≤ 100",
+        "0 ≤ n ≤ c",
+        "영어 대문자로 출력하세요."
+      ],
+      "starter": "c, n = map(int, input().split())\n\n# 한 명이 더 신청할 수 있는지 비교해보세요.\n",
+      "solution": "c, n = map(int, input().split())\nif n < c:\n    print(\"OPEN\")\nelse:\n    print(\"FULL\")\n",
+      "hints": [
+        "신청한 사람 수 n이 정원 c보다 적을 때만 한 명을 더 받을 수 있어요. 두 수를 비교하는 조건을 만들어보세요.",
+        "정원이 30명인데 이미 30명이 신청했다면 더 받을 수 있을까요? 같은 경우가 어느 쪽인지 생각해서 < 와 <= 중에 골라보세요."
+      ],
+      "tests": [
+        {
+          "input": "30 12",
+          "output": "OPEN"
+        },
+        {
+          "input": "30 29",
+          "output": "OPEN"
+        },
+        {
+          "input": "30 30",
+          "output": "FULL"
+        },
+        {
+          "input": "1 0",
+          "output": "OPEN"
+        },
+        {
+          "input": "1 1",
+          "output": "FULL"
+        },
+        {
+          "input": "100 100",
+          "output": "FULL"
+        }
+      ]
+    }
   ],
   "tests": [
     {

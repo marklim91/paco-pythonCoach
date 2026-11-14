@@ -19,9 +19,15 @@
   "conceptCode": "pair = (3, 31)\nday, temp = pair\nprint(day, temp)\nfor no, x in enumerate([5, 7], 1):\n    print(no, x)",
   "starter": "n = int(input())\ntemps = list(map(int, input().split()))\n\n# (날짜, 기온) 튜플로 가장 더운 날과 추운 날을 기억해보세요.\n",
   "solution": "n = int(input())\ntemps = list(map(int, input().split()))\nhot = (1, temps[0])\ncold = (1, temps[0])\nfor day, t in enumerate(temps, 1):\n    if t > hot[1]:\n        hot = (day, t)\n    if t < cold[1]:\n        cold = (day, t)\nhot_day, hot_temp = hot\ncold_day, cold_temp = cold\nprint(f\"최고 {hot_day}일 {hot_temp}\")\nprint(f\"최저 {cold_day}일 {cold_temp}\")\n",
+  "example": {
+    "intro": "높이뛰기 기록에서 신기록이 나온 회차를 찾는 예제예요. (회차, 높이)를 튜플 한 쌍으로 기억하다가 더 높으면 통째로 바꾸는 부분을 눈여겨보세요.",
+    "code": "# 높이뛰기 기록에서 신기록이 나온 회차를 찾아요.\nn = int(input())\njumps = list(map(int, input().split()))\nrecord = (1, jumps[0])        # (회차, 높이)를 한 쌍으로 묶어 기억해요.\nfor turn, height in enumerate(jumps, 1):\n    if height > record[1]:    # record[1]은 지금까지의 최고 높이예요.\n        record = (turn, height)\n        print(f\"{turn}회차 신기록 {height}\")\nbest_turn, best_height = record   # 튜플을 풀어서 변수에 담아요.\nprint(f\"기록 보유: {best_turn}회차, {best_height}cm\")\n",
+    "input": "6\n120 135 135 128 150 149",
+    "output": "2회차 신기록 135\n5회차 신기록 150\n기록 보유: 5회차, 150cm"
+  },
   "hints": [
-    "지금까지 가장 더웠던 날을 (날짜, 기온) 튜플 하나로 들고 다니며, 더 더운 날을 만나면 통째로 바꿔요.",
-    "시작값은 첫째 날로 두세요. 기온이 '같을 때'는 바꾸지 않아야 가장 빠른 날짜가 남아요. 비교는 > 와 < 를 써요."
+    "날짜와 기온은 따로따로가 아니라 한 쌍으로 함께 움직여야 해요. 가장 더운 날과 가장 추운 날을 각각 (날짜, 기온) 튜플 하나로 기억해 두고, 하루씩 비교해보세요.",
+    "시작값은 첫째 날로 두세요. 기온이 똑같은 날이 또 나왔을 때 바꿀지 말지에 따라 '가장 빠른 날짜'가 남을지 정해져요. 부등호를 >로 할지 >=로 할지 신중하게 골라보세요."
   ],
   "tests": [
     {

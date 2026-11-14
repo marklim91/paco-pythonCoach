@@ -19,9 +19,15 @@
   "conceptCode": "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)\nprint(sorted(counts.items(), key=lambda p: (-p[1], p[0])))",
   "starter": "k = int(input())\nwords = input().split()\n\n# 낱말별 횟수를 딕셔너리로 세어보세요.\n",
   "solution": "k = int(input())\nwords = input().split()\ncounts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1\n\nranking = sorted(counts.items(), key=lambda p: (-p[1], p[0]))\nfor word, cnt in ranking[:k]:\n    print(word, cnt)\n",
+  "example": {
+    "intro": "퀴즈에서 틀린 횟수가 적은 사람부터 순위를 매기는 예제예요. key에 (횟수, 이름) 튜플을 주어 횟수가 같으면 이름순이 되는 부분을 눈여겨보세요.",
+    "code": "# 퀴즈에서 틀린 사람의 이름이 한 줄에 적혀 있어요.\nnames = input().split()\nwrong = {}\nfor name in names:\n    # 처음 틀린 사람은 0에서 시작해 하나씩 늘려요.\n    wrong[name] = wrong.get(name, 0) + 1\n\n# 틀린 횟수가 적은 순서, 같으면 이름 사전순으로 정렬해요.\nranking = sorted(wrong.items(), key=lambda p: (p[1], p[0]))\nfor name, cnt in ranking:\n    print(name, cnt)\n",
+    "input": "min jun hana min jun hana min ara",
+    "output": "ara 1\nhana 2\njun 2\nmin 3"
+  },
   "hints": [
-    "counts.get(w, 0) + 1 로 횟수를 쌓아요. 처음 보는 낱말은 0에서 시작하는 셈이에요.",
-    "counts.items()는 (낱말, 횟수) 튜플들이에요. key에 (-횟수, 낱말)을 돌려주면 '횟수 큰 순 → 사전순'으로 정렬돼요.",
+    "딕셔너리의 get() 메서드는 키가 없을 때 돌려줄 기본값을 정할 수 있어요. 처음 보는 낱말은 횟수가 0이라고 보고 하나씩 쌓아보세요.",
+    "counts.items()는 (낱말, 횟수) 튜플들이에요. sorted()의 key에 튜플을 돌려주면 앞 값부터 비교해요. 횟수는 큰 쪽이 먼저, 낱말은 사전순이 되도록 튜플에 무엇을 넣을지 생각해보세요.",
     "정렬된 리스트에서 앞의 k개만 쓰려면 슬라이싱 [:k]를 쓰세요. k가 더 커도 오류가 나지 않아요."
   ],
   "tests": [

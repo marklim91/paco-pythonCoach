@@ -20,9 +20,15 @@
   "conceptCode": "data = [3, 1, 4]\nprefix = [0]\nfor x in data:\n    prefix.append(prefix[-1] + x)\nprint(prefix)",
   "starter": "n, q = map(int, input().split())\nsteps = list(map(int, input().split()))\n\n# 누적 합 리스트를 먼저 만들어보세요.\n\nfor _ in range(q):\n    l, r = map(int, input().split())\n    # l일부터 r일까지의 합을 출력해주세요.\n",
   "solution": "n, q = map(int, input().split())\nsteps = list(map(int, input().split()))\nprefix = [0]\nfor x in steps:\n    prefix.append(prefix[-1] + x)\nfor _ in range(q):\n    l, r = map(int, input().split())\n    print(prefix[r] - prefix[l - 1])\n",
+  "example": {
+    "intro": "연속 k일 동안 읽은 쪽수의 합 중 가장 큰 값을 구하는 예제예요. 누적 합 두 값의 차로 구간의 합을 구하는 부분을 눈여겨보세요.",
+    "code": "# 연속 k일 동안 읽은 쪽수의 합 중 가장 큰 값을 구해요.\nn, k = map(int, input().split())\npages = list(map(int, input().split()))\n\n# prefix[i] = 처음부터 i번째 날까지 읽은 쪽수의 합\nprefix = [0] * (n + 1)\nfor i in range(n):\n    prefix[i + 1] = prefix[i] + pages[i]\n\nbest = 0\nfor start in range(n - k + 1):\n    # 구간 끝까지의 합에서 구간 시작 전까지의 합을 빼면 구간의 합이에요.\n    best = max(best, prefix[start + k] - prefix[start])\nprint(best)\n",
+    "input": "7 3\n12 30 8 25 20 5 31",
+    "output": "63"
+  },
   "hints": [
     "prefix[i]를 \"1일부터 i일까지의 합\"으로 정의하고, prefix[0] = 0으로 시작해보세요.",
-    "l일부터 r일까지의 합은 (r일까지의 합) - (l - 1일까지의 합)이에요."
+    "l일부터 r일까지의 합은 'r일까지의 합'에서 'l일 직전까지의 합'을 빼면 구해져요. 날짜가 1일부터 시작하니, 'l일 직전'이 몇 일까지인지 정확히 세어보세요."
   ],
   "tests": [
     {

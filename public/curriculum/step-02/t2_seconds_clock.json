@@ -18,10 +18,64 @@
   "conceptCode": "rest = 130\nprint(rest // 60)\nrest = rest % 60\nprint(rest)",
   "starter": "s = int(input())\n\n# 시간, 분, 초를 차례로 구해보세요.\n",
   "solution": "s = int(input())\nhours = s // 3600\nrest = s % 3600\nminutes = rest // 60\nseconds = rest % 60\nprint(f\"{hours}h {minutes}m {seconds}s\")\n",
+  "example": {
+    "intro": "분을 시간과 분으로 바꾸는 예제예요. 큰 단위로 나눈 몫과 남은 값(나머지)을 따로 구하는 부분을 눈여겨보세요.",
+    "code": "total = int(input())\n# 60분이 1시간이에요. 몫은 시간, 나머지는 남은 분이에요.\nhours = total // 60\nminutes = total % 60\nprint(f\"{hours}시간 {minutes}분\")\n",
+    "input": "135",
+    "output": "2시간 15분"
+  },
   "hints": [
     "먼저 3600으로 나눈 몫이 시간이에요. 남은 초는 나머지로 구해요.",
     "남은 초를 60으로 나눈 몫이 분, 그 나머지가 초예요.",
-    "f\"{hours}h {minutes}m {seconds}s\" 처럼 출력하면 형식을 맞출 수 있어요."
+    "숫자 뒤에 h, m, s를 붙이고 사이에 공백을 두려면, f-string 안에 변수와 글자를 함께 써보세요."
+  ],
+  "practice": [
+    {
+      "title": "복도 길이를 m·cm·mm로",
+      "minutes": 9,
+      "description": [
+        "교실 복도의 길이를 레이저 거리 측정기로 쟀더니 mm 단위의 큰 숫자로만 나와요. 숫자가 너무 커서 얼마나 긴지 한눈에 알기 어려워요.",
+        "mm 단위의 길이 length를 입력받아 'm cm mm'로 바꿔 출력해주세요. 출력 형식은 1m 2cm 3mm 처럼 숫자 뒤에 단위(m, cm, mm)를 붙이고 사이에 공백을 둬요. 0인 단위도 생략하지 않고 출력해요."
+      ],
+      "input": "mm 단위의 길이를 나타내는 정수 length 하나가 주어집니다.",
+      "output": "'m cm mm' 순서로 숫자 뒤에 단위를 붙여(예: 1m 2cm 3mm) 한 줄에 출력합니다. cm는 0~99, mm는 0~9예요.",
+      "constraints": [
+        "0 ≤ length ≤ 99,999",
+        "0인 단위도 0m, 0cm, 0mm처럼 출력하세요."
+      ],
+      "starter": "length = int(input())\n\n# m, cm, mm를 차례로 구해보세요.\n",
+      "solution": "length = int(input())\nmeters = length // 1000\nrest = length % 1000\ncm = rest // 10\nmm = rest % 10\nprint(f\"{meters}m {cm}cm {mm}mm\")\n",
+      "hints": [
+        "큰 단위부터 몫(//)으로 구하고, 남은 길이를 나머지(%)로 구해 다음 단위로 이어 가요. 1m가 몇 mm인지 먼저 생각해보세요.",
+        "m를 구하고 남은 길이에서 cm를 구한 뒤, 거기서 또 남은 길이가 mm예요. 출력은 f-string 안에 변수와 단위 글자를 함께 써보세요."
+      ],
+      "tests": [
+        {
+          "input": "3456",
+          "output": "3m 45cm 6mm"
+        },
+        {
+          "input": "0",
+          "output": "0m 0cm 0mm"
+        },
+        {
+          "input": "1000",
+          "output": "1m 0cm 0mm"
+        },
+        {
+          "input": "9",
+          "output": "0m 0cm 9mm"
+        },
+        {
+          "input": "805",
+          "output": "0m 80cm 5mm"
+        },
+        {
+          "input": "99999",
+          "output": "99m 99cm 9mm"
+        }
+      ]
+    }
   ],
   "tests": [
     {

@@ -18,6 +18,12 @@
   "conceptCode": "numbers = [3, 8, 2]\nprint(numbers[0])\nprint(max(numbers))",
   "starter": "n = int(input())\nnumbers = list(map(int, input().split()))\n\n# numbers에서 가장 큰 값을 출력해주세요.\n",
   "solution": "n = int(input())\nnumbers = list(map(int, input().split()))\nprint(max(numbers))\n",
+  "example": {
+    "intro": "마트 이벤트에서 가장 비싼 물건 하나를 뺀 나머지 금액을 구하는 예제예요. 리스트 전체에 sum()과 max()를 바로 쓰는 부분을 눈여겨보세요.",
+    "code": "# 가장 비싼 물건 하나는 공짜예요. 낼 금액을 구해요.\nn = int(input())\nprices = list(map(int, input().split()))\n# sum()은 전체 합, max()는 가장 큰 값을 알려줘요.\npay = sum(prices) - max(prices)\nprint(pay)\n",
+    "input": "4\n1200 3500 800 2000",
+    "output": "4000"
+  },
   "hints": [
     "max() 함수로 리스트에서 최댓값을 구할 수 있어요.",
     "직접 비교한다면 시작값을 0이 아니라 numbers[0]으로 두세요. 음수만 있을 수도 있어요."

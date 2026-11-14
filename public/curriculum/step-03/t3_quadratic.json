@@ -18,10 +18,65 @@
   "conceptCode": "a, b, c = 1, 2, 1\nd = b * b - 4 * a * c\nprint(d)\nprint(d > 0, d == 0, d < 0)",
   "starter": "a, b, c = map(int, input().split())\n\n# 먼저 a가 0인지 아닌지부터 나누어 생각해보세요.\n",
   "solution": "a, b, c = map(int, input().split())\nif a == 0:\n    if b != 0:\n        print(1)\n    elif c == 0:\n        print(\"INF\")\n    else:\n        print(0)\nelse:\n    d = b * b - 4 * a * c\n    if d > 0:\n        print(2)\n    elif d == 0:\n        print(1)\n    else:\n        print(0)\n",
+  "example": {
+    "intro": "두 수를 나눌 수 있는지 먼저 확인하는 예제예요. 특별한 경우(0)를 맨 앞에서 걸러내고 나머지 경우를 따로 나누는 구조를 눈여겨보세요.",
+    "code": "a, b = map(int, input().split())\n# 0으로는 나눌 수 없으니, 특별한 경우를 가장 먼저 걸러내요.\nif b == 0:\n    print(\"나눌 수 없어요\")\nelse:\n    if a % b == 0:\n        print(\"나누어떨어져요\")\n    else:\n        print(\"나머지가 있어요\")\n",
+    "input": "10 3",
+    "output": "나머지가 있어요"
+  },
   "hints": [
     "a == 0 인 경우와 아닌 경우를 가장 먼저 나누세요.",
     "a가 0이 아니면 D = b*b - 4*a*c 를 계산해서 D의 부호로 해의 개수를 정해요.",
-    "a가 0이면 bx + c = 0 이에요. b가 0이 아니면 해는 1개, b가 0이면 c가 0인지 아닌지에 따라 INF 또는 0이에요."
+    "a가 0이면 bx + c = 0 이라는 일차식이에요. b가 0일 때와 아닐 때를 나눠서 각각 해가 몇 개일지 먼저 손으로 따져보세요. (b도 0이라면 c를 살펴봐야 해요.)"
+  ],
+  "practice": [
+    {
+      "title": "두 직선은 몇 번 만날까?",
+      "minutes": 10,
+      "description": [
+        "수학 시간에 일차함수의 그래프를 그리다 보면, 두 직선이 한 점에서 만나기도 하고 나란히 달려서 만나지 않기도 해요.",
+        "직선 y = a1 × x + b1 과 직선 y = a2 × x + b2 가 만나는 점의 개수를 출력해주세요. (a는 기울기, b는 y절편이에요.) 두 직선이 완전히 같은 직선이면 만나는 점이 무수히 많으니 INF를 출력해요."
+      ],
+      "input": "한 줄에 공백으로 구분된 네 정수 a1, b1, a2, b2가 주어집니다.",
+      "output": "만나는 점의 개수 0, 1 중 하나, 또는 INF를 출력합니다.",
+      "constraints": [
+        "-100 ≤ a1, b1, a2, b2 ≤ 100",
+        "기울기가 0인 직선(y = b)도 주어질 수 있어요.",
+        "만나는 점이 무수히 많으면 영어 대문자 INF를 출력하세요."
+      ],
+      "starter": "a1, b1, a2, b2 = map(int, input().split())\n\n# 먼저 두 직선의 기울기가 같은지 다른지부터 나누어 생각해보세요.\n",
+      "solution": "a1, b1, a2, b2 = map(int, input().split())\nif a1 != a2:\n    print(1)\nelif b1 == b2:\n    print(\"INF\")\nelse:\n    print(0)\n",
+      "hints": [
+        "두 직선의 기울기(a1, a2)가 서로 다르면 두 직선은 어떻게 될까요? 기울기가 같은지부터 확인해보세요.",
+        "기울기가 같을 때는 절편(b1, b2)을 비교해요. 절편이 같다고 곧바로 INF라고 하면 안 돼요. 기울기가 다른 경우를 먼저 걸러냈는지 확인해보세요."
+      ],
+      "tests": [
+        {
+          "input": "1 2 3 4",
+          "output": "1"
+        },
+        {
+          "input": "2 5 2 -1",
+          "output": "0"
+        },
+        {
+          "input": "-3 4 -3 4",
+          "output": "INF"
+        },
+        {
+          "input": "3 -4 -3 -4",
+          "output": "1"
+        },
+        {
+          "input": "0 7 0 2",
+          "output": "0"
+        },
+        {
+          "input": "0 5 0 5",
+          "output": "INF"
+        }
+      ]
+    }
   ],
   "tests": [
     {

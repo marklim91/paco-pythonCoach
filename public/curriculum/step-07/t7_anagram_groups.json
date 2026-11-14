@@ -19,10 +19,16 @@
   "conceptCode": "word = 'tea'\nkey = ''.join(sorted(word))\nprint(key)\nprint(sorted(['b', 'a']))",
   "starter": "n = int(input())\nwords = input().split()\n\n# 글자를 정렬한 모양을 키로 사용해 낱말을 모아보세요.\n",
   "solution": "n = int(input())\nwords = input().split()\ngroups = {}\nfor w in words:\n    key = \"\".join(sorted(w))\n    groups.setdefault(key, []).append(w)\n\nlines = []\nfor members in groups.values():\n    if len(members) >= 2:\n        lines.append(sorted(members))\nlines.sort()\n\nif not lines:\n    print(\"없음\")\nfor members in lines:\n    print(\" \".join(members))\n",
+  "example": {
+    "intro": "낱말을 글자 수별로 묶어 보여주는 예제예요. 글자 수를 키로 삼아 낱말을 리스트에 모으는 부분을 눈여겨보세요.",
+    "code": "# 낱말을 글자 수별로 묶어서 한 줄씩 보여줘요.\nwords = input().split()\ngroups = {}\nfor w in words:\n    # 글자 수를 키로 삼아 같은 키의 낱말을 리스트에 모아요.\n    groups.setdefault(len(w), []).append(w)\nfor length in sorted(groups):\n    print(f\"{length}글자:\", \" \".join(groups[length]))\n",
+    "input": "sky cloud sun star moon rain",
+    "output": "3글자: sky sun\n4글자: star moon rain\n5글자: cloud"
+  },
   "hints": [
-    "각 낱말의 글자를 정렬해서 만든 문자열이 같으면 애너그램이에요. 그 문자열을 딕셔너리 키로 써보세요.",
+    "글자를 정렬하면 애너그램끼리는 똑같은 모양이 돼요. 그 '정렬한 모양'을 같은 묶음을 알려주는 이름표(키)로 쓸 수 있을지 생각해보세요.",
     "키별로 낱말 리스트를 모은 뒤, 길이가 2 이상인 묶음만 골라요.",
-    "각 묶음을 sorted()로 정렬한 리스트들을 다시 sort()하면 첫 낱말 기준으로 줄 순서가 정해져요. 리스트끼리의 비교는 앞 원소부터 해요."
+    "묶음 안의 낱말 순서와 묶음(줄)들의 순서는 따로 맞춰야 해요. 리스트끼리 비교하면 앞 원소부터 차례로 비교한다는 점을 활용하면 줄 순서를 쉽게 정할 수 있어요."
   ],
   "tests": [
     {

@@ -19,10 +19,16 @@
   "conceptCode": "def hello(name, greeting=\"안녕\"):\n    return greeting + \", \" + name\n\nprint(hello(\"민수\"))\nprint(hello(\"민수\", \"반가워\"))",
   "starter": "def total_price(price, rate=10):\n    # TODO: 세금(price * rate // 100)을 더한 금액을 돌려주세요.\n    return 0\n\nvalues = list(map(int, input().split()))\n# TODO: values의 개수에 상관없이 total_price를 호출해 결과를 출력하세요.\n",
   "solution": "def total_price(price, rate=10):\n    return price + price * rate // 100\n\nvalues = list(map(int, input().split()))\nprint(total_price(*values))\n",
+  "example": {
+    "intro": "모임 장소를 말하지 않으면 기본 장소를 쓰는 초대 문구 예제예요. 매개변수의 기본값과, 리스트 앞에 *를 붙여 풀어 넘기는 부분을 눈여겨보세요.",
+    "code": "# place를 생략하면 기본값 \"학교 앞\"이 쓰여요.\ndef invite(name, place=\"학교 앞\"):\n    return f\"{name}, {place}에서 만나요!\"\n\nprint(invite(\"지민\"))\nprint(invite(\"지민\", \"도서관\"))\n\ninfo = input().split()\n# 리스트 앞의 *는 원소를 하나씩 풀어서 함수에 넘겨줘요.\nprint(invite(*info))\n",
+    "input": "서아 운동장",
+    "output": "지민, 학교 앞에서 만나요!\n지민, 도서관에서 만나요!\n서아, 운동장에서 만나요!"
+  },
   "hints": [
     "입력이 한 개일 수도 두 개일 수도 있으니 split() 결과를 리스트로 받아 두면 편해요.",
-    "total_price(*values)처럼 리스트 앞에 *를 쓰면 원소 개수만큼 인자로 전달돼요.",
-    "세금은 price * rate // 100 이에요. 함수 안에서 price에 더해서 돌려주세요."
+    "리스트 앞에 *를 붙이면 원소들이 하나씩 풀려서 인자로 전달돼요. 이 방법이면 값이 1개일 때와 2개일 때를 if로 나누지 않아도 돼요.",
+    "세금은 price × rate ÷ 100이고 소수점 이하는 버려요. 정수 나눗셈 연산자를 떠올려보고, 세금을 더한 합계를 return으로 돌려주세요."
   ],
   "tests": [
     {

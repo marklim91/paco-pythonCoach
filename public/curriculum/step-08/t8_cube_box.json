@@ -18,9 +18,15 @@
   "conceptCode": "def double(x):\n    return x * 2\n\nprint(double(21))",
   "starter": "def cube(n):\n    # TODO: n을 세 번 곱한 값을 돌려주세요.\n    pass\n\nn = int(input())\nprint(cube(n))\n",
   "solution": "def cube(n):\n    return n * n * n\n\nn = int(input())\nprint(cube(n))\n",
+  "example": {
+    "intro": "가로와 세로로 색종이의 넓이를 구하는 함수 예제예요. 계산한 값을 return으로 돌려주고, 이름(값)으로 함수를 부르는 부분을 눈여겨보세요.",
+    "code": "# 가로와 세로로 색종이의 넓이를 구하는 함수예요.\ndef rect_area(width, height):\n    return width * height      # 계산한 값을 return으로 돌려줘요.\n\nw, h = map(int, input().split())\n# 함수는 만들어 둔 뒤 이름(값)으로 불러야 실행돼요.\nprint(rect_area(w, h))\n# 같은 함수를 다른 값으로 다시 불러 쓸 수 있어요.\nprint(rect_area(w, w))\n",
+    "input": "4 3",
+    "output": "12\n16"
+  },
   "hints": [
     "함수 안에서 계산한 값은 return으로 돌려줘야 바깥에서 print로 출력할 수 있어요.",
-    "return 뒤에 n을 세 번 곱하는 식을 써보세요. n ** 3도 같은 뜻이에요."
+    "return 뒤에 돌려줄 값을 계산하는 식을 써보세요. 정육면체의 부피는 가로 × 세로 × 높이이고, 세 길이가 모두 n이에요."
   ],
   "tests": [
     {

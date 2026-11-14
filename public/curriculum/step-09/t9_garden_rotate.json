@@ -18,9 +18,15 @@
   "conceptCode": "for i in range(3, -1, -1):\n    print(i, end=' ')\nprint()\nprint(''.join(['a', 'b', 'c']))",
   "starter": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\n# 새 표의 한 줄은 원래 표의 같은 칸 번호를 아래에서 위로 모은 것이에요.\n",
   "solution": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\nfor c in range(C):\n    line = \"\"\n    for r in range(R - 1, -1, -1):\n        line += grid[r][c]\n    print(line)\n",
+  "example": {
+    "intro": "요일별로 적힌 시간표를 교시별 줄로 바꿔 출력하는 예제예요. 줄 번호를 바꿔 가며 같은 칸 번호를 모으는 부분을 눈여겨보세요.",
+    "code": "# 요일별로 적힌 시간표를 교시별 줄로 바꿔 읽어요.\nR, C = map(int, input().split())\ntable = [input().split() for _ in range(R)]\n\nfor c in range(C):\n    names = []\n    # 모든 줄에서 c번째 칸만 모으면 세로 한 줄이 돼요.\n    for r in range(R):\n        names.append(table[r][c])\n    print(\" \".join(names))\n",
+    "input": "3 2\n국어 수학\n영어 과학\n체육 음악",
+    "output": "국어 영어 체육\n수학 과학 음악"
+  },
   "hints": [
     "결과는 C줄이에요. 바깥 반복은 칸 번호 c가 0부터 C-1까지 돌아요.",
-    "새로운 한 줄은 원래 표의 줄 번호를 R-1부터 0까지 거꾸로 돌면서 grid[r][c]를 이어 붙여 만들어요.",
+    "새 표의 한 줄은 원래 표의 같은 칸 번호(c)에서 줄마다 글자를 하나씩 모아 만들어요. 위에서 아래로 읽을지 아래에서 위로 읽을지는 시계 방향으로 돌린 모양을 그려 보고 정해보세요.",
     "'ABC'와 'DEF' 두 줄을 돌리면 첫 줄은 'DA'가 되는지 손으로 확인해보세요."
   ],
   "tests": [

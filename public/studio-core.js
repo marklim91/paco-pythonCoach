@@ -168,11 +168,20 @@ async function requestPoints({
   }
   return { points: result.points, awarded: result.awarded !== false };
 }
+// 연습 문제는 원래 문제 id 뒤에 -p1, -p2를 붙여 구분합니다. 문제 id는 영문 소문자·숫자·_만 써서 겹치지 않습니다.
+function practiceId(problemId, index) {
+  return `${problemId}-p${index + 1}`;
+}
+function isPracticeId(id) {
+  const match = /^(.+)-p[1-9]\d*$/.exec(id);
+  return Boolean(match && PROBLEMS.some((p) => p.id === match[1]));
+}
 function readStudioState(storage) {
   const initial = {
     selected: "hello",
     codes: {},
     completed: [],
+    practiced: [],
     coachUrl: DEFAULT_COACH_URL,
     pointsUrl: "",
     awarded: [],
@@ -195,7 +204,10 @@ function readStudioState(storage) {
       throw new Error("저장 형식이 올바르지 않아요.");
     const codes = {};
     for (const [id, code] of Object.entries(parsed.codes)) {
-      if (!PROBLEMS.some((p) => p.id === id) || typeof code !== "string")
+      if (
+        !(PROBLEMS.some((p) => p.id === id) || isPracticeId(id)) ||
+        typeof code !== "string"
+      )
         throw new Error("저장된 코드 형식이 올바르지 않아요.");
       codes[id] = code;
     }
@@ -203,6 +215,9 @@ function readStudioState(storage) {
       !parsed.completed.every((id) => PROBLEMS.some((p) => p.id === id))
     )
       throw new Error("저장된 진도가 올바르지 않아요.");
+    const practiced = Array.isArray(parsed.practiced) ? parsed.practiced : [];
+    if (!practiced.every((id) => typeof id === "string" && isPracticeId(id)))
+      throw new Error("저장된 연습 기록이 올바르지 않아요.");
     const pointsUrl =
       typeof parsed.pointsUrl === "string" && parsed.pointsUrl
         ? validatePointsUrl(parsed.pointsUrl)
@@ -219,6 +234,7 @@ function readStudioState(storage) {
         selected: parsed.selected,
         codes,
         completed: [...new Set(parsed.completed)],
+        practiced: [...new Set(practiced)],
         coachUrl: LEGACY_COACH_URLS.includes(parsed.coachUrl)
           ? DEFAULT_COACH_URL
           : validateCoachUrl(parsed.coachUrl),
@@ -259,9 +275,32 @@ const PROBLEM_TEXT_KEYS = [
   "concept",
   "conceptCode",
   "starter",
-  "solution",
 ];
 const PROBLEM_LIST_KEYS = ["description", "constraints", "hints"];
+// 힌트 탭에서 보여주는 '비슷한 예제'입니다. 문제의 정답 코드(solution)는 테스트 검증용이라 화면에 쓰지 않고 읽지도 않습니다.
+const EXAMPLE_TEXT_KEYS = ["intro", "code", "input", "output"];
+// 문제마다 둘 수 있는 점수 없는 '비슷한 연습 문제'입니다. 정답 코드(solution)는 역시 읽지 않습니다.
+const PRACTICE_TEXT_KEYS = ["title", "input", "output", "starter"];
+const PRACTICE_LIST_KEYS = ["description", "constraints", "hints"];
+function isPractice(item) {
+  const isText = (value) => typeof value === "string";
+  return Boolean(
+    item &&
+      PRACTICE_TEXT_KEYS.every((key) => isText(item[key])) &&
+      PRACTICE_LIST_KEYS.every(
+        (key) =>
+          Array.isArray(item[key]) &&
+          item[key].length > 0 &&
+          item[key].every(isText),
+      ) &&
+      Number.isFinite(item.minutes) &&
+      Array.isArray(item.tests) &&
+      item.tests.length > 0 &&
+      item.tests.every(
+        (test) => test && isText(test.input) && isText(test.output),
+      ),
+  );
+}
 function problemDetailUrl(problem) {
   const step = problem.trackId.slice(1).padStart(2, "0");
   return `./curriculum/step-${step}/${problem.id}.json`;
@@ -278,6 +317,10 @@ function parseProblemDetail(problem, data) {
         data[key].length > 0 &&
         data[key].every(isText),
     ) ||
+    !data.example ||
+    !EXAMPLE_TEXT_KEYS.every((key) => isText(data.example[key])) ||
+    (data.practice !== undefined &&
+      !(Array.isArray(data.practice) && data.practice.every(isPractice))) ||
     !Array.isArray(data.tests) ||
     data.tests.length === 0 ||
     !data.tests.every(
@@ -285,15 +328,44 @@ function parseProblemDetail(problem, data) {
     )
   )
     throw new Error("문제 파일의 형식이 올바르지 않아요: " + problem.id);
-  return Object.fromEntries(
-    [...PROBLEM_TEXT_KEYS, ...PROBLEM_LIST_KEYS, "tests"].map((key) => [
-      key,
-      data[key],
-    ]),
-  );
+  return {
+    ...Object.fromEntries(
+      [...PROBLEM_TEXT_KEYS, ...PROBLEM_LIST_KEYS, "tests"].map((key) => [
+        key,
+        data[key],
+      ]),
+    ),
+    example: Object.fromEntries(
+      EXAMPLE_TEXT_KEYS.map((key) => [key, data.example[key]]),
+    ),
+    practice: (data.practice ?? []).map((item) =>
+      Object.fromEntries(
+        [
+          ...PRACTICE_TEXT_KEYS,
+          ...PRACTICE_LIST_KEYS,
+          "minutes",
+          "tests",
+        ].map((key) => [key, item[key]]),
+      ),
+    ),
+  };
+}
+// 연습 문제를 일반 문제처럼 화면·채점에 쓸 수 있는 모양으로 만듭니다. 난이도는 점수가 없는 '연습'이고, 개념 설명은 원래 문제의 것을 씁니다.
+function practiceProblem(problem, index) {
+  return {
+    ...problem.practice[index],
+    id: practiceId(problem.id, index),
+    problemId: problem.id,
+    isPractice: true,
+    level: "연습",
+    topic: problem.topic,
+    concept: problem.concept,
+    conceptCode: problem.conceptCode,
+    trackId: problem.trackId,
+  };
 }
 const problemLoads = new Map();
-// 문제 본문(설명·테스트·정답 등)은 처음 열 때 한 번만 불러옵니다. 실패하면 다음에 다시 시도합니다.
+// 문제 본문(설명·테스트·힌트·비슷한 예제 등)은 처음 열 때 한 번만 불러옵니다. 실패하면 다음에 다시 시도합니다.
 function loadProblem(id, fetchImpl = fetch) {
   const problem = PROBLEMS.find((p) => p.id === id);
   if (!problem) return Promise.reject(new Error("알 수 없는 문제예요: " + id));

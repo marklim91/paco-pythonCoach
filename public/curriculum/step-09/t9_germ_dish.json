@@ -18,6 +18,12 @@
   "conceptCode": "old = ['#.', '.#']\nnew = [['.'] * 2 for _ in range(2)]\nnew[0][0] = old[1][1]\nprint(''.join(new[0]))",
   "starter": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\n# 원래 표를 바꾸지 말고 새 표를 따로 만들어 결과를 적어보세요.\n",
   "solution": "R, C = map(int, input().split())\ngrid = [input() for _ in range(R)]\n\nnew_grid = []\nfor r in range(R):\n    line = \"\"\n    for c in range(C):\n        count = 0\n        for dr in (-1, 0, 1):\n            for dc in (-1, 0, 1):\n                if dr == 0 and dc == 0:\n                    continue\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < R and 0 <= nc < C and grid[nr][nc] == \"#\":\n                    count += 1\n        if grid[r][c] == \"#\":\n            alive = count == 2 or count == 3\n        else:\n            alive = count == 3\n        line += \"#\" if alive else \".\"\n    new_grid.append(line)\nfor line in new_grid:\n    print(line)\n",
+  "example": {
+    "intro": "한 줄로 놓인 전구가 1초 뒤 어떻게 바뀌는지 계산하는 예제예요. 읽는 줄은 그대로 두고 결과를 새 줄에 따로 쌓는 부분을 눈여겨보세요.",
+    "code": "# 한 줄로 놓인 전구가 1초 뒤 어떻게 바뀌는지 계산해요.\n# 양옆 전구('#'는 켜짐) 중 정확히 하나만 켜져 있으면 켜지고, 아니면 꺼져요.\nlights = input()\nn = len(lights)\n\nnew_lights = \"\"\nfor i in range(n):\n    on = 0\n    for d in (-1, 1):\n        j = i + d\n        # 줄 밖에는 전구가 없으니 범위를 먼저 확인해요.\n        if 0 <= j < n and lights[j] == \"#\":\n            on += 1\n    # 읽는 줄(lights)은 그대로 두고 결과는 new_lights에 따로 쌓아요.\n    new_lights += \"#\" if on == 1 else \".\"\nprint(new_lights)\n",
+    "input": ".#..#.#",
+    "output": "#.##..."
+  },
   "hints": [
     "먼저 한 칸 주변의 세균 수를 세는 부분을 만들어보세요. 자기 자신은 세지 않아야 해요.",
     "세균이 있는 칸은 이웃이 2 또는 3개일 때, 빈 칸은 이웃이 3개일 때만 다음 세대에 세균이 있어요.",

@@ -18,9 +18,59 @@
   "conceptCode": "print(\"*\" * 3)\nfor i in range(3, 0, -1):\n    print(i)",
   "starter": "n = int(input())\n\n# 1부터 n까지 올라가는 부분을 먼저 출력해보세요.\n\n# n-1부터 1까지 내려가는 부분을 출력해보세요.\n",
   "solution": "n = int(input())\nfor i in range(1, n + 1):\n    print(\"*\" * i)\nfor i in range(n - 1, 0, -1):\n    print(\"*\" * i)\n",
+  "example": {
+    "intro": "숫자 i를 i번 반복해 계단 모양을 만드는 예제예요. 줄 번호를 이용해 글자를 반복하는 부분을 눈여겨보세요.",
+    "code": "n = int(input())\n# i번째 줄에는 숫자 i를 i번 이어 붙여 출력해요.\nfor i in range(1, n + 1):\n    print(str(i) * i)\n",
+    "input": "4",
+    "output": "1\n22\n333\n4444"
+  },
   "hints": [
     "올라가는 부분과 내려가는 부분을 반복문 두 개로 나눠 생각해요.",
-    "올라가는 부분은 range(1, n + 1), 내려가는 부분은 n-1에서 1까지 거꾸로 세는 range를 사용해요. 각 줄은 \"*\" * i 로 만들 수 있어요."
+    "올라가는 부분은 1부터 n까지, 내려가는 부분은 n-1부터 1까지 줄어드는 숫자를 만들어야 해요. range()에 시작값, 끝값, 증가량(음수도 가능)을 넣어보세요. 각 줄의 별은 문자열에 줄 번호를 곱해서 만들 수 있어요."
+  ],
+  "practice": [
+    {
+      "title": "배터리 방전 그림",
+      "minutes": 8,
+      "description": [
+        "여러 전자 기기의 배터리가 조금씩 닳아 가는 모습을 글자로 그려 보려고 해요.",
+        "기기 이름 name과 배터리 칸 수 n을 한 줄씩 입력받아, 먼저 name을 한 줄 출력하고 그다음 줄부터 n줄의 배터리 그림을 출력해주세요. 그림의 모든 줄은 n글자예요. 그림의 첫 줄은 꽉 찬 칸 `O`가 n개이고, 줄이 내려갈 때마다 `O`가 하나씩 줄어들고 그 자리를 빈 칸 `-`가 채워요. 그림의 마지막 줄은 `O` 1개와 `-` n-1개예요."
+      ],
+      "input": "첫째 줄에 기기 이름 name, 둘째 줄에 배터리 칸 수 n이 주어집니다.",
+      "output": "name을 한 줄 출력한 뒤, O가 n개, n-1개, ..., 1개인 줄을 차례로 n줄 출력하고 남은 자리는 -로 채웁니다.",
+      "constraints": [
+        "name은 공백 없는 1~8글자이고, 1 ≤ n ≤ 30",
+        "O는 알파벳 대문자 O이고, 글자 사이에 공백은 없어요."
+      ],
+      "starter": "name = input()\nn = int(input())\n\n# 먼저 기기 이름을 출력해보세요.\n\n# O가 n개인 줄부터 1개인 줄까지 한 줄씩 출력해보세요.\n",
+      "solution": "name = input()\nn = int(input())\nprint(name)\nfor filled in range(n, 0, -1):\n    empty = n - filled\n    print(\"O\" * filled + \"-\" * empty)\n",
+      "hints": [
+        "O의 개수는 n에서 1까지 하나씩 줄어들어요. range()에 증가량을 음수로 주면 거꾸로 셀 수 있어요.",
+        "빈 칸의 수는 전체 칸 수 n에서 O의 수를 뺀 값이에요. 한 줄은 O를 반복한 글자와 -를 반복한 글자를 이어 붙여서 만들어요."
+      ],
+      "tests": [
+        {
+          "input": "휴대폰\n1",
+          "output": "휴대폰\nO"
+        },
+        {
+          "input": "리모컨\n2",
+          "output": "리모컨\nOO\nO-"
+        },
+        {
+          "input": "태블릿\n4",
+          "output": "태블릿\nOOOO\nOOO-\nOO--\nO---"
+        },
+        {
+          "input": "시계\n6",
+          "output": "시계\nOOOOOO\nOOOOO-\nOOOO--\nOOO---\nOO----\nO-----"
+        },
+        {
+          "input": "이어폰\n15",
+          "output": "이어폰\nOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOO-\nOOOOOOOOOOOOO--\nOOOOOOOOOOOO---\nOOOOOOOOOOO----\nOOOOOOOOOO-----\nOOOOOOOOO------\nOOOOOOOO-------\nOOOOOOO--------\nOOOOOO---------\nOOOOO----------\nOOOO-----------\nOOO------------\nOO-------------\nO--------------"
+        }
+      ]
+    }
   ],
   "tests": [
     {

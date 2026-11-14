@@ -47,25 +47,40 @@ test('curriculum supplies unique problems, runnable references and judging data'
       assert.equal(typeof sample.input, 'string');
       assert.equal(typeof sample.output, 'string');
     }
+    for (const key of ['intro', 'code', 'output']) {
+      assert.equal(typeof problem.example?.[key], 'string', `${problem.id}: example.${key}`);
+      assert.ok(problem.example[key].trim().length, `${problem.id}: empty example.${key}`);
+    }
+    assert.equal(typeof problem.example.input, 'string', `${problem.id}: example.input`);
   }
 });
 
 const pythonCommand = ['python', 'python3', 'py'].find(name => spawnSync(name, ['--version']).status === 0);
+// Runs each snippet the way the studio does: input() reads the case input and only stdout is compared.
+const pythonRunner = [
+  'import sys, io, json, contextlib',
+  'def run(code, text):',
+  '    sys.stdin = io.StringIO(text)',
+  '    out = io.StringIO()',
+  '    try:',
+  '        with contextlib.redirect_stdout(out):',
+  '            exec(compile(code, "x.py", "exec"), {"__name__": "__main__"})',
+  '    except BaseException as error:',
+  '        return "ERROR " + repr(error)',
+  '    return out.getvalue()',
+  'def norm(value):',
+  '    return "\\n".join(line.rstrip() for line in value.replace("\\r\\n", "\\n").split("\\n")).rstrip("\\n")',
+];
+const runPython = (lines, problems) => {
+  const result = spawnSync(pythonCommand, ['-X', 'utf8', '-c', [...pythonRunner, ...lines].join('\n')], {
+    input: JSON.stringify(problems), encoding: 'utf8', timeout: 120000,
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout);
+};
 
 test('reference solutions pass their own judging cases while starter code does not', { skip: !pythonCommand }, () => {
-  const driver = [
-    'import sys, io, json, contextlib',
-    'def run(code, text):',
-    '    sys.stdin = io.StringIO(text)',
-    '    out = io.StringIO()',
-    '    try:',
-    '        with contextlib.redirect_stdout(out):',
-    '            exec(compile(code, "x.py", "exec"), {"__name__": "__main__"})',
-    '    except BaseException as error:',
-    '        return "ERROR " + repr(error)',
-    '    return out.getvalue()',
-    'def norm(value):',
-    '    return "\\n".join(line.rstrip() for line in value.replace("\\r\\n", "\\n").split("\\n")).rstrip("\\n")',
+  const report = runPython([
     'report = {}',
     'for problem in json.load(sys.stdin):',
     '    report[problem["id"]] = {',
@@ -73,15 +88,99 @@ test('reference solutions pass their own judging cases while starter code does n
     '        "starter": [norm(run(problem["starter"], t["input"])) == t["output"] for t in problem["tests"]],',
     '    }',
     'sys.__stdout__.write(json.dumps(report))',
-  ].join('\n');
-  const result = spawnSync(pythonCommand, ['-X', 'utf8', '-c', driver], {
-    input: JSON.stringify(curriculum.flatMap(track => track.problems)), encoding: 'utf8', timeout: 120000,
-  });
-  assert.equal(result.status, 0, result.stderr);
-  for (const [id, { solution, starter }] of Object.entries(JSON.parse(result.stdout))) {
+  ], curriculum.flatMap(track => track.problems));
+  for (const [id, { solution, starter }] of Object.entries(report)) {
     assert.ok(solution.every(Boolean), `${id}: solution fails a judging case`);
     assert.ok(!starter.every(Boolean), `${id}: starter code already passes every case`);
   }
+});
+
+const withoutComments = code => code.split('\n').map(line => line.replace(/#.*$/, '').trim()).filter(Boolean).join('\n');
+
+test('hint examples print what they claim and are never a disguised answer to their own problem', { skip: !pythonCommand }, () => {
+  const problems = curriculum.flatMap(track => track.problems);
+  const report = runPython([
+    'report = {}',
+    'for problem in json.load(sys.stdin):',
+    '    example = problem["example"]',
+    '    report[problem["id"]] = {',
+    '        "own": norm(run(example["code"], example["input"])),',
+    '        "cases": [norm(run(example["code"], t["input"])) == t["output"] for t in problem["tests"]],',
+    '    }',
+    'sys.__stdout__.write(json.dumps(report))',
+  ], problems);
+  for (const problem of problems) {
+    const { own, cases } = report[problem.id];
+    context.text = problem.example.output;
+    assert.equal(own, evaluate('normalizeOutput(text)'), `${problem.id}: example does not print its stated output`);
+    assert.ok(!cases.every(Boolean), `${problem.id}: example already passes every judging case`);
+    assert.notEqual(withoutComments(problem.example.code), withoutComments(problem.solution), `${problem.id}: example is the reference solution`);
+  }
+});
+
+test('the hints tab shows a similar example and never the reference solution', () => {
+  assert.match(app, /problem\.example\.code/);
+  assert.doesNotMatch(app, /problem\.solution/);
+  assert.doesNotMatch(core, /["']solution["']/, 'the loader must not read the reference solution');
+});
+
+const practiceItems = curriculum.flatMap(track => track.problems.flatMap(problem =>
+  (problem.practice ?? []).map((item, index) => ({ problem, item, index }))));
+
+test('every pilot problem (steps 1-4) has a complete practice problem', () => {
+  for (const track of curriculum.slice(0, 4)) {
+    for (const problem of track.problems) assert.ok(problem.practice?.length >= 1, `${problem.id}: missing practice problem`);
+  }
+  const keys = ['title', 'minutes', 'description', 'input', 'output', 'constraints', 'starter', 'solution', 'hints', 'tests'];
+  for (const { problem, item } of practiceItems) {
+    assert.deepEqual(Object.keys(item), keys, `${problem.id}: practice keys`);
+    for (const key of ['title', 'input', 'output', 'starter', 'solution']) {
+      assert.equal(typeof item[key], 'string', `${problem.id}: practice.${key}`);
+      assert.ok(item[key].trim().length, `${problem.id}: empty practice.${key}`);
+    }
+    assert.ok(Number.isInteger(item.minutes) && item.minutes > 0, `${problem.id}: practice.minutes`);
+    for (const key of ['description', 'constraints', 'hints']) {
+      assert.ok(Array.isArray(item[key]) && item[key].length > 0 && item[key].every(text => typeof text === 'string' && text.trim()), `${problem.id}: practice.${key}`);
+    }
+    assert.ok(item.tests.length > 0 && item.tests.every(sample => typeof sample.input === 'string' && typeof sample.output === 'string'), `${problem.id}: practice.tests`);
+    if (/\binput\s*\(/.test(item.solution)) {
+      assert.ok(item.tests.length >= 4, `${problem.id}: a practice that reads input needs at least 4 cases`);
+      assert.equal(new Set(item.tests.map(sample => sample.input)).size, item.tests.length, `${problem.id}: duplicate practice inputs`);
+    }
+  }
+});
+
+test('practice solutions pass their own cases, while the starter, the original solution and the hint example do not', { skip: !pythonCommand }, () => {
+  const problems = curriculum.flatMap(track => track.problems).filter(problem => problem.practice?.length);
+  const report = runPython([
+    'def passes(code, tests):',
+    '    return [norm(run(code, t["input"])) == t["output"] for t in tests]',
+    'report = {}',
+    'for problem in json.load(sys.stdin):',
+    '    for index, item in enumerate(problem["practice"]):',
+    '        report[problem["id"] + "#" + str(index)] = {',
+    '            "solution": passes(item["solution"], item["tests"]),',
+    '            "starter": passes(item["starter"], item["tests"]),',
+    '            "original": passes(problem["solution"], item["tests"]),',
+    '            "example": passes(problem["example"]["code"], item["tests"]),',
+    '            "practiceOnOriginal": passes(item["solution"], problem["tests"]),',
+    '        }',
+    'sys.__stdout__.write(json.dumps(report))',
+  ], problems);
+  assert.ok(Object.keys(report).length >= 40);
+  for (const [id, result] of Object.entries(report)) {
+    assert.ok(result.solution.every(Boolean), `${id}: practice solution fails a judging case`);
+    assert.ok(!result.starter.every(Boolean), `${id}: practice starter already passes every case`);
+    assert.ok(!result.original.every(Boolean), `${id}: the original solution already solves the practice`);
+    assert.ok(!result.example.every(Boolean), `${id}: the hint example already solves the practice`);
+    assert.ok(!result.practiceOnOriginal.every(Boolean), `${id}: the practice solution already solves the original`);
+  }
+});
+
+test('practice is unscored: only a real problem is marked solved and awarded points, and practice always has a way back', () => {
+  assert.match(app, /if \(passed && problem\.isPractice\) \{[\s\S]*?practiced:[\s\S]*?\} else if \(passed\) \{[\s\S]*?completed:[\s\S]*?awardPoints\(problem\)/);
+  assert.match(app, /showPractice\(null\)/);
+  assert.doesNotMatch(app, /p\.id === problem\.id/, 'step lists mark the selected problem, not the practice');
 });
 
 test('output comparison ignores only line endings and trailing whitespace', () => {
@@ -320,8 +419,20 @@ test('problem text is fetched once per problem, even for simultaneous requests, 
   assert.equal(first, second);
   assert.deepEqual(urls, ['./curriculum/step-01/hello.json']);
   assert.deepEqual(JSON.parse(JSON.stringify(first.tests)), hello.tests);
+  assert.deepEqual(JSON.parse(JSON.stringify(first.example)), hello.example);
+  assert.equal('solution' in first, false, 'the page never keeps the reference solution');
   assert.equal(first.starter, hello.starter);
   assert.equal(first.trackId, 't1');
+  assert.deepEqual(JSON.parse(JSON.stringify(first.practice.map(item => item.tests))), hello.practice.map(item => item.tests));
+  assert.ok(first.practice.every(item => !('solution' in item)), 'practice answers never reach the page either');
+  const asProblem = vm.runInContext('practiceProblem(PROBLEMS.find((p) => p.id === "hello"), 0)', fresh);
+  assert.equal(asProblem.id, 'hello-p1');
+  assert.equal(asProblem.problemId, 'hello');
+  assert.equal(asProblem.isPractice, true);
+  assert.equal(asProblem.level, '연습');
+  assert.equal(asProblem.concept, hello.concept);
+  assert.equal(asProblem.title, hello.practice[0].title);
+  assert.equal(vm.runInContext('pointsFor(practiceProblem(PROBLEMS.find((p) => p.id === "hello"), 0))', fresh), 0, 'practice earns no points');
   await load();
   assert.equal(urls.length, 1, 'a loaded problem is not fetched again');
 });
@@ -335,7 +446,10 @@ test('a failed or malformed problem file is rejected, leaves the problem unloade
   const ok = body => ({ ok: true, status: 200, json: async () => body });
   reply = { ok: false, status: 404, json: async () => ({}) };
   await assert.rejects(load, /\(404\)/);
-  for (const body of [null, { ...hello, id: 'sum' }, { ...hello, tests: [] }, { ...hello, hints: [] }, { ...hello, starter: 7 }, { ...hello, tests: [{ input: 1, output: '' }] }]) {
+  for (const body of [null, { ...hello, id: 'sum' }, { ...hello, tests: [] }, { ...hello, hints: [] }, { ...hello, starter: 7 }, { ...hello, tests: [{ input: 1, output: '' }] },
+    { ...hello, example: null }, { ...hello, example: { ...hello.example, code: 7 } },
+    { ...hello, practice: 'x' }, { ...hello, practice: [null] }, { ...hello, practice: [{ ...hello.practice[0], tests: [] }] },
+    { ...hello, practice: [{ ...hello.practice[0], hints: [] }] }, { ...hello, practice: [{ ...hello.practice[0], minutes: 'x' }] }]) {
     reply = ok(body);
     await assert.rejects(load, /형식이 올바르지 않아요/);
   }
@@ -345,6 +459,36 @@ test('a failed or malformed problem file is rejected, leaves the problem unloade
   reply = ok(hello);
   assert.equal((await load()).title, hello.title);
   await assert.rejects(() => vm.runInContext('loadProblem("missing", fakeFetch)', fresh), /알 수 없는 문제/);
+});
+
+test('a problem file without practice still loads, with an empty practice list', () => {
+  const fresh = createStudio();
+  const { practice, ...plain } = structuredClone(curriculum[0].problems[0]);
+  assert.ok(practice.length > 0);
+  fresh.file = plain;
+  const detail = vm.runInContext('parseProblemDetail(PROBLEMS.find((p) => p.id === file.id), file)', fresh);
+  assert.deepEqual([...detail.practice], []);
+});
+
+test('practice ids, saved practice code and practice marks restore, and unknown practice records are refused', () => {
+  assert.equal(evaluate('practiceId("t3_grade", 0)'), 't3_grade-p1');
+  assert.equal(evaluate('isPracticeId("t3_grade-p2")'), true);
+  for (const id of ['t3_grade', 't3_grade-p0', 'missing-p1', 't3_grade-px']) assert.equal(evaluate(`isPracticeId(${JSON.stringify(id)})`), false, id);
+
+  const read = extra => {
+    context.saved = JSON.stringify({ selected: 'hello', codes: {}, completed: [], coachUrl: 'https://example.com/chat', ...extra });
+    return evaluate('readStudioState({ getItem() { return saved; } })');
+  };
+  const restored = read({ codes: { 'hello-p1': 'print(1)' }, practiced: ['hello-p1', 'hello-p1'] });
+  assert.equal(restored.warning, '');
+  assert.equal(restored.state.codes['hello-p1'], 'print(1)');
+  assert.deepEqual([...restored.state.practiced], ['hello-p1']);
+  assert.deepEqual([...read({}).state.practiced], [], 'records saved before practice existed still load');
+  for (const bad of [{ practiced: ['hello'] }, { practiced: ['missing-p1'] }, { practiced: [7] }, { codes: { 'missing-p1': 'x' } }, { codes: { 'hello-p0': 'x' } }]) {
+    const result = read(bad);
+    assert.ok(result.warning, JSON.stringify(bad));
+    assert.deepEqual([...result.state.practiced], []);
+  }
 });
 
 test('the first screen shows the saved problem, or the one a link asks for when it exists', () => {

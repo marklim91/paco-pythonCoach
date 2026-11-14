@@ -19,9 +19,15 @@
   "conceptCode": "text = \"hi\"\nprev = text[0]\ncount = 1\nprint(prev + str(count))",
   "starter": "text = input().strip()\n\n# 앞 글자와 같은지 비교하며 개수를 세어보세요.\n",
   "solution": "text = input().strip()\nresult = \"\"\nprev = text[0]\ncount = 1\nfor ch in text[1:]:\n    if ch == prev:\n        count += 1\n    else:\n        result += prev + str(count)\n        prev = ch\n        count = 1\nresult += prev + str(count)\nprint(result)\n",
+  "example": {
+    "intro": "같은 글자가 가장 길게 이어진 구간의 길이를 구하는 예제예요. 앞 글자와 같으면 이어서 세고 다르면 1부터 다시 세는 부분을 눈여겨보세요.",
+    "code": "# 같은 글자가 가장 길게 이어진 길이를 구해요.\ntext = input().strip()\ncount = 1\nbest = 1\nfor i in range(1, len(text)):\n    # 바로 앞 글자와 같으면 이어서 세고,\n    # 다르면 1부터 다시 세요.\n    if text[i] == text[i - 1]:\n        count += 1\n    else:\n        count = 1\n    if count > best:\n        best = count\nprint(best)\n",
+    "input": "aabbbbcdd",
+    "output": "4"
+  },
   "hints": [
     "현재 구간의 글자(prev)와 개수(count)를 변수로 기억하세요. 처음에는 첫 글자와 1로 시작해요.",
-    "두 번째 글자부터 보면서 같으면 count를 늘리고, 다르면 prev + str(count)를 결과에 붙이고 새 구간을 시작해요. 반복문이 끝난 뒤 마지막 구간도 결과에 붙여야 해요."
+    "두 번째 글자부터 보면서 지금 글자가 구간의 글자와 같은지 비교해요. 같으면 개수를 늘리고, 다르면 끝난 구간을 '글자 + 개수' 모양으로 결과에 붙인 뒤 새 구간을 시작해요. 반복문이 끝난 뒤에도 마지막 구간은 아직 결과에 붙지 않았다는 점을 잊지 마세요."
   ],
   "tests": [
     {

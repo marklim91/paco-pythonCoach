@@ -286,6 +286,15 @@ html[data-theme="dark"][data-pco-skin="studio"] {
   background: #231f3d;
   color: #b3a6ee;
 }
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-banner,
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-card {
+  border-color: #28463a;
+  background: #172a23;
+  color: #8fe0c3;
+}
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-card p {
+  color: #98b8aa;
+}
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .io-head,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .editor-toolbar,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .line-numbers,

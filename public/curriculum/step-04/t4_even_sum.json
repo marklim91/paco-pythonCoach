@@ -18,9 +18,63 @@
   "conceptCode": "total = 0\nfor x in range(1, 6):\n    if x % 2 == 1:\n        total += x\nprint(total)",
   "starter": "a, b = map(int, input().split())\ntotal = 0\n\n# a부터 b까지 살펴보며 짝수만 더해보세요.\n\nprint(total)\n",
   "solution": "a, b = map(int, input().split())\ntotal = 0\nfor x in range(a, b + 1):\n    if x % 2 == 0:\n        total += x\nprint(total)\n",
+  "example": {
+    "intro": "a번부터 b번까지 중 3의 배수 번호만 출력하는 예제예요. range의 끝값에 1을 더해 b까지 포함하는 부분을 눈여겨보세요.",
+    "code": "a, b = map(int, input().split())\n# range의 끝값은 포함되지 않아서, b까지 보려면 b + 1까지 가야 해요.\nfor number in range(a, b + 1):\n    if number % 3 == 0:\n        print(number)\n",
+    "input": "4 10",
+    "output": "6\n9"
+  },
   "hints": [
-    "range(a, b + 1)로 a부터 b까지 모두 살펴볼 수 있어요.",
-    "x % 2 == 0 일 때만 total에 더해요. a와 b가 같고 홀수라면 한 번도 더하지 않아 0이 돼요."
+    "range()의 끝값은 포함되지 않아요. b번 사물함까지 살펴보려면 끝값을 어떻게 해야 할지 생각해보세요.",
+    "짝수인지는 2로 나눈 나머지로 확인하고, 조건에 맞을 때만 total에 더해요. 짝수가 하나도 없으면 total은 처음 값 그대로 0이 돼요."
+  ],
+  "practice": [
+    {
+      "title": "청팀 백팀 번호표 합",
+      "minutes": 8,
+      "description": [
+        "운동회에서 번호표를 받은 친구들이 번호에 따라 두 팀으로 나뉘어요. 번호가 짝수면 청팀, 홀수면 백팀이에요.",
+        "두 정수 a, b를 입력받아 a번부터 b번까지(a와 b 포함) 번호표를 하나씩 살펴보고, 청팀 번호의 합과 백팀 번호의 합을 한 줄에 공백 하나로 구분해 출력해주세요. 어느 팀에 번호가 하나도 없으면 그 팀의 합은 0이에요."
+      ],
+      "input": "첫째 줄에 a, 둘째 줄에 b가 주어집니다.",
+      "output": "한 줄에 `청팀의 합 백팀의 합` 순서로 출력합니다.",
+      "constraints": [
+        "1 ≤ a ≤ b ≤ 10,000",
+        "a와 b도 범위에 포함되고, 청팀(짝수)의 합이 먼저예요."
+      ],
+      "starter": "a = int(input())\nb = int(input())\nblue = 0\nwhite = 0\n\n# a부터 b까지 살펴보며 짝수는 blue에, 홀수는 white에 더해보세요.\n\nprint(blue, white)\n",
+      "solution": "a = int(input())\nb = int(input())\nblue = 0\nwhite = 0\nfor ticket in range(a, b + 1):\n    if ticket % 2 == 0:\n        blue += ticket\n    else:\n        white += ticket\nprint(blue, white)\n",
+      "hints": [
+        "a번부터 b번까지 모두 살펴보려면 range()의 끝값에 주의하고, 짝수인지 홀수인지는 2로 나눈 나머지로 알 수 있어요.",
+        "합을 담는 변수를 팀마다 하나씩 두고, if와 else로 한 번호가 한 팀에만 더해지게 해요. 번호가 하나뿐이면 다른 팀의 합은 처음 값 0 그대로예요."
+      ],
+      "tests": [
+        {
+          "input": "1\n10",
+          "output": "30 25"
+        },
+        {
+          "input": "4\n9",
+          "output": "18 21"
+        },
+        {
+          "input": "5\n5",
+          "output": "0 5"
+        },
+        {
+          "input": "2\n2",
+          "output": "2 0"
+        },
+        {
+          "input": "9999\n10000",
+          "output": "10000 9999"
+        },
+        {
+          "input": "1\n10000",
+          "output": "25005000 25000000"
+        }
+      ]
+    }
   ],
   "tests": [
     {

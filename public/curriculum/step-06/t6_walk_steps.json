@@ -19,6 +19,12 @@
   "conceptCode": "scores = list(map(int, input().split()))\nprint(sum(scores))\nprint(len(scores))",
   "starter": "nums = list(map(int, input().split()))\n\n# 합계와 평균을 출력해주세요.\n",
   "solution": "nums = list(map(int, input().split()))\ntotal = sum(nums)\nprint(total)\nprint(f\"{total / len(nums):.2f}\")\n",
+  "example": {
+    "intro": "후보별 득표수에서 첫 번째 후보의 득표율을 구하는 예제예요. sum()으로 전체를 구하고 f-string의 :.1f로 소수 자리를 맞추는 부분을 눈여겨보세요.",
+    "code": "# 후보별 득표수에서 첫 번째 후보의 득표율을 구해요.\nvotes = list(map(int, input().split()))\ntotal = sum(votes)\nrate = votes[0] / total * 100\n# :.1f는 소수 첫째 자리까지 맞춰서 보여줘요.\nprint(f\"전체 {total}표 중 {rate:.1f}%\")\n",
+    "input": "45 30 25 20",
+    "output": "전체 120표 중 37.5%"
+  },
   "hints": [
     "합계는 sum()으로, 개수는 len()으로 구할 수 있어요.",
     "평균은 합계를 개수로 나눈 값이에요. 소수 둘째 자리는 f\"{값:.2f}\" 형식을 사용해요."

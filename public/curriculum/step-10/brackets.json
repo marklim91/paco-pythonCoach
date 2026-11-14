@@ -17,6 +17,12 @@
   "conceptCode": "balance = 0\nfor ch in \"(())\":\n    balance += 1 if ch == \"(\" else -1\nprint(balance)",
   "starter": "text = input().strip()\n\n# 괄호의 균형을 확인해주세요.\n",
   "solution": "text = input().strip()\nbalance = 0\nvalid = True\nfor ch in text:\n    balance += 1 if ch == \"(\" else -1\n    if balance < 0:\n        valid = False\n        break\nprint(\"YES\" if valid and balance == 0 else \"NO\")\n",
+  "example": {
+    "intro": "주차장 입출차 기록에서 동시에 가장 많이 주차된 대수를 구하는 예제예요. 기록을 읽을 때마다 현재 값을 바꾸고 최댓값과 비교하는 부분을 눈여겨보세요.",
+    "code": "# 주차장 기록('I'는 입차, 'O'는 출차)에서 동시에 가장 많이 주차된 대수를 구해요.\nlog = input().strip()\n\ncars = 0\nmost = 0\nfor ch in log:\n    if ch == \"I\":\n        cars += 1\n    else:\n        cars -= 1\n    # 기록을 하나 읽을 때마다 지금 대수를 지금까지의 최댓값과 비교해요.\n    most = max(most, cars)\nprint(most)\n",
+    "input": "IIOIIIOOOI",
+    "output": "4"
+  },
   "hints": [
     "여는 괄호는 +1, 닫는 괄호는 -1로 세어보세요.",
     "개수가 같아도 )(는 올바르지 않아요. 중간에 음수가 되는지 확인하세요."

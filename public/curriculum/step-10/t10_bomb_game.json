@@ -19,9 +19,15 @@
   "conceptCode": "from collections import deque\nline = deque([1, 2, 3])\nline.append(line.popleft())\nprint(list(line))",
   "starter": "from collections import deque\n\nn, k = map(int, input().split())\nline = deque(range(1, n + 1))\nout = []\n\n# k번째 친구가 나올 때까지 앞사람을 뒤로 보내보세요.\n\nprint(*out)\n",
   "solution": "from collections import deque\n\nn, k = map(int, input().split())\nline = deque(range(1, n + 1))\nout = []\nwhile line:\n    for _ in range(k - 1):\n        line.append(line.popleft())\n    out.append(line.popleft())\nprint(*out)\n",
+  "example": {
+    "intro": "푸드트럭에서 한 번에 2개씩만 살 수 있을 때 손님이 모두 사 가는 순서를 구하는 예제예요. 꺼낸 손님을 조건에 따라 다시 줄 뒤에 세우는 부분을 눈여겨보세요.",
+    "code": "from collections import deque\n\n# 한 번에 2개까지만 살 수 있는 푸드트럭이에요. 더 필요한 손님은 줄 맨 뒤로 가요.\nneed = list(map(int, input().split()))\n\nline = deque()\nfor who, count in enumerate(need, 1):\n    line.append((who, count))\n\ndone = []\nwhile line:\n    who, count = line.popleft()\n    count -= 2\n    if count > 0:\n        # 아직 부족하면 다시 줄 맨 뒤에 서요.\n        line.append((who, count))\n    else:\n        done.append(who)\nprint(*done)\n",
+    "input": "5 2 3 1",
+    "output": "2 4 3 1"
+  },
   "hints": [
-    "k번째 친구가 걸리려면 그 앞의 k - 1명은 탈락하지 않고 뒤로 가야 해요.",
-    "앞사람을 popleft()로 꺼내 append()로 뒤에 붙이는 동작을 k - 1번 반복해요.",
+    "원을 한 칸 도는 것은 큐에서 맨 앞사람을 꺼내 맨 뒤에 다시 넣는 동작으로 표현할 수 있어요.",
+    "k번째 친구가 탈락하려면, 그 앞의 몇 명이 탈락하지 않고 뒤로 지나가야 하는지 세어보세요. 그 횟수만큼 '꺼내서 뒤에 넣기'를 반복해요.",
     "그 다음 popleft()로 꺼낸 친구가 탈락자예요. 큐가 빌 때까지 이 과정을 반복하세요."
   ],
   "tests": [

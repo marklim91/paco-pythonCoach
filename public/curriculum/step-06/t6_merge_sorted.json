@@ -19,10 +19,16 @@
   "conceptCode": "a = [1, 5]\nb = [2, 3]\ni = 0\nj = 0\nprint(a[i] <= b[j])\nprint(len(a) - i)",
   "starter": "a = list(map(int, input().split()))\nb = list(map(int, input().split()))\n\n# i, j로 두 리스트의 현재 위치를 가리키며 병합해보세요.\n",
   "solution": "a = list(map(int, input().split()))\nb = list(map(int, input().split()))\ni = 0\nj = 0\nresult = []\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        result.append(a[i])\n        i += 1\n    else:\n        result.append(b[j])\n        j += 1\nresult += a[i:]\nresult += b[j:]\nprint(*result)\n",
+  "example": {
+    "intro": "번호순으로 정렬된 두 명단에 모두 들어 있는 번호를 찾는 예제예요. 위치 j를 앞으로만 옮기고, b[j]를 보기 전에 j < len(b)부터 확인하는 부분을 눈여겨보세요.",
+    "code": "# 정렬된 두 명단에 모두 있는 번호를 찾아요.\n# (한 명단 안에 같은 번호는 없어요)\na = list(map(int, input().split()))\nb = list(map(int, input().split()))\nj = 0\nboth = []\nfor x in a:\n    # b에서 x보다 작은 번호는 더 볼 필요가 없으니\n    # 위치 j를 앞으로 옮겨요.\n    while j < len(b) and b[j] < x:\n        j += 1\n    # j가 끝을 넘지 않았고 값이 같으면\n    # 두 명단에 모두 있는 번호예요.\n    if j < len(b) and b[j] == x:\n        both.append(x)\nprint(*both)\n",
+    "input": "1 3 5 7 9\n3 4 5 9 10",
+    "output": "3 5 9"
+  },
   "hints": [
-    "i = 0, j = 0으로 시작하고, a[i]와 b[j] 중 더 작은 값을 결과에 넣어요.",
-    "값을 넣은 쪽의 인덱스만 1 증가시키고, i < len(a) and j < len(b) 동안 반복해요.",
-    "반복이 끝나면 한쪽이 남아 있을 수 있어요. a[i:]와 b[j:]를 결과 뒤에 붙여주세요."
+    "두 줄 모두 이미 정렬되어 있으니, 각 줄에서 아직 쓰지 않은 맨 앞 값끼리만 비교하면 돼요. 두 리스트의 현재 위치를 가리키는 변수 i, j를 0으로 시작해보세요.",
+    "더 작은 값을 결과에 넣은 뒤 그쪽 인덱스만 한 칸 옮겨요. 비교하려면 두 리스트 모두에 아직 쓰지 않은 값이 남아 있어야 하니, 반복 조건을 그에 맞게 정해보세요.",
+    "반복이 끝나면 한쪽 리스트에 아직 쓰지 않은 값이 남아 있을 수 있어요. 남은 부분을 슬라이싱으로 잘라 결과 뒤에 그대로 이어 붙여주세요."
   ],
   "tests": [
     {

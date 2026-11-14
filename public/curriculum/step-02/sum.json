@@ -18,9 +18,63 @@
   "conceptCode": "a, b = map(int, input().split())\nprint(a)\nprint(b)",
   "starter": "# 두 정수를 입력받아요.\na, b = map(int, input().split())\n\n# 두 수의 합을 출력해주세요.\n",
   "solution": "a, b = map(int, input().split())\nprint(a + b)\n",
+  "example": {
+    "intro": "직사각형의 넓이를 구하는 예제예요. 공백으로 나눈 두 수를 정수로 받아 계산한 뒤 출력하는 부분을 눈여겨보세요.",
+    "code": "# 공백으로 나눈 두 값을 정수로 바꿔 한꺼번에 받아요.\nwidth, height = map(int, input().split())\narea = width * height\nprint(area)\n",
+    "input": "4 7",
+    "output": "28"
+  },
   "hints": [
     "덧셈에는 + 기호를 사용해요.",
-    "print(a + b)를 사용하면 두 변수의 합을 출력할 수 있어요."
+    "두 수를 더한 값을 print() 안에 바로 넣어도 되고, 변수에 담았다가 출력해도 돼요."
+  ],
+  "practice": [
+    {
+      "title": "퀴즈 대회 총점 구하기",
+      "minutes": 5,
+      "description": [
+        "학급 퀴즈 대회가 세 라운드로 열렸어요. 문제를 맞히면 점수를 얻고, 틀리면 점수가 깎여서 한 라운드의 점수가 음수가 될 수도 있어요.",
+        "공백으로 구분된 세 정수 r1, r2, r3를 입력받아 세 라운드의 총점을 출력해주세요."
+      ],
+      "input": "한 줄에 세 정수 r1, r2, r3가 주어집니다.",
+      "output": "r1 + r2 + r3의 값을 출력합니다.",
+      "constraints": [
+        "-100 ≤ r1, r2, r3 ≤ 100",
+        "입력은 정수 세 개입니다."
+      ],
+      "starter": "# 세 정수를 입력받아요.\nr1, r2, r3 = map(int, input().split())\n\n# 세 점수의 합을 출력해주세요.\n",
+      "solution": "r1, r2, r3 = map(int, input().split())\nprint(r1 + r2 + r3)\n",
+      "hints": [
+        "세 수를 모두 더할 때도 + 기호를 이어서 쓰면 돼요.",
+        "음수가 섞여 있어도 + 로 그대로 더하면 돼요. 세 점수를 하나도 빠뜨리지 않았는지 확인해보세요."
+      ],
+      "tests": [
+        {
+          "input": "10 20 30",
+          "output": "60"
+        },
+        {
+          "input": "0 0 0",
+          "output": "0"
+        },
+        {
+          "input": "-5 8 -2",
+          "output": "1"
+        },
+        {
+          "input": "100 100 100",
+          "output": "300"
+        },
+        {
+          "input": "-40 -25 -10",
+          "output": "-75"
+        },
+        {
+          "input": "50 -70 15",
+          "output": "-5"
+        }
+      ]
+    }
   ],
   "tests": [
     {

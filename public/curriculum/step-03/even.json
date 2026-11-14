@@ -18,9 +18,63 @@
   "conceptCode": "if 4 % 2 == 0:\n    print(\"짝수\")\nelse:\n    print(\"홀수\")",
   "starter": "n = int(input())\n\n# n을 2로 나눈 나머지를 확인해보세요.\n",
   "solution": "n = int(input())\nif n % 2 == 0:\n    print(\"EVEN\")\nelse:\n    print(\"ODD\")\n",
+  "example": {
+    "intro": "3의 배수인지 알려주는 예제예요. 나머지가 0인지로 조건을 만드는 부분과 if / else의 들여쓰기를 눈여겨보세요.",
+    "code": "n = int(input())\n# 3으로 나눈 나머지가 0이면 나누어떨어지는 거예요.\nif n % 3 == 0:\n    print(\"3의 배수예요\")\nelse:\n    print(\"3의 배수가 아니에요\")\n",
+    "input": "12",
+    "output": "3의 배수예요"
+  },
   "hints": [
-    "n % 2 == 0 으로 짝수인지 확인해요.",
+    "2로 나눈 나머지를 구하는 연산자(%)를 떠올려보세요. 짝수는 나머지가 얼마일까요?",
     "if 뒤에는 콜론(:)을 쓰고, 실행할 줄은 들여쓰기해주세요."
+  ],
+  "practice": [
+    {
+      "title": "교실 타일 색 정하기",
+      "minutes": 8,
+      "description": [
+        "교실 바닥에 체스판처럼 흰 타일과 검은 타일을 번갈아 깔려고 해요. 어느 칸에 어떤 색을 깔아야 하는지 알려 주는 프로그램을 만들어봐요.",
+        "타일의 위치가 줄 번호 r과 칸 번호 c로 주어져요. 위에서부터 r번째 줄, 왼쪽에서부터 c번째 칸이라는 뜻이에요. r과 c를 더한 값이 짝수이면 WHITE, 홀수이면 BLACK을 출력해주세요."
+      ],
+      "input": "한 줄에 공백으로 구분된 두 정수 r, c가 주어집니다.",
+      "output": "WHITE 또는 BLACK을 출력합니다.",
+      "constraints": [
+        "1 ≤ r, c ≤ 8",
+        "영어 대문자로 출력하세요."
+      ],
+      "starter": "r, c = map(int, input().split())\n\n# r + c를 2로 나눈 나머지를 확인해보세요.\n",
+      "solution": "r, c = map(int, input().split())\nif (r + c) % 2 == 0:\n    print(\"WHITE\")\nelse:\n    print(\"BLACK\")\n",
+      "hints": [
+        "타일의 색은 r + c가 짝수인지 홀수인지로 정해져요. 2로 나눈 나머지(%)를 이용해보세요.",
+        "r + c % 2 라고 쓰면 c만 2로 나눈 나머지가 r에 더해져요. 더하는 부분을 괄호로 묶어서 계산 순서를 정해주세요."
+      ],
+      "tests": [
+        {
+          "input": "1 1",
+          "output": "WHITE"
+        },
+        {
+          "input": "1 2",
+          "output": "BLACK"
+        },
+        {
+          "input": "4 7",
+          "output": "BLACK"
+        },
+        {
+          "input": "2 2",
+          "output": "WHITE"
+        },
+        {
+          "input": "7 3",
+          "output": "WHITE"
+        },
+        {
+          "input": "8 5",
+          "output": "BLACK"
+        }
+      ]
+    }
   ],
   "tests": [
     {

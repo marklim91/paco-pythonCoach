@@ -20,9 +20,15 @@
   "conceptCode": "from functools import lru_cache\n\n@lru_cache(None)\ndef fib(k):\n    if k < 2:\n        return k\n    return fib(k - 1) + fib(k - 2)\n\nprint(fib(50))",
   "starter": "from functools import lru_cache\n\ndata = list(map(int, input().split()))\nn, m = data[0], data[1]\nbroken = set(data[2:2 + m])\n\n@lru_cache(None)\ndef ways(k):\n    # TODO: 종료 조건(범위 밖, 부서진 계단, 땅)과 점화식을 작성하세요.\n    return 0\n\nprint(ways(n))\n",
   "solution": "from functools import lru_cache\n\ndata = list(map(int, input().split()))\nn, m = data[0], data[1]\nbroken = set(data[2:2 + m])\n\n@lru_cache(None)\ndef ways(k):\n    if k < 0 or k in broken:\n        return 0\n    if k == 0:\n        return 1\n    return ways(k - 1) + ways(k - 2) + ways(k - 3)\n\nprint(ways(n))\n",
+  "example": {
+    "intro": "격자에서 오른쪽과 아래로만 가는 길의 수를 재귀로 세는 예제예요. 한 번 구한 값을 @lru_cache가 저장해 두는 부분을 눈여겨보세요.",
+    "code": "from functools import lru_cache\n\nr, c = map(int, input().split())\n\n# (0, 0)에서 (i, j)칸까지 오른쪽이나 아래로만 가는 길의 수예요.\n@lru_cache(None)\ndef paths(i, j):\n    # 첫 줄이나 첫 열에서는 갈 수 있는 길이 하나뿐이에요.\n    if i == 0 or j == 0:\n        return 1\n    # 위에서 내려오는 길과 왼쪽에서 오는 길을 합해요.\n    return paths(i - 1, j) + paths(i, j - 1)\n\n# 저장해 둔 값을 다시 쓰니 큰 칸도 금방 계산돼요.\nprint(paths(r, c))\n",
+    "input": "12 12",
+    "output": "2704156"
+  },
   "hints": [
-    "k가 음수이거나 부서진 계단이면 0, k가 0(땅)이면 1을 돌려주는 종료 조건을 먼저 쓰세요.",
-    "그 밖의 경우 ways(k)는 바로 아래 세 칸에서 오는 방법의 수를 모두 더한 값이에요.",
+    "종료 조건부터 정해요. 범위를 벗어난 경우, 밟을 수 없는 계단인 경우, 땅에 도착한 경우에 각각 방법이 몇 가지일지 하나씩 생각해보세요.",
+    "k번 계단에 마지막으로 올라오는 한 걸음은 1칸, 2칸, 3칸 중 하나예요. 그 한 걸음을 떼기 전에 어느 계단에 있었는지로 경우를 나누어보세요.",
     "함수 바로 위에 @lru_cache(None)을 붙이거나, 딕셔너리에 값을 저장해두면 n = 80에서도 금방 끝나요."
   ],
   "tests": [

@@ -19,10 +19,16 @@
   "conceptCode": "s = set([5, 3, 4, 9])\nprint(2 in s)\nprint(4 in s and 5 in s)\nprint(len(s))",
   "starter": "n = int(input())\ncards = set(map(int, input().split()))\n\n# 묶음의 시작점에서만 길이를 세어보세요.\n",
   "solution": "n = int(input())\ncards = set(map(int, input().split()))\nbest = 0\nfor x in cards:\n    if x - 1 not in cards:\n        length = 1\n        while x + length in cards:\n            length += 1\n        best = max(best, length)\nprint(best)\n",
+  "example": {
+    "intro": "제출된 번호 중 1번부터 이어지다가 처음으로 비는 번호를 찾는 예제예요. 집합에 번호가 있는 동안 한 칸씩 늘려 가는 while 반복을 눈여겨보세요.",
+    "code": "# 제출된 번호 중에서 1번부터 이어지다가 처음으로 비는 번호를 찾아요.\nsubmitted = set(map(int, input().split()))\nnum = 1\n# num이 제출 명단에 있는 동안 다음 번호로 넘어가요.\nwhile num in submitted:\n    num += 1\nprint(num)\n",
+    "input": "3 1 6 2 5 1",
+    "output": "4"
+  },
   "hints": [
     "먼저 set으로 바꿔 중복을 없애요. 정렬해서 풀 수도 있지만, 집합이면 정렬 없이도 가능해요.",
-    "x - 1이 집합에 없다면 x는 어떤 연속 묶음의 시작점이에요. 시작점이 아닌 수에서는 세지 않아야 느려지지 않아요.",
-    "시작점 x에서 x + 1, x + 2, ...가 집합에 있는 동안 길이를 늘려가고, 가장 큰 길이를 기억해요."
+    "각 수에서 무작정 길이를 세면 같은 묶음을 여러 번 세게 돼서 느려져요. 묶음의 맨 앞 수에서만 세려면, 어떤 수가 맨 앞인지 집합으로 어떻게 알아낼 수 있을지 생각해보세요.",
+    "묶음의 맨 앞 수를 찾으면 거기서부터 1씩 커지는 수가 집합에 있는 동안 길이를 세어요(while이 잘 어울려요). 묶음마다 구한 길이 중 가장 큰 값만 따로 기억해 두세요."
   ],
   "tests": [
     {

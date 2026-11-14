@@ -18,10 +18,65 @@
   "conceptCode": "a, b, c = sorted([5, 3, 4])\nprint(a, b, c)\nprint(a * a + b * b == c * c)",
   "starter": "a, b, c = map(int, input().split())\n\n# 정렬해서 가장 긴 변을 찾고, 순서대로 조건을 확인해보세요.\n",
   "solution": "a, b, c = map(int, input().split())\nx, y, z = sorted([a, b, c])\nif x + y <= z:\n    print(\"INVALID\")\nelif x == y == z:\n    print(\"EQUILATERAL\")\nelif x == y or y == z:\n    print(\"ISOSCELES\")\nelif x * x + y * y == z * z:\n    print(\"RIGHT\")\nelse:\n    print(\"SCALENE\")\n",
+  "example": {
+    "intro": "세 점수를 작은 순서로 정렬해 비교하는 예제예요. 정렬하면 같은 값이 이웃해서 놓이는 점을 눈여겨보세요.",
+    "code": "a, b, c = map(int, input().split())\n# sorted()로 작은 순서로 정렬하면 low가 가장 작고 high가 가장 커요.\nlow, mid, high = sorted([a, b, c])\nif high - low >= 50:\n    print(\"점수 차이가 커요\")\nelif low == mid or mid == high:\n    print(\"같은 점수가 있어요\")\nelse:\n    print(\"고르게 퍼져 있어요\")\n",
+    "input": "60 90 60",
+    "output": "같은 점수가 있어요"
+  },
   "hints": [
     "sorted()로 세 변을 작은 순서로 정렬하면 마지막 값이 가장 긴 변이에요.",
     "INVALID를 가장 먼저 걸러 내야 해요. 삼각형이 아닌데 두 변이 같다고 ISOSCELES가 되면 안 돼요.",
     "정렬한 뒤에는 이웃한 두 값만 비교해도 '두 변이 같은지' 알 수 있어요."
+  ],
+  "practice": [
+    {
+      "title": "주사위 세 개의 모양은?",
+      "minutes": 10,
+      "description": [
+        "보드게임에서 주사위 세 개를 한꺼번에 던졌어요. 나온 눈의 모양에 따라 보너스를 받아요.",
+        "세 주사위의 눈 a, b, c가 주어져요. 세 눈이 모두 같으면 TRIPLE, 두 눈만 같으면 PAIR, 세 눈이 이어지는 세 수(예: 2, 3, 4)이면 STRAIGHT, 그 외에는 NONE을 출력해주세요."
+      ],
+      "input": "한 줄에 공백으로 구분된 세 정수 a, b, c가 주어집니다. 작은 순서로 주어진다는 보장은 없습니다.",
+      "output": "TRIPLE, PAIR, STRAIGHT, NONE 중 하나를 출력합니다.",
+      "constraints": [
+        "1 ≤ a, b, c ≤ 6",
+        "6과 1은 이어지는 수가 아니에요.",
+        "영어 대문자로 출력하세요."
+      ],
+      "starter": "a, b, c = map(int, input().split())\n\n# 눈을 작은 순서로 정렬한 뒤, 모양을 순서대로 확인해보세요.\n",
+      "solution": "a, b, c = map(int, input().split())\nx, y, z = sorted([a, b, c])\nif x == y == z:\n    print(\"TRIPLE\")\nelif x == y or y == z:\n    print(\"PAIR\")\nelif y == x + 1 and z == y + 1:\n    print(\"STRAIGHT\")\nelse:\n    print(\"NONE\")\n",
+      "hints": [
+        "sorted()로 세 눈을 작은 순서로 정렬하면 같은 눈은 이웃해서 놓이고, 이어지는 수도 한눈에 보여요.",
+        "TRIPLE을 PAIR보다 먼저 확인해야 해요. 세 눈이 같을 때도 '두 눈이 같다'는 조건은 참이거든요. 이어지는 세 수는 정렬한 뒤 이웃한 값끼리 얼마씩 차이 나는지 생각해보세요."
+      ],
+      "tests": [
+        {
+          "input": "6 6 6",
+          "output": "TRIPLE"
+        },
+        {
+          "input": "3 1 3",
+          "output": "PAIR"
+        },
+        {
+          "input": "4 2 2",
+          "output": "PAIR"
+        },
+        {
+          "input": "5 3 4",
+          "output": "STRAIGHT"
+        },
+        {
+          "input": "1 2 3",
+          "output": "STRAIGHT"
+        },
+        {
+          "input": "1 2 4",
+          "output": "NONE"
+        }
+      ]
+    }
   ],
   "tests": [
     {

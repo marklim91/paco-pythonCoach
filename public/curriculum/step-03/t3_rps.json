@@ -18,10 +18,64 @@
   "conceptCode": "x = \"R\"\nprint(x == \"R\")\nprint(x == \"S\" or x == \"P\")",
   "starter": "a, b = input().split()\n\n# 비기는 경우, A가 이기는 경우, 나머지 경우로 나누어보세요.\n",
   "solution": "a, b = input().split()\nif a == b:\n    print(\"DRAW\")\nelif (a == \"R\" and b == \"S\") or (a == \"S\" and b == \"P\") or (a == \"P\" and b == \"R\"):\n    print(\"A\")\nelse:\n    print(\"B\")\n",
+  "example": {
+    "intro": "숨긴 숫자를 맞히는 게임 예제예요. 같은 경우를 맨 앞에서 먼저 처리하고, 나머지 경우를 나누는 순서를 눈여겨보세요.",
+    "code": "secret = 7\nguess = int(input())\n# 같은 경우(정답)를 가장 먼저 확인하고, 나머지 경우를 나눠요.\nif guess == secret:\n    print(\"정답!\")\nelif guess > secret:\n    print(\"더 작은 수예요\")\nelse:\n    print(\"더 큰 수예요\")\n",
+    "input": "10",
+    "output": "더 작은 수예요"
+  },
   "hints": [
     "a == b 이면 비긴 거예요. 이 경우를 가장 먼저 처리해보세요.",
-    "A가 이기는 조합은 R-S, S-P, P-R 세 가지예요. 각각 a == ... and b == ... 로 쓰고 or로 이어보세요.",
+    "바위는 가위를, 가위는 보를, 보는 바위를 이겨요. A가 이기는 짝을 하나씩 조건으로 만들고(각각 두 손을 and로 묶어), 짝들은 or로 이어보세요.",
     "비기지도 않고 A도 못 이겼다면 남은 경우는 B의 승리예요. else에 넣으면 돼요."
+  ],
+  "practice": [
+    {
+      "title": "카드 대결의 승자는?",
+      "minutes": 10,
+      "description": [
+        "쉬는 시간에 친구와 불, 물, 풀 카드로 대결을 하고 있어요. 서로 카드를 한 장씩 내서 누구의 카드가 이기는지 겨뤄요.",
+        "카드는 F(불), W(물), G(풀) 중 하나예요. 불(F)은 풀(G)을, 풀(G)은 물(W)을, 물(W)은 불(F)을 이겨요. 첫 번째 친구의 카드 a와 두 번째 친구의 카드 b가 주어지면, 이긴 카드의 글자를 출력해주세요. 같은 카드를 냈다면 DRAW를 출력해요."
+      ],
+      "input": "한 줄에 공백으로 구분된 두 글자 a, b가 주어집니다. 각각 F, W, G 중 하나입니다.",
+      "output": "이긴 카드의 글자(F, W, G 중 하나) 또는 DRAW를 출력합니다.",
+      "constraints": [
+        "a, b는 영어 대문자 F, W, G 중 하나입니다.",
+        "영어 대문자로 출력하세요."
+      ],
+      "starter": "a, b = input().split()\n\n# 같은 카드인 경우, a가 이기는 경우, 나머지 경우로 나누어 출력해보세요.\n",
+      "solution": "a, b = input().split()\nif a == b:\n    print(\"DRAW\")\nelif (a == \"F\" and b == \"G\") or (a == \"G\" and b == \"W\") or (a == \"W\" and b == \"F\"):\n    print(a)\nelse:\n    print(b)\n",
+      "hints": [
+        "같은 카드끼리는 DRAW예요. 이 경우를 가장 먼저 처리해보세요.",
+        "a가 이기는 경우는 세 가지뿐이에요. 각각 두 카드를 and로 묶고 or로 이어보세요. 비기지도 않고 a도 못 이겼다면 b가 이긴 거예요."
+      ],
+      "tests": [
+        {
+          "input": "F G",
+          "output": "F"
+        },
+        {
+          "input": "W G",
+          "output": "G"
+        },
+        {
+          "input": "W F",
+          "output": "W"
+        },
+        {
+          "input": "G G",
+          "output": "DRAW"
+        },
+        {
+          "input": "G W",
+          "output": "G"
+        },
+        {
+          "input": "F W",
+          "output": "W"
+        }
+      ]
+    }
   ],
   "tests": [
     {

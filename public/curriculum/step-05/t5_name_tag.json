@@ -18,9 +18,15 @@
   "conceptCode": "word = \"python\"\nprint(len(word))\nprint(word[0])\nprint(word[-1])",
   "starter": "word = input().strip()\n\n# 글자 수, 첫 글자, 마지막 글자를 한 줄에 출력해주세요.\n",
   "solution": "word = input().strip()\nprint(len(word), word[0], word[-1])\n",
+  "example": {
+    "intro": "글자 수가 홀수인 낱말의 가운데 글자를 찾는 예제예요. 글자 수로 번호를 계산하고 그 번호로 글자를 꺼내는 부분을 눈여겨보세요.",
+    "code": "# 글자 수가 홀수인 낱말의 가운데 글자를 찾아요.\nword = input().strip()\n# 번호는 0부터 세니까\n# 가운데 번호는 글자 수를 2로 나눈 몫이에요.\ncenter = len(word) // 2\nprint(f\"가운데 번호는 {center}, 글자는 {word[center]}\")\n",
+    "input": "melon",
+    "output": "가운데 번호는 2, 글자는 l"
+  },
   "hints": [
     "글자 수는 len(), 첫 글자는 번호 0을 사용해요.",
-    "마지막 글자는 word[-1]이에요. print(a, b, c)는 값 사이에 공백을 넣어 출력해요."
+    "마지막 글자는 뒤에서부터 세는 번호로 가져올 수 있어요. print에 값을 쉼표로 여러 개 넣으면 값 사이에 공백이 들어가요."
   ],
   "tests": [
     {

@@ -19,10 +19,16 @@
   "conceptCode": "w = sorted([5, 1, 3])\nleft, right = 0, len(w) - 1\nprint(w[left], w[right])",
   "starter": "n, limit = map(int, input().split())\nweights = list(map(int, input().split()))\n\n# 먼저 정렬하고, 두 포인터로 짝의 수를 세어보세요.\ncount = 0\n\nprint(count)\n",
   "solution": "n, limit = map(int, input().split())\nweights = sorted(map(int, input().split()))\nleft, right = 0, n - 1\ncount = 0\nwhile left < right:\n    if weights[left] + weights[right] <= limit:\n        count += right - left\n        left += 1\n    else:\n        right -= 1\nprint(count)\n",
+  "example": {
+    "intro": "카드 두 장의 합이 정확히 목표 점수가 되는 짝이 있는지 찾는 예제예요. 정렬한 뒤 양 끝에서 안쪽으로 좁혀 가는 부분을 눈여겨보세요.",
+    "code": "# 카드 두 장의 합이 정확히 target인 짝이 있는지 찾아요.\nn, target = map(int, input().split())\ncards = sorted(map(int, input().split()))\n\nleft, right = 0, n - 1\nfound = False\nwhile left < right:\n    total = cards[left] + cards[right]\n    if total == target:\n        found = True\n        break\n    if total < target:\n        # 합이 모자라면 더 큰 카드가 필요하니 left를 오른쪽으로 옮겨요.\n        left += 1\n    else:\n        # 합이 넘치면 더 작은 카드가 필요하니 right를 왼쪽으로 옮겨요.\n        right -= 1\nprint(\"YES\" if found else \"NO\")\n",
+    "input": "7 20\n15 4 9 2 11 6 13",
+    "output": "YES"
+  },
   "hints": [
     "먼저 몸무게를 오름차순으로 정렬하고, left = 0, right = n - 1 로 시작해보세요.",
     "weights[left] + weights[right]가 K 이하이면, left와 짝이 되는 사람은 left+1부터 right까지 모두 가능해요.",
-    "합이 K 이하일 때는 count에 right - left를 더하고 left를 한 칸 오른쪽으로, 아니면 right를 한 칸 왼쪽으로 옮겨요."
+    "합이 K 이하이면 left와 짝이 되는 사람이 몇 명인지 한꺼번에 세어 count에 더한 뒤 left를 옮겨요. 합이 K를 넘으면 가장 무거운 right 쪽 사람은 남은 사람 누구와도 짝이 될 수 없으니 right를 옮겨요."
   ],
   "tests": [
     {

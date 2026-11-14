@@ -19,10 +19,16 @@
   "conceptCode": "stock = {}\nstock['pen'] = stock.get('pen', 0) + 5\nprint(stock.get('pen', 0))\nprint(stock.get('eraser', 0))",
   "starter": "n = int(input())\nstock = {}\n\nfor _ in range(n):\n    command, name, amount = input().split()\n    amount = int(amount)\n    # ADD와 USE를 나누어 처리해보세요.\n\n# 남은 재고를 사전순으로 출력해보세요.\n",
   "solution": "n = int(input())\nstock = {}\nfor _ in range(n):\n    command, name, amount = input().split()\n    amount = int(amount)\n    if command == \"ADD\":\n        stock[name] = stock.get(name, 0) + amount\n    else:\n        if stock.get(name, 0) >= amount:\n            stock[name] -= amount\n        else:\n            print(\"부족\", name)\n\nleft = False\nfor name in sorted(stock):\n    if stock[name] > 0:\n        print(name, stock[name])\n        left = True\nif not left:\n    print(\"재고 없음\")\n",
+  "example": {
+    "intro": "독서 마라톤에서 읽은 쪽수를 기록하고 누적 쪽수를 알려주는 예제예요. 처음 보는 이름을 0쪽으로 취급하는 get()의 기본값을 눈여겨보세요.",
+    "code": "# 독서 마라톤: READ는 읽은 쪽수를 더하고, ASK는 누적 쪽수를 알려줘요.\nn = int(input())\npages = {}\nfor _ in range(n):\n    parts = input().split()\n    command = parts[0]\n    name = parts[1]\n    if command == \"READ\":\n        # 처음 보는 이름은 0쪽에서 시작해요.\n        pages[name] = pages.get(name, 0) + int(parts[2])\n    else:\n        # 기록이 없는 이름도 오류 없이 0쪽으로 알려줘요.\n        print(pages.get(name, 0))\n",
+    "input": "5\nREAD 하늘 30\nREAD 지민 20\nREAD 하늘 15\nASK 하늘\nASK 도윤",
+    "output": "45\n0"
+  },
   "hints": [
-    "command가 'ADD'이면 stock.get(name, 0) + amount 로 더해요.",
-    "'USE'는 먼저 stock.get(name, 0) >= amount 인지 확인하고, 충분할 때만 빼요. 아니면 '부족 이름'을 출력해요.",
-    "마지막에는 sorted(stock)으로 이름 순서를 만들고, 재고가 0보다 큰 것만 출력해요. 하나라도 출력했는지 기억해두면 '재고 없음' 처리가 쉬워요."
+    "ADD는 그 물건의 현재 재고에 개수를 더하는 명령이에요. 처음 들어오는 물건은 재고가 0인 것처럼 시작해야 하니, get()의 기본값을 활용해보세요.",
+    "USE는 빼기 전에 재고가 충분한지부터 확인해야 해요. 창고에 없는 물건은 재고가 0이라고 보면 한 번에 처리돼요. 모자라면 재고는 그대로 두고 '부족 이름'을 출력해요.",
+    "마지막에는 이름을 사전순으로 훑으며 재고가 1개 이상인 물건만 출력해요. 출력할 물건이 하나도 없을 때 '재고 없음'을 출력하려면 무엇을 기억해 두어야 할지 생각해보세요."
   ],
   "tests": [
     {

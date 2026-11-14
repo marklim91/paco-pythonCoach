@@ -18,10 +18,16 @@
   "conceptCode": "def countdown(k):\n    if k == 0:\n        print(\"끝!\")\n        return\n    print(k)\n    countdown(k - 1)\n\ncountdown(3)\nprint(1234 % 10, 1234 // 10)",
   "starter": "def digit_sum(n):\n    # TODO: 종료 조건과 재귀 호출로 각 자리 숫자의 합을 구하세요.\n    return 0\n\ndef single_digit(n):\n    # TODO: n이 한 자리 수가 될 때까지 digit_sum을 반복해서 적용하세요.\n    return 0\n\nn = int(input())\nprint(digit_sum(n))\nprint(single_digit(n))\n",
   "solution": "def digit_sum(n):\n    if n == 0:\n        return 0\n    return n % 10 + digit_sum(n // 10)\n\ndef single_digit(n):\n    if n < 10:\n        return n\n    return single_digit(digit_sum(n))\n\nn = int(input())\nprint(digit_sum(n))\nprint(single_digit(n))\n",
+  "example": {
+    "intro": "n층 피라미드에 필요한 블록 수를 재귀로 구하는 예제예요. 종료 조건을 먼저 쓰고, 한 단계 작은 문제의 답에 이번 층의 블록 수를 더하는 부분을 눈여겨보세요.",
+    "code": "# 맨 위층은 블록 1개, 한 층 내려갈 때마다 1개씩 늘어나요. n층에 필요한 블록 수를 구해요.\ndef blocks(n):\n    # 층이 없으면 블록도 필요 없어요. (종료 조건)\n    if n == 0:\n        return 0\n    # 맨 아래층의 블록 n개에, 그 위 탑(n-1층)의 블록 수를 더해요.\n    return n + blocks(n - 1)\n\nn = int(input())\nprint(blocks(n))\n",
+    "input": "5",
+    "output": "15"
+  },
   "hints": [
-    "digit_sum의 종료 조건은 n이 0일 때 0을 돌려주는 것이에요.",
-    "digit_sum(n)은 마지막 자리(n % 10)에 나머지 수 n // 10의 자리 합을 더한 값이에요.",
-    "single_digit은 n이 10보다 작으면 n을 돌려주고, 아니면 digit_sum(n)에 대해 다시 자기 자신을 불러요."
+    "digit_sum에서 더 이상 더할 자리가 남지 않는 경우는 n이 어떤 값일 때일까요? 그때의 합이 종료 조건에서 돌려줄 값이에요.",
+    "n을 '마지막 자리 숫자'와 '마지막 자리를 뗀 나머지 수'로 나누어보세요. 나머지 수의 자리 합은 같은 함수가 구해 준다고 믿고 맡기면 돼요.",
+    "single_digit도 종료 조건이 필요해요. 이미 한 자리 수인지 먼저 확인하고, 아직 아니라면 digit_sum을 이용해 한 단계 줄인 값으로 같은 일을 이어 가세요."
   ],
   "tests": [
     {

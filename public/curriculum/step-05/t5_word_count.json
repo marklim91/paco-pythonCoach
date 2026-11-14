@@ -19,9 +19,15 @@
   "conceptCode": "words = \"a   bb  c\".split()\nprint(words)\nprint(len(words))",
   "starter": "text = input()\n\n# split()으로 단어 목록을 만들어보세요.\n",
   "solution": "text = input()\nwords = text.split()\nlongest = words[0]\nfor w in words:\n    if len(w) > len(longest):\n        longest = w\nprint(len(words))\nprint(longest)\n",
+  "example": {
+    "intro": "문장에서 사전 순으로 가장 앞선 단어를 찾는 예제예요. 공백이 여러 개여도 split()으로 단어만 나누고, 더 앞선 단어를 만날 때만 바꾸는 부분을 눈여겨보세요.",
+    "code": "# 사전 순으로 가장 앞선 단어를 찾아요.\ntext = input()\n# split()은 연속된 공백도 한꺼번에 처리해요.\nwords = text.split()\nfirst = words[0]\nfor w in words:\n    # 소문자 단어는 <로 사전 순서를 비교해요.\n    # 알파벳 순서가 앞선 쪽이 더 작아요.\n    if w < first:\n        first = w\nprint(f\"단어 {len(words)}개 중 가장 앞선 단어: {first}\")\n",
+    "input": "pear   apple  banana apple",
+    "output": "단어 4개 중 가장 앞선 단어: apple"
+  },
   "hints": [
     "text.split(\" \")가 아니라 text.split()을 사용하면 여러 공백이 하나처럼 처리돼요.",
-    "가장 긴 단어를 저장할 변수를 words[0]으로 시작해서, 더 긴 단어를 만났을 때만 바꿔주세요. >= 가 아니라 > 를 사용해야 먼저 나온 단어가 남아요."
+    "처음에는 첫 번째 단어를 가장 긴 단어로 놓고 시작해요. 단어를 하나씩 보면서 더 긴 단어를 만나면 바꾸는데, 길이가 같은 단어를 만났을 때 바꿔도 될지 생각해보세요. 먼저 나온 단어가 남아야 해요."
   ],
   "tests": [
     {

@@ -17,9 +17,15 @@
   "conceptCode": "word = \"python\"\nprint(word[::-1])",
   "starter": "word = input().strip()\n\n# 원래 단어와 뒤집은 단어를 비교해보세요.\n",
   "solution": "word = input().strip()\nprint(\"YES\" if word == word[::-1] else \"NO\")\n",
+  "example": {
+    "intro": "두 낱말이 서로 거꾸로 쓴 짝인지 알아보는 예제예요. 한 낱말을 [::-1]로 뒤집어 다른 낱말과 ==로 비교하는 부분을 눈여겨보세요.",
+    "code": "# 두 낱말이 서로 거꾸로 쓴 짝인지 알아봐요.\nfirst = input().strip()\nsecond = input().strip()\n# [::-1]은 글자 순서를 뒤집은 새 문자열을 만들어요.\nflipped = second[::-1]\nprint(flipped)\nif first == flipped:\n    print(\"거울 짝이에요\")\nelse:\n    print(\"짝이 아니에요\")\n",
+    "input": "stressed\ndesserts",
+    "output": "stressed\n거울 짝이에요"
+  },
   "hints": [
-    "뒤집은 단어는 word[::-1]이에요.",
-    "word == word[::-1]이 참이면 YES를 출력해요."
+    "회문은 원래 단어와 거꾸로 뒤집은 단어가 똑같은 단어예요. 문자열을 뒤집는 방법은 ‘개념 배우기’ 탭을 다시 살펴보세요.",
+    "두 문자열이 같은지는 ==로 비교해요. 비교 결과에 따라 YES 또는 NO를 골라 출력해보세요."
   ],
   "tests": [
     {

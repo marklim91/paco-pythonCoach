@@ -18,9 +18,15 @@
   "conceptCode": "def first_last(items):\n    return items[0], items[-1]\n\nfirst, last = first_last([4, 8, 15])\nprint(first, last)",
   "starter": "def get_range(values):\n    # TODO: 최솟값과 최댓값을 함께 돌려주세요.\n    return 0, 0\n\nn = int(input())\nvalues = list(map(int, input().split()))\nlow, high = get_range(values)\nprint(low, high)\n",
   "solution": "def get_range(values):\n    return min(values), max(values)\n\nn = int(input())\nvalues = list(map(int, input().split()))\nlow, high = get_range(values)\nprint(low, high)\n",
+  "example": {
+    "intro": "학생 수를 조 크기로 나눈 조 수와 남는 학생 수를 함께 돌려주는 예제예요. 쉼표로 두 값을 돌려주고 같은 개수의 변수로 풀어 받는 부분을 눈여겨보세요.",
+    "code": "# 학생들을 size명씩 조로 나누어 조 수와 남는 학생 수를 함께 돌려줘요.\ndef make_teams(total, size):\n    teams = total // size\n    left = total % size\n    return teams, left          # 쉼표로 두 값을 한꺼번에 돌려줘요.\n\ntotal = int(input())\n# 돌려받은 두 값을 같은 개수의 변수로 풀어서 받아요.\nteams, left = make_teams(total, 4)\nprint(teams, left)\n",
+    "input": "23",
+    "output": "5 3"
+  },
   "hints": [
     "min()과 max()로 각각 최솟값과 최댓값을 구할 수 있어요.",
-    "return min(values), max(values) 처럼 쉼표로 두 값을 함께 돌려주세요."
+    "return 뒤에 값을 쉼표로 나열하면 두 값을 한꺼번에 돌려줄 수 있어요. 돌려주는 순서(최솟값, 최댓값)가 받는 쪽의 low, high 순서와 맞아야 해요."
   ],
   "tests": [
     {

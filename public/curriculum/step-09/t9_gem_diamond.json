@@ -18,10 +18,16 @@
   "conceptCode": "print(' ' * 2 + '*' * 3)\nprint('ab' * 3)\nfor i in range(1, 4):\n    print(i, '*' * i)",
   "starter": "n = int(input())\n\n# 위쪽(가운데 줄 포함)과 아래쪽을 나눠서 출력해보세요.\n",
   "solution": "n = int(input())\n\nfor i in range(1, n + 1):\n    print(\" \" * (n - i) + \"*\" * (2 * i - 1))\nfor i in range(n - 1, 0, -1):\n    print(\" \" * (n - i) + \"*\" * (2 * i - 1))\n",
+  "example": {
+    "intro": "낱말 여러 개를 정해진 너비의 가운데에 맞춰 출력하는 예제예요. 앞쪽 공백 수를 계산해 문자열 곱셈으로 만드는 부분을 눈여겨보세요.",
+    "code": "# 낱말을 정해진 너비의 가운데에 맞춰 출력해요.\nwidth = int(input())\nwords = input().split()\n\nfor word in words:\n    # 남는 칸의 절반만큼 앞쪽에 공백을 두면 가운데에 놓여요.\n    pad = (width - len(word)) // 2\n    print(\" \" * pad + word)\n",
+    "input": "9\nsky cloud rainbow",
+    "output": "   sky\n  cloud\n rainbow"
+  },
   "hints": [
     "위쪽 절반은 i가 1부터 n까지, 아래쪽 절반은 i가 n-1부터 1까지 줄어드는 반복이에요.",
-    "i번째 줄에는 공백이 n-i개, 별이 2*i-1개 필요해요.",
-    "문자열 곱셈으로 ' ' * (n - i) + '*' * (2 * i - 1)을 만들어 print 해보세요."
+    "별의 개수는 줄마다 2개씩 달라져요. 가장 긴 줄을 기준으로 가운데를 맞추려면 짧은 줄일수록 앞에 공백이 더 필요해요. n=3인 예시를 보며 i번째 줄의 별 수와 공백 수를 i로 표현해보세요.",
+    "공백 부분과 별 부분을 문자열 곱셈으로 따로 만들어 이어 붙인 뒤 한 줄씩 print 해요. 줄 끝에는 공백을 붙이지 않아요."
   ],
   "tests": [
     {

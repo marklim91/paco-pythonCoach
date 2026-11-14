@@ -18,9 +18,15 @@
   "conceptCode": "grid = [[1, 2, 3], [4, 5, 6]]\nprint(grid[1][2])\nprint(sum(grid[0]))\nprint(grid[0][1] + grid[1][1])",
   "starter": "R, C = map(int, input().split())\ngrid = [list(map(int, input().split())) for _ in range(R)]\n\n# 가로줄 합을 출력하고, 이어서 세로줄 합을 출력해보세요.\n",
   "solution": "R, C = map(int, input().split())\ngrid = [list(map(int, input().split())) for _ in range(R)]\n\nrow_sums = [sum(row) for row in grid]\ncol_sums = []\nfor c in range(C):\n    total = 0\n    for r in range(R):\n        total += grid[r][c]\n    col_sums.append(total)\nprint(*row_sums)\nprint(*col_sums)\n",
+  "example": {
+    "intro": "시험 점수표에서 학생별 최고점과 과목별 최저점을 구하는 예제예요. 가로줄은 한 번에, 세로줄은 줄 번호를 바꿔 가며 확인하는 부분을 눈여겨보세요.",
+    "code": "# 시험 점수표예요. 줄은 학생, 칸은 과목이에요.\nR, C = map(int, input().split())\nscores = [list(map(int, input().split())) for _ in range(R)]\n\n# 학생(가로줄)마다 가장 높은 점수는 줄 하나에 max()를 쓰면 돼요.\nbest = [max(row) for row in scores]\n\n# 과목(세로줄)마다 가장 낮은 점수는 칸 번호를 고정하고 줄 번호를 바꿔 가며 비교해요.\nworst = []\nfor c in range(C):\n    low = scores[0][c]\n    for r in range(R):\n        if scores[r][c] < low:\n            low = scores[r][c]\n    worst.append(low)\nprint(*best)\nprint(*worst)\n",
+    "input": "3 4\n80 95 70 88\n65 90 85 100\n92 78 60 75",
+    "output": "95 100 92\n65 78 60 75"
+  },
   "hints": [
     "가로줄 합은 grid의 각 줄(row)에 sum()을 쓰면 돼요.",
-    "세로줄 합은 바깥 반복이 칸 번호 c, 안쪽 반복이 줄 번호 r이 되도록 이중 반복문을 만들어 grid[r][c]를 더해보세요.",
+    "세로줄 합은 칸 번호 하나를 정해 두고, 줄 번호를 0부터 R-1까지 바꿔 가며 그 칸의 값을 더해요. 모든 칸 번호에 대해 이 과정을 되풀이하려면 반복문을 몇 겹 쓸지 생각해보세요.",
     "리스트를 공백으로 구분해 출력하려면 print(*리스트)를 사용할 수 있어요."
   ],
   "tests": [

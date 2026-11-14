@@ -19,8 +19,14 @@
   "conceptCode": "seen = set()\nseen.add(3)\nprint(3 in seen)",
   "starter": "n, target = map(int, input().split())\nnumbers = list(map(int, input().split()))\n\n# 이미 본 숫자를 저장하면 더 빠르게 찾을 수 있어요.\n",
   "solution": "n, target = map(int, input().split())\nnumbers = list(map(int, input().split()))\nseen = set()\nfound = False\nfor x in numbers:\n    if target - x in seen:\n        found = True\n        break\n    seen.add(x)\nprint(\"YES\" if found else \"NO\")\n",
+  "example": {
+    "intro": "번호가 모두 다른 번호표 중 번호 차이가 d인 쌍이 몇 쌍인지 세는 예제예요. 짝이 될 번호가 이미 집합에 있는지 찾아보는 부분을 눈여겨보세요.",
+    "code": "# 번호가 모두 다른 번호표 중에서 번호 차이가 d인 쌍이 몇 쌍인지 세어요.\nd = int(input())\ntickets = list(map(int, input().split()))\nseen = set()\npairs = 0\nfor t in tickets:\n    # 지금까지 본 번호 중에 짝이 될 번호가 있는지 집합에서 찾아요.\n    if t - d in seen:\n        pairs += 1\n    if t + d in seen:\n        pairs += 1\n    seen.add(t)\nprint(pairs)\n",
+    "input": "2\n1 5 3 7 4",
+    "output": "3"
+  },
   "hints": [
-    "필요한 짝은 target - 현재 숫자예요.",
+    "현재 숫자 x와 더해서 target이 되려면 어떤 수가 필요한지 식으로 나타내보세요. 그 짝이 이미 지나온 숫자들 안에 있는지만 알면 돼요.",
     "현재 숫자를 저장하기 전에 짝이 있는지 먼저 확인해야 같은 위치를 두 번 사용하지 않아요."
   ],
   "tests": [

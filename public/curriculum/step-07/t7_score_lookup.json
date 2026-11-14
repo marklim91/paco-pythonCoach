@@ -19,9 +19,15 @@
   "conceptCode": "scores = {}\nscores['지민'] = 90\nprint(scores['지민'])\nprint('하늘' in scores)",
   "starter": "n = int(input())\nscores = {}\n\n# n줄을 읽어 이름 → 점수로 저장해보세요.\n\nq = int(input())\n# q번 조회해보세요.\n",
   "solution": "n = int(input())\nscores = {}\nfor _ in range(n):\n    name, score = input().split()\n    scores[name] = int(score)\n\nq = int(input())\nfor _ in range(q):\n    name = input().strip()\n    if name in scores:\n        print(scores[name])\n    else:\n        print(\"기록 없음\")\n",
+  "example": {
+    "intro": "메뉴판에 적힌 가격으로 주문 합계를 구하는 예제예요. 메뉴 이름을 키로 저장하는 부분과, 메뉴판에 있을 때만 값을 꺼내는 부분을 눈여겨보세요.",
+    "code": "# 메뉴판(메뉴 → 가격)을 만들고 주문 합계를 구해요.\nn = int(input())\nprices = {}\nfor _ in range(n):\n    menu, price = input().split()\n    prices[menu] = int(price)\n\norders = input().split()\ntotal = 0\nfor menu in orders:\n    # 메뉴판에 없는 이름을 꺼내면 오류가 나니, 있는지 먼저 확인해요.\n    if menu in prices:\n        total += prices[menu]\nprint(total)\n",
+    "input": "3\n김밥 3000\n라면 4500\n우동 5000\n김밥 우동 짜장 김밥",
+    "output": "11000"
+  },
   "hints": [
-    "각 줄을 split()으로 나누면 이름과 점수를 얻어요. 점수는 int로 바꿔 scores[이름]에 저장해보세요.",
-    "조회할 때는 if name in scores: 로 있는지 확인하고, 없으면 '기록 없음'을 출력해요."
+    "각 줄을 split()으로 나누면 이름과 점수를 얻어요. 이름을 키로, 점수(int로 바꾼 값)를 값으로 하는 딕셔너리에 저장해보세요.",
+    "없는 키를 꺼내려고 하면 오류가 나요. 조회하기 전에 그 이름이 점수표에 있는지 먼저 확인하고, 없을 때만 '기록 없음'을 출력하세요."
   ],
   "tests": [
     {

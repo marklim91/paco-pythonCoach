@@ -175,6 +175,7 @@ function App() {
           selected: "hello",
           codes: {},
           completed: [],
+          practiced: [],
           coachUrl: DEFAULT_COACH_URL,
           pointsUrl: "",
           awarded: [],
@@ -235,12 +236,21 @@ function App() {
   const job = useRef(null);
   const switchRequest = useRef(0);
   const editorRef = useRef(null);
-  const problem = PROBLEMS.find((p) => p.id === state.selected);
-  const track = TRACKS.find((t) => t.id === problem.trackId);
-  const trackIndex = track.problems.findIndex((p) => p.id === problem.id);
-  const problemIndex = PROBLEMS.findIndex((p) => p.id === problem.id);
+  // 연습 문제는 저장하지 않는 화면 상태예요. 새로고침하면 원래 문제로 돌아오지만 작성한 코드는 남아 있어요.
+  const [practiceIndex, setPracticeIndex] = useState(null);
+  const base = PROBLEMS.find((p) => p.id === state.selected);
+  const practice =
+    practiceIndex !== null && base.practice?.[practiceIndex]
+      ? practiceProblem(base, practiceIndex)
+      : null;
+  const problem = practice ?? base;
+  const track = TRACKS.find((t) => t.id === base.trackId);
+  const trackIndex = track.problems.findIndex((p) => p.id === base.id);
+  const problemIndex = PROBLEMS.findIndex((p) => p.id === base.id);
   const code = state.codes[problem.id] ?? problem.starter;
-  const solved = state.completed.includes(problem.id);
+  const solved = practice
+    ? state.practiced.includes(problem.id)
+    : state.completed.includes(problem.id);
   const trackCompleted = track.problems.filter((p) =>
     state.completed.includes(p.id),
   ).length;
@@ -291,8 +301,9 @@ function App() {
   // 아직 불러오지 않은 문제는 본문을 받은 뒤에 바꿉니다. 그 사이 다른 문제를 누르면 마지막 선택만 적용합니다.
   async function selectProblem(id) {
     const request = ++switchRequest.current;
-    if (id === problem.id) {
+    if (id === base.id) {
       setRoadmap(false);
+      if (practice) showPractice(null);
       return;
     }
     const target = PROBLEMS.find((p) => p.id === id);
@@ -313,6 +324,20 @@ function App() {
     }
     stopJob();
     setState((previous) => ({ ...previous, selected: id }));
+    setPracticeIndex(null);
+    setRunResult(null);
+    setGrade(null);
+    setElapsed(null);
+    setProblemTab("problem");
+    setRunnerTab("input");
+    setRoadmap(false);
+    setScrollTop(0);
+    if (editorRef.current) editorRef.current.scrollTop = 0;
+  }
+  // 연습 문제를 열거나(index) 원래 문제로 돌아갑니다(null). 실행 중이던 채점은 멈추고 결과 화면을 비웁니다.
+  function showPractice(index) {
+    stopJob();
+    setPracticeIndex(index);
     setRunResult(null);
     setGrade(null);
     setElapsed(null);
@@ -434,7 +459,15 @@ function App() {
           finished: true,
           passed,
         });
-        if (passed) {
+        if (passed && problem.isPractice) {
+          setState((previous) => ({
+            ...previous,
+            practiced: [...new Set([...previous.practiced, problem.id])],
+          }));
+          setToast(
+            "연습 완료! 원래 문제도 다시 도전해보세요. 연습은 점수가 없어요.",
+          );
+        } else if (passed) {
           setState((previous) => ({
             ...previous,
             completed: [...new Set([...previous.completed, problem.id])],
@@ -570,6 +603,43 @@ function App() {
       text,
       icon(ArrowUpRight),
     );
+  // 점수 없는 연습 문제로 가는 카드예요. 원래 문제를 풀었다면 '한 번 더', 아직이라면 막힐 때 쓰는 연습으로 안내해요.
+  const practiceCard = () =>
+    problem.isPractice || !base.practice?.length
+      ? null
+      : h(
+          "div",
+          { className: "practice-card" },
+          h(
+            "strong",
+            null,
+            solved
+              ? "잘했어요! 한 번 더 연습해볼까요?"
+              : "비슷한 문제로 연습하기",
+          ),
+          h(
+            "p",
+            null,
+            solved
+              ? "방금 푼 방법을 다른 문제에 다시 써보면 훨씬 단단해져요. 점수는 없으니 편하게 도전해요."
+              : "같은 방법으로 풀 수 있는 다른 문제예요. 막혔다면 먼저 연습해보고 돌아와도 좋아요. 점수는 없어요.",
+          ),
+          base.practice.map((item, index) =>
+            h(
+              Button,
+              {
+                key: index,
+                variant: "outline",
+                size: "sm",
+                onClick: () => showPractice(index),
+              },
+              icon(ListChecks, { size: 14 }),
+              item.title,
+              state.practiced.includes(practiceId(base.id, index)) &&
+                " · 연습 완료",
+            ),
+          ),
+        );
 
   return h(
     "div",
@@ -802,12 +872,12 @@ function App() {
                   "button",
                   {
                     className:
-                      "step" + (p.id === problem.id ? " current" : ""),
+                      "step" + (p.id === base.id ? " current" : ""),
                     onClick: () => selectProblem(p.id),
                     title: `${p.title} · ${p.level}`,
                     "aria-label": `${index + 1}번 ${p.title} (${p.level})${state.completed.includes(p.id) ? " · 해결 완료" : ""}`,
                     "aria-current":
-                      p.id === problem.id ? "step" : undefined,
+                      p.id === base.id ? "step" : undefined,
                   },
                   h(
                     "span",
@@ -876,7 +946,7 @@ function App() {
                 h(
                   "div",
                   { className: "problem-number" },
-                  `PROBLEM ${String(problemIndex + 1).padStart(2, "0")}`,
+                  `${problem.isPractice ? "PRACTICE" : "PROBLEM"} ${String(problemIndex + 1).padStart(2, "0")}`,
                 ),
                 h("h2", { className: "problem-title" }, problem.title),
                 h(
@@ -887,10 +957,33 @@ function App() {
                   h(
                     "span",
                     { className: "tiny muted" },
-                    `약 ${problem.minutes}분 · ${pointsFor(problem)}점`,
+                    problem.isPractice
+                      ? `약 ${problem.minutes}분 · 점수 없음`
+                      : `약 ${problem.minutes}분 · ${pointsFor(problem)}점`,
                   ),
-                  solved && badge("해결 완료"),
+                  solved &&
+                    badge(problem.isPractice ? "연습 완료" : "해결 완료"),
                 ),
+                problem.isPractice &&
+                  h(
+                    "div",
+                    { className: "practice-banner" },
+                    h(
+                      "span",
+                      null,
+                      `‘${base.title}’와 같은 방법으로 풀 수 있는 연습 문제예요. 점수는 없으니 편하게 도전해요.`,
+                    ),
+                    h(
+                      Button,
+                      {
+                        variant: "outline",
+                        size: "sm",
+                        onClick: () => showPractice(null),
+                      },
+                      icon(ChevronLeft, { size: 14 }),
+                      "원래 문제로",
+                    ),
+                  ),
                 h(
                   "div",
                   { className: "prose" },
@@ -953,6 +1046,7 @@ function App() {
                     h("li", { key: i }, text),
                   ),
                 ),
+                solved && practiceCard(),
               ),
               content(
                 "concept",
@@ -981,7 +1075,9 @@ function App() {
                 h(
                   "p",
                   { className: "prose", style: { marginBottom: 20 } },
-                  "힌트를 하나씩 열어보세요. 해설을 보기 전에 직접 시도하는 것을 추천해요.",
+                  problem.isPractice
+                    ? "힌트를 하나씩 열어보세요. 원래 문제를 풀었던 방법을 떠올려보면 도움이 돼요."
+                    : "힌트를 하나씩 열어보세요. 비슷한 예제는 직접 시도해본 뒤에 확인하는 것을 추천해요.",
                 ),
                 problem.hints.map((text, i) =>
                   h(
@@ -991,21 +1087,45 @@ function App() {
                     h("p", null, text),
                   ),
                 ),
-                h(
-                  "details",
-                  { className: "hint", key: problem.id + "-solution" },
-                  h("summary", null, "예시 정답 확인하기"),
+                !problem.isPractice &&
                   h(
-                    "p",
-                    null,
-                    "정답을 읽는 것만으로 해결 처리되지는 않아요. 직접 실행하고 제출해보세요.",
+                    "details",
+                    { className: "hint", key: problem.id + "-example" },
+                    h("summary", null, "비슷한 예제 살펴보기"),
+                    h(
+                      "p",
+                      null,
+                      "이 문제의 정답이 아니라 같은 방법을 쓰는 다른 문제예요. 예제와 우리 문제에서 무엇이 다른지 찾아, 직접 바꿔서 풀어보세요.",
+                    ),
+                    h("p", null, problem.example.intro),
+                    h(
+                      "pre",
+                      { className: "concept-code" },
+                      problem.example.code,
+                    ),
+                    h(
+                      "div",
+                      { className: "io-card" },
+                      h("div", { className: "io-head" }, "예제 실행 결과"),
+                      h(
+                        "div",
+                        { className: "io-body" },
+                        h(
+                          "div",
+                          { className: "io-col" },
+                          h("label", null, "입력"),
+                          h("pre", null, problem.example.input || "(없음)"),
+                        ),
+                        h(
+                          "div",
+                          { className: "io-col" },
+                          h("label", null, "출력"),
+                          h("pre", null, problem.example.output),
+                        ),
+                      ),
+                    ),
                   ),
-                  h(
-                    "pre",
-                    { className: "concept-code" },
-                    problem.solution,
-                  ),
-                ),
+                practiceCard(),
               ),
             ),
             h(
@@ -1014,36 +1134,53 @@ function App() {
               h(
                 "span",
                 null,
-                `${trackIndex + 1} / ${track.problems.length} 문제`,
+                problem.isPractice
+                  ? "연습 문제 · 점수 없음"
+                  : `${trackIndex + 1} / ${track.problems.length} 문제`,
               ),
-              h(
-                "div",
-                { className: "row" },
-                h(
-                  Button,
-                  {
-                    variant: "ghost",
-                    size: "sm",
-                    disabled: problemIndex === 0,
-                    onClick: () =>
-                      selectProblem(PROBLEMS[problemIndex - 1].id),
-                    "aria-label": "이전 문제",
-                  },
-                  icon(ChevronLeft),
-                ),
-                h(
-                  Button,
-                  {
-                    variant: "ghost",
-                    size: "sm",
-                    disabled: problemIndex === PROBLEMS.length - 1,
-                    onClick: () =>
-                      selectProblem(PROBLEMS[problemIndex + 1].id),
-                  },
-                  "다음 문제",
-                  icon(ChevronRight),
-                ),
-              ),
+              problem.isPractice
+                ? h(
+                    "div",
+                    { className: "row" },
+                    h(
+                      Button,
+                      {
+                        variant: "ghost",
+                        size: "sm",
+                        onClick: () => showPractice(null),
+                      },
+                      icon(ChevronLeft),
+                      "원래 문제로",
+                    ),
+                  )
+                : h(
+                    "div",
+                    { className: "row" },
+                    h(
+                      Button,
+                      {
+                        variant: "ghost",
+                        size: "sm",
+                        disabled: problemIndex === 0,
+                        onClick: () =>
+                          selectProblem(PROBLEMS[problemIndex - 1].id),
+                        "aria-label": "이전 문제",
+                      },
+                      icon(ChevronLeft),
+                    ),
+                    h(
+                      Button,
+                      {
+                        variant: "ghost",
+                        size: "sm",
+                        disabled: problemIndex === PROBLEMS.length - 1,
+                        onClick: () =>
+                          selectProblem(PROBLEMS[problemIndex + 1].id),
+                      },
+                      "다음 문제",
+                      icon(ChevronRight),
+                    ),
+                  ),
             ),
           ),
           h(
@@ -1533,7 +1670,7 @@ function App() {
                 {
                   className:
                     "roadmap-item" +
-                    (p.id === problem.id ? " selected" : ""),
+                    (p.id === base.id ? " selected" : ""),
                   key: p.id,
                   onClick: () => selectProblem(p.id),
                 },

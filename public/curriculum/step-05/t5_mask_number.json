@@ -19,9 +19,15 @@
   "conceptCode": "s = \"abcdefg\"\nprint(s[-3:])\nprint(\"-\" * 4)\nprint(\"ab\" + \"cd\")",
   "starter": "number = input().strip()\n\n# 마지막 4글자와 가려야 할 개수를 생각해보세요.\n",
   "solution": "number = input().strip()\nhidden = len(number) - 4\nprint(\"*\" * hidden + number[-4:])\n",
+  "example": {
+    "intro": "이름의 첫 글자와 마지막 글자만 보이게 하고 가운데는 *로 가리는 예제예요. 가릴 개수를 길이로 계산해 별을 반복하고, 보일 글자와 이어 붙이는 부분을 눈여겨보세요.",
+    "code": "# 이름의 가운데를 *로 가려요.\nname = input().strip()\n# 가려야 할 가운데 글자 수를 먼저 구해요.\nmiddle = len(name) - 2\nprint(name[0] + \"*\" * middle + name[-1])\n",
+    "input": "남궁민수",
+    "output": "남**수"
+  },
   "hints": [
-    "가려야 할 글자 수는 전체 길이에서 4를 뺀 값이에요.",
-    "\"*\" * 개수 와 number[-4:]를 + 로 이어 붙여보세요. 번호를 int로 바꾸면 앞의 0이 사라져요."
+    "번호가 몇 글자인지에 따라 가려야 할 글자 수가 달라져요. 번호의 길이와 보여줄 글자 수로 가릴 글자 수를 먼저 구해보세요.",
+    "출력은 '가리는 부분'과 '보이는 부분' 두 조각을 이어 붙인 한 줄이에요. 두 조각을 따로 만든 뒤 이어 붙여보세요. 번호를 int로 바꾸면 앞의 0이 사라지니 문자열 그대로 다뤄요."
   ],
   "tests": [
     {

@@ -19,10 +19,16 @@
   "conceptCode": "a = [1, 2, 3, 4]\nprint(a[1:])\nprint(a[:1])\nprint(a[1:] + a[:1])",
   "starter": "n, k = map(int, input().split())\nplates = list(map(int, input().split()))\n\n# 오른쪽으로 k칸 돌린 결과를 출력해보세요.\n",
   "solution": "n, k = map(int, input().split())\nplates = list(map(int, input().split()))\nk %= n\nrotated = plates[n - k:] + plates[:n - k]\nprint(*rotated)\n",
+  "example": {
+    "intro": "카드 덱의 맨 위 k장을 떼어 맨 아래로 보내는 예제예요. 슬라이싱으로 두 조각을 만들어 이어 붙이는 부분을 눈여겨보세요.",
+    "code": "# 카드 덱의 맨 위 k장을 맨 아래로 보내요.\n# (k는 카드 수보다 작아요)\nk = int(input())\ncards = list(map(int, input().split()))\ntop = cards[:k]\nrest = cards[k:]\n# 나머지 카드 뒤에 떼어 낸 카드를 이어 붙여요.\nresult = rest + top\nprint(*result)\n",
+    "input": "2\n1 2 3 4 5",
+    "output": "3 4 5 1 2"
+  },
   "hints": [
     "k가 n 이상이어도 한 바퀴 돌면 제자리이니 k를 n으로 나눈 나머지를 사용해요.",
     "오른쪽으로 k칸 돌면 뒤쪽 k개가 맨 앞으로 와요. 슬라이싱으로 나눠보세요.",
-    "뒤쪽 k개와 앞쪽 n-k개를 순서를 바꿔 이어 붙여요. k가 0일 때도 확인해보세요."
+    "두 조각을 어디에서 자를지가 핵심이에요. 접시 5개를 2칸 돌리는 작은 예로 경계 위치를 직접 따져보세요. 잘린 두 조각은 +로 이어 붙일 수 있어요. k가 0일 때도 확인해보세요."
   ],
   "tests": [
     {
