@@ -1,0 +1,29 @@
+{
+  "level": 11,
+  "id": "t11",
+  "label": "모듈 활용가",
+  "goal": "import 로 표준 라이브러리(math, datetime, collections)를 불러와 활용할 수 있다.",
+  "concepts": [
+    "import",
+    "math",
+    "datetime",
+    "timedelta",
+    "collections.Counter"
+  ],
+  "origLevel": 11,
+  "path": [
+    "l11_01",
+    "l11_02",
+    "l11_03",
+    "l11_04",
+    "l11_05",
+    "l11_06",
+    "l11_07",
+    "l11_08"
+  ],
+  "exam": [
+    "l11_t1",
+    "l11_t2"
+  ],
+  "examTitle": "Lv.11 승급 시험"
+}

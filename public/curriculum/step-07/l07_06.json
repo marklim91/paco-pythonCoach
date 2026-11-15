@@ -1,0 +1,33 @@
+{
+  "id": "l07_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "평균 이상인 과목",
+  "level": "입문",
+  "minutes": 8,
+  "description": "성적표를 받으면 어느 과목을 잘 봤는지 궁금해요. 평균 이상인 과목만 쏙 뽑아 주는 도우미를 만들어봐요.\nn 개의 과목과 점수를 입력받아 딕셔너리에 저장한 뒤, 첫째 줄에 평균을 소수 첫째 자리까지 `평균: x.x` 형식으로, 둘째 줄에 점수가 평균 이상인 과목을 입력 순서대로 공백으로 구분해 출력해주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 과목 점수 가 입력됩니다.",
+  "output": "평균과 평균 이상인 과목들을 출력합니다.",
+  "starter": "n = int(input())\n\n# 과목과 점수를 딕셔너리에 저장해 보세요.\n# 평균을 구해 출력한 뒤, 평균 이상인 과목만 입력 순서대로 골라 출력해 보세요.\n",
+  "solution": "n = int(input())\nscores = {}\nfor _ in range(n):\n    subject, score = input().split()\n    scores[subject] = int(score)\n\navg = sum(scores.values()) / len(scores)\nprint(f\"평균: {avg:.1f}\")\nprint(*[s for s, v in scores.items() if v >= avg])",
+  "hints": [
+    "평균은 점수의 합을 과목 수로 나눈 값이에요. 딕셔너리의 값들만 모아 주는 `values()` 와 `sum()`, `len()` 을 함께 써 보세요.",
+    "평균 이상인 과목을 고르려면 `items()` 로 (과목, 점수) 쌍을 꺼내 점수와 평균을 비교해요. 고른 과목은 리스트에 모아 봐요.",
+    "소수 첫째 자리까지 출력하려면 f-string 에서 `:.1f` 를 써요. 리스트를 공백으로 구분해 출력할 때는 `print(*리스트)` 처럼 별표를 붙일 수 있어요."
+  ],
+  "explanation": "`values()` 는 값들만 모아 주므로 `sum()` 과 `len()` 으로 평균을 구할 수 있어요. 그다음 `items()` 로 (과목, 점수)를 함께 꺼내 조건에 맞는 과목 이름만 골랐어요.",
+  "tests": [
+    {
+      "input": "3\n국어 80\n수학 90\n영어 70\n",
+      "output": "평균: 80.0\n국어 수학"
+    },
+    {
+      "input": "2\nA 100\nB 0\n",
+      "output": "평균: 50.0\nA"
+    },
+    {
+      "input": "1\n체육 75\n",
+      "output": "평균: 75.0\n체육"
+    }
+  ]
+}

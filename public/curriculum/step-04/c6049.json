@@ -1,0 +1,36 @@
+{
+  "id": "c6049",
+  "kind": "practice",
+  "type": "연습",
+  "title": "같니?",
+  "level": "연습",
+  "minutes": 4,
+  "description": "정수가 적힌 카드 두 장을 뒤집었을 때 숫자가 같으면 짝이 맞는 거예요. 짝이 맞았는지 컴퓨터가 알려 줄 수 있을까요?\n정수 a, b 를 입력받아 서로 같으면 `True`, 다르면 `False` 를 출력해주세요.",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "두 정수가 같으면 True, 다르면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 두 수가 같은지 비교한 결과를 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(a == b)",
+  "hints": [
+    "두 값이 같은지 물어보는 연산자가 있어요. 변수에 값을 넣을 때 쓰는 `=` 와는 다르다는 점에 주의해요.",
+    "'같다' 를 묻는 연산자는 `==` 예요. `-3` 과 `3` 은 서로 다른 수라서 `False` 가 나와야 해요."
+  ],
+  "explanation": "`==` 는 두 값이 같은지 묻는 비교 연산자예요. 값을 넣는 `=` 와 헷갈리지 않게 조심해요.",
+  "tests": [
+    {
+      "input": "0 0",
+      "output": "True"
+    },
+    {
+      "input": "1 2",
+      "output": "False"
+    },
+    {
+      "input": "-3 3",
+      "output": "False"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6049",
+    "label": "코드업 6049번 · 정수 2개 입력받아 비교하기2"
+  }
+}

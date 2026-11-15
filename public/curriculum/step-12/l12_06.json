@@ -1,0 +1,32 @@
+{
+  "id": "l12_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "들여쓰기 버그 고치기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "저금통에 하루에 1원, 2원, 3원… 점점 늘려 넣고 있어요. 모은 돈의 합계만 알고 싶은데 프로그램은 중간 결과까지 줄줄 말해요.\n1 부터 n 까지의 합을 한 번만 출력하려는 코드예요. 그런데 숫자가 여러 줄 출력돼요. 원인을 찾아 고쳐주세요.\n\n```python\nn = int(input())\ntotal = 0\nfor i in range(1, n + 1):\n    total += i\n    print(total)\n```",
+  "input": "양의 정수 n 이 입력됩니다.",
+  "output": "1 부터 n 까지의 합을 한 줄만 출력합니다.",
+  "starter": "n = int(input())\ntotal = 0\nfor i in range(1, n + 1):\n    total += i\n    print(total)",
+  "solution": "n = int(input())\ntotal = 0\nfor i in range(1, n + 1):\n    total += i\nprint(total)",
+  "hints": [
+    "숫자가 여러 줄 나온다는 건 `print` 가 여러 번 실행된다는 뜻이에요. `print` 줄이 반복문 안에 있는지 밖에 있는지 살펴보세요.",
+    "파이썬은 들여쓰기로 '어느 블록에 속한 코드인지'를 정해요. 반복할 때마다 해야 하는 일과 마지막에 한 번만 할 일을 나눠 보세요."
+  ],
+  "explanation": "`print(total)` 이 들여쓰기 되어 있어 반복문에 속하게 되었고, 그래서 반복할 때마다 출력되었어요. 파이썬은 들여쓰기로 블록을 구분하므로 공백 4칸의 차이가 프로그램의 동작을 완전히 바꿔요.",
+  "tests": [
+    {
+      "input": "5\n",
+      "output": "15"
+    },
+    {
+      "input": "1\n",
+      "output": "1"
+    },
+    {
+      "input": "10\n",
+      "output": "55"
+    }
+  ]
+}

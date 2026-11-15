@@ -1,0 +1,36 @@
+{
+  "id": "c6058",
+  "kind": "practice",
+  "type": "연습",
+  "title": "둘 다 거짓일 때 참",
+  "level": "연습",
+  "minutes": 4,
+  "description": "오늘 학원 수업도, 친구와의 약속도 하나도 없다면 마음 놓고 쉴 수 있어요. 그런 날인지 알려 주는 프로그램을 만들어봐요.\n0 또는 1 두 개를 입력받아 둘 다 거짓(0)일 때만 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "0 또는 1 인 두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "둘 다 거짓이면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 두 값이 모두 거짓일 때만 True 가 나오게 만들어 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(not bool(a) and not bool(b))",
+  "hints": [
+    "'둘 다 거짓' 은 'a 도 거짓이고 b 도 거짓' 이라는 뜻이에요. 거짓을 참으로 뒤집어 주는 키워드가 있었죠?",
+    "각 값이 '거짓' 인지 나타내는 식을 먼저 두 개 만들어 보세요. 두 식이 모두 참이어야 하니 어떤 논리 연산자로 이을까요?"
+  ],
+  "explanation": "'둘 다 거짓' 은 '각각 거짓이다' 를 `and` 로 이은 것이고, 거짓은 `not` 으로 뒤집어 참으로 만들어서 확인해요. 두 값이 모두 0 일 때만 `True` 가 나와요.",
+  "tests": [
+    {
+      "input": "0 0",
+      "output": "True"
+    },
+    {
+      "input": "1 0",
+      "output": "False"
+    },
+    {
+      "input": "1 1",
+      "output": "False"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6058",
+    "label": "코드업 6058번 · 둘 다 거짓일 경우만 참 출력하기"
+  }
+}

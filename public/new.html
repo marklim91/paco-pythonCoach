@@ -69,7 +69,7 @@
               indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/",
             });
             pyodide.runPython(`
-      import io, sys, json, traceback, contextlib
+      import io, os, sys, json, shutil, tempfile, traceback, contextlib
 
       class _LimitedOutput(io.StringIO):
           def write(self, text):
@@ -77,12 +77,19 @@
                   raise RuntimeError("출력이 너무 많아요. 출력은 20,000자까지 가능합니다.")
               return super().write(text)
 
-      def _execute_student(source, stdin):
+      # 파일 문제는 실행마다 새 임시 폴더에 문제의 파일을 만들고, 끝나면 지웁니다. 파일 이름은 폴더 안의 이름만 씁니다.
+      def _execute_student(source, stdin, files_json):
           output = _LimitedOutput()
           errors = _LimitedOutput()
           previous_stdin = sys.stdin
+          previous_dir = os.getcwd()
+          workdir = tempfile.mkdtemp()
           error = None
           try:
+              os.chdir(workdir)
+              for name, text in json.loads(files_json).items():
+                  with open(os.path.basename(name), "w", encoding="utf-8") as handle:
+                      handle.write(text)
               sys.stdin = io.StringIO(stdin)
               with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
                   exec(compile(source, "solution.py", "exec"), {"__name__": "__main__"})
@@ -90,13 +97,16 @@
               error = traceback.format_exc(limit=5)[-4000:]
           finally:
               sys.stdin = previous_stdin
+              os.chdir(previous_dir)
+              shutil.rmtree(workdir, ignore_errors=True)
           return json.dumps({"output": output.getvalue(), "stderr": errors.getvalue(), "error": error})
             `);
             self.onmessage = ({ data }) => {
               try {
                 pyodide.globals.set("_student_source", data.code);
                 pyodide.globals.set("_student_stdin", data.input);
-                const result = JSON.parse(pyodide.runPython("_execute_student(_student_source, _student_stdin)"));
+                pyodide.globals.set("_student_files", JSON.stringify(data.files || {}));
+                const result = JSON.parse(pyodide.runPython("_execute_student(_student_source, _student_stdin, _student_files)"));
                 self.postMessage({ type: "result", ...result });
               } catch (error) {
                 self.postMessage({ type: "fatal", error: error.message });
@@ -109,9 +119,11 @@
     </script>
     <!-- 문제 목록은 studio-catalog.js에서, 문제 본문은 curriculum/step-NN/<문제ID>.json에서 필요할 때 불러옵니다. -->
     <script src="./studio-catalog.js"></script>
+    <script src="./studio-progress.js"></script>
+    <script src="./studio-markdown.js"></script>
     <script src="./studio-core.js"></script>
     <script>
-      // 첫 화면의 문제 파일은 화면 라이브러리를 내려받는 동안 미리 요청합니다.
+      // 첫 화면에서 풀 문제의 파일은 화면 라이브러리를 내려받는 동안 미리 요청합니다.
       loadProblem(startupProblemId(location.search)).catch(function () {});
     </script>
     <script type="module" src="./studio-app.js"></script>

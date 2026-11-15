@@ -1,0 +1,36 @@
+{
+  "id": "c6011",
+  "kind": "practice",
+  "type": "연습",
+  "title": "실수 하나 그대로",
+  "level": "연습",
+  "minutes": 4,
+  "description": "체온이나 기온은 소수점이 있는 값으로 나올 때가 많아요. 이런 값도 받아서 그대로 보여 줄 수 있을까요?\n실수 1개를 입력받아 실수(`float`)로 바꾼 뒤 그대로 출력해주세요.",
+  "input": "실수 한 개가 한 줄에 입력됩니다.",
+  "output": "입력받은 실수를 그대로 출력합니다.",
+  "starter": "text = input()\n\n# text 를 실수로 바꿔서 출력해 보세요.\n",
+  "solution": "x = float(input())\nprint(x)",
+  "hints": [
+    "정수로 바꿀 때는 `int()` 를 썼죠? 소수점이 있는 실수로 바꿔 주는 함수도 따로 있어요.",
+    "실수로 바꾸는 함수는 `float()` 예요. 바꾼 값을 `print()` 로 출력해 보세요."
+  ],
+  "explanation": "`float()` 는 글자를 소수점이 있는 수(실수)로 바꿔 줘요. 정수는 `int()`, 실수는 `float()` 로 구분해서 써요.",
+  "tests": [
+    {
+      "input": "1.414",
+      "output": "1.414"
+    },
+    {
+      "input": "-3.5",
+      "output": "-3.5"
+    },
+    {
+      "input": "0.25",
+      "output": "0.25"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6011",
+    "label": "코드업 6011번 · 실수 1개 입력받아 변환하여 출력하기"
+  }
+}

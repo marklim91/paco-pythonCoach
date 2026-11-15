@@ -1,0 +1,31 @@
+{
+  "id": "l10_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "합격자 명단 만들기",
+  "level": "기초",
+  "minutes": 10,
+  "description": "동아리 입단 시험이 끝났어요. 합격한 친구들만 모은 새 명단 파일이 필요해요.\n같은 폴더의 `data.txt` 파일(UTF-8)은 각 줄에 `이름 점수` 가 적혀 있어요. 60점 이상인 학생의 이름만 `pass.txt` 에 한 줄에 하나씩 저장해주세요. 그다음 `pass.txt` 의 내용을 출력하고, 마지막 줄에 `합격 n명` 을 출력해주세요.",
+  "input": "표준 입력은 없습니다. data.txt 파일이 주어집니다.",
+  "output": "pass.txt 의 내용과 합격 n명 을 출력합니다.",
+  "starter": "# data.txt 파일을 한 줄씩 읽어 보세요.\n# 60점 이상인 학생의 이름만 골라 pass.txt 파일에 저장해 보세요.\n# pass.txt 를 다시 읽어 출력한 뒤, 합격한 사람 수도 출력해 보세요.\n",
+  "solution": "passed = []\nwith open(\"data.txt\", \"r\", encoding=\"utf-8\") as f:\n    for line in f:\n        name, score = line.split()\n        if int(score) >= 60:\n            passed.append(name)\n\nwith open(\"pass.txt\", \"w\", encoding=\"utf-8\") as f:\n    for name in passed:\n        f.write(name + \"\\n\")\n\nwith open(\"pass.txt\", \"r\", encoding=\"utf-8\") as f:\n    print(f.read(), end=\"\")\nprint(f\"합격 {len(passed)}명\")",
+  "hints": [],
+  "explanation": "한 파일을 읽어 조건에 맞는 데이터만 다른 파일로 내보내는 '필터링' 작업이에요. 읽기(`r`)와 쓰기(`w`)는 각각 `with` 블록으로 열고, `write()` 에는 줄바꿈을 직접 붙여야 해요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "파코\n동빈\n합격 2명",
+      "files": {
+        "data.txt": "파코 90\n민희 55\n동빈 60\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "합격 0명",
+      "files": {
+        "data.txt": "A 10\n"
+      }
+    }
+  ]
+}

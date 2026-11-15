@@ -1,0 +1,32 @@
+{
+  "id": "p6058_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "둘 다 3의 배수가 아니니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "3의 배수가 나오면 박수를 치는 숫자 게임을 해요. 두 사람의 숫자 모두 박수를 칠 필요가 없는지 알아봐요.\n정수 a, b 를 입력받아 a 도 b 도 3의 배수가 아니면 `True`, 하나라도 3의 배수이면 `False` 를 출력해주세요.",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "둘 다 3의 배수가 아니면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# a 와 b 가 각각 3의 배수인지 먼저 확인해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(not (a % 3 == 0) and not (b % 3 == 0))",
+  "hints": [
+    "3의 배수는 3으로 나눈 나머지가 0 인 수예요. a 와 b 각각 `% 3` 의 나머지를 확인해 봐요.",
+    "'3의 배수가 아니다' 는 `!=` 로 쓰거나 `not` 으로 뒤집을 수 있어요. 두 조건이 모두 참이어야 하니까 `and` 로 이어 보세요."
+  ],
+  "explanation": "`a % 3 == 0` 은 3의 배수라는 뜻이고, 앞에 `not` 을 붙이면 3의 배수가 아니라는 뜻이 돼요. 이 두 조건을 `and` 로 이으면 둘 다 3의 배수가 아닐 때만 `True` 가 나와요.",
+  "tests": [
+    {
+      "input": "1 2",
+      "output": "True"
+    },
+    {
+      "input": "3 4",
+      "output": "False"
+    },
+    {
+      "input": "6 9",
+      "output": "False"
+    }
+  ]
+}

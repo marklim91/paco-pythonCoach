@@ -1,0 +1,32 @@
+{
+  "id": "c6017",
+  "kind": "practice",
+  "type": "연습",
+  "title": "문장 세 번",
+  "level": "연습",
+  "minutes": 4,
+  "description": "응원 구호는 세 번 외쳐야 제맛이죠! 입력한 문장을 세 번 외쳐 주는 프로그램을 만들어봐요.\n문장 1개(공백이 있어도 한 줄 전체)를 입력받아 공백을 두고 한 줄에 세 번 출력해주세요.",
+  "input": "문장 한 줄이 입력됩니다. 문장 안에 공백이 있을 수 있습니다.",
+  "output": "입력받은 문장을 공백으로 구분해 한 줄에 세 번 출력합니다.",
+  "starter": "sentence = input()\n\n# sentence 를 공백을 두고 세 번 출력해 보세요.\n",
+  "solution": "s = input()\nprint(s, s, s)",
+  "hints": [
+    "`input()` 은 공백이 있어도 한 줄을 통째로 받아요. 받은 문장을 변수에 담아 두면 같은 값을 여러 번 쓸 수 있어요.",
+    "`print()` 에 값을 쉼표로 여러 개 넣으면 값 사이가 한 칸씩 떨어져 나와요. 문장을 몇 번 넣어야 할까요?"
+  ],
+  "explanation": "`print()` 에 값을 쉼표로 나눠 넣으면 값 사이에 공백이 하나씩 들어가요. `input()` 은 공백이 있어도 한 줄을 통째로 받으니, 받은 문장을 세 번 넣으면 돼요.",
+  "tests": [
+    {
+      "input": "python",
+      "output": "python python python"
+    },
+    {
+      "input": "go go",
+      "output": "go go go go go go"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6017",
+    "label": "코드업 6017번 · 문장 1개 입력받아 3번 출력하기"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "c6001",
+  "kind": "practice",
+  "type": "연습",
+  "title": "Hello 출력하기",
+  "level": "연습",
+  "minutes": 4,
+  "description": "게임을 켜면 환영 문구가 화면에 짠 하고 나타나죠? 그 첫 문구를 직접 만들어 볼까요?\n화면에 `Hello` 를 한 줄로 출력해주세요. 대문자 H 와 나머지 소문자를 똑같이 써야 해요.",
+  "input": "입력은 없습니다.",
+  "output": "Hello 를 한 줄에 출력합니다.",
+  "starter": "# 따옴표 안에 인사말을 적어 보세요.\nprint(\"\")\n",
+  "solution": "print('Hello')",
+  "hints": [
+    "`print()` 는 괄호 안에 넣은 글자를 화면에 보여 줘요. 이번에는 괄호 안에 무엇을 넣어야 할까요?",
+    "따옴표로 감싸지 않은 글자는 파이썬이 글자로 읽지 않아요. `Hello` 앞뒤에 따옴표를 빠뜨리지 않았는지 확인해 보세요."
+  ],
+  "explanation": "`print()` 괄호 안에 따옴표로 감싼 글자를 쓰면 그 글자가 쓴 그대로 화면에 나와요. 대문자와 소문자도 구분되니까 `Hello` 의 `H` 는 꼭 대문자로 써야 해요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Hello"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6001",
+    "label": "코드업 6001번 · 출력하기01"
+  }
+}

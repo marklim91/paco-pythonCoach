@@ -1,0 +1,33 @@
+{
+  "id": "l11_03",
+  "kind": "core",
+  "type": "실습",
+  "title": "무슨 요일일까",
+  "level": "입문",
+  "minutes": 8,
+  "description": "생일이 무슨 요일인지, 100일 뒤에는 어떤 날이 오는지 달력 없이 알 수 있으면 좋겠죠?\n`YYYY-MM-DD` 형식의 날짜를 입력받아 첫째 줄에 그날의 요일(`월요일` ~ `일요일`, 예: `토요일`)을, 둘째 줄에 100일 뒤의 날짜를 같은 형식으로 출력해주세요.",
+  "input": "YYYY-MM-DD 형식의 날짜가 입력됩니다.",
+  "output": "요일과 100일 뒤 날짜를 두 줄에 출력합니다.",
+  "starter": "date_text = input()\n\n# 입력받은 글자를 날짜로 바꿔 보세요.\n# 요일은 첫째 줄에, 100일 뒤의 날짜는 둘째 줄에 출력해 보세요.\n",
+  "solution": "from datetime import datetime, timedelta\n\nday = datetime.strptime(input(), \"%Y-%m-%d\")\nnames = [\"월요일\", \"화요일\", \"수요일\", \"목요일\", \"금요일\", \"토요일\", \"일요일\"]\nprint(names[day.weekday()])\nprint((day + timedelta(days=100)).strftime(\"%Y-%m-%d\"))",
+  "hints": [
+    "날짜를 다루는 모듈은 `datetime` 이에요. 모듈 안의 `datetime` 을 `from ... import ...` 로 불러오면 `strptime()` 으로 글자를 날짜로 바꿀 수 있어요. 글자 모양은 `\"%Y-%m-%d\"` 로 알려 줘요.",
+    "`weekday()` 는 월요일 0 ~ 일요일 6 으로 요일을 숫자로 알려 줘요. 숫자를 요일 이름으로 바꾸려면 리스트가 편해요.",
+    "`timedelta(days=100)` 을 날짜에 더하면 100일 뒤가 돼요. 날짜를 다시 글자로 바꿀 땐 `strftime()` 을 써요."
+  ],
+  "explanation": "날짜 계산은 달마다 일수가 다르고 윤년도 있어 직접 구현하기 어렵지만, `datetime` 모듈이 모두 처리해 줘요. `strptime` 은 문자열 → 날짜(parse), `strftime` 은 날짜 → 문자열(format) 이에요. `weekday()` 의 결과를 리스트의 인덱스로 써서 요일 이름으로 바꿨어요.",
+  "tests": [
+    {
+      "input": "2026-11-14\n",
+      "output": "토요일\n2027-02-22"
+    },
+    {
+      "input": "2024-02-28\n",
+      "output": "수요일\n2024-06-07"
+    },
+    {
+      "input": "2025-01-01\n",
+      "output": "수요일\n2025-04-11"
+    }
+  ]
+}

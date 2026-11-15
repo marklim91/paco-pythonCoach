@@ -1,0 +1,29 @@
+{
+  "id": "l15_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "학생 클래스",
+  "level": "입문",
+  "minutes": 8,
+  "description": "반 친구 소개 카드에 이름과 평균 점수가 한 줄로 보이면 좋겠어요. 학생 한 명을 코드로 표현해볼까요?\n이름과 점수 리스트를 가지는 `Student` 클래스를 만들고, 평균을 돌려주는 `average()` 메서드와 print 했을 때 `이름 (평균 xx.x)` 로 보이게 하는 `__str__` 메서드를 작성해주세요. n 명의 학생을 입력받아 한 줄씩 출력해주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 이름과 점수들이 공백으로 구분되어 입력됩니다.",
+  "output": "학생마다 이름 (평균 xx.x) 를 출력합니다.",
+  "starter": "n = int(input())\n\n# 1) 이름과 점수 리스트를 가진 Student 클래스를 만들어 보세요.\n# 2) 학생을 한 명씩 입력받아 객체로 만든 뒤 출력해 보세요.\n",
+  "solution": "class Student:\n    def __init__(self, name, scores):\n        self.name = name\n        self.scores = scores\n\n    def average(self):\n        return sum(self.scores) / len(self.scores)\n\n    def __str__(self):\n        return f\"{self.name} (평균 {self.average():.1f})\"\n\n\nn = int(input())\nfor _ in range(n):\n    parts = input().split()\n    student = Student(parts[0], [int(x) for x in parts[1:]])\n    print(student)",
+  "hints": [
+    "`print(객체)` 를 하면 파이썬이 객체의 `__str__` 메서드를 불러서 그 결과를 보여 줘요. 이 메서드는 무엇을 돌려줘야 할까요?",
+    "이름뿐 아니라 점수 리스트도 `self.` 뒤에 이름을 붙여 객체의 속성으로 저장할 수 있어요.",
+    "점수 리스트의 평균은 `sum()` 과 `len()` 으로 구할 수 있어요. 소수 첫째 자리까지 보이게 하는 서식은 `:.1f` 예요."
+  ],
+  "explanation": "`__str__` 은 객체를 문자열로 바꿀 때 자동으로 호출되는 특별한 메서드예요. 이것이 없으면 `print(student)` 는 `<__main__.Student object at 0x...>` 처럼 알아보기 어렵게 출력돼요. 메서드 안에서 `self.average()` 처럼 다른 메서드를 부를 수도 있어요.",
+  "tests": [
+    {
+      "input": "2\n파코 90 80 100\n민희 70 65\n",
+      "output": "파코 (평균 90.0)\n민희 (평균 67.5)"
+    },
+    {
+      "input": "1\nA 100\n",
+      "output": "A (평균 100.0)"
+    }
+  ]
+}

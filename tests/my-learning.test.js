@@ -69,25 +69,30 @@ async function setup(t, options = {}) {
   return { request, signIn, personal, source, clock, calls };
 }
 
-test('all 10 learning guides follow the studio tracks and have actionable goals and practice', () => {
+test('all 15 learning guides follow the studio levels and have actionable goals and practice', () => {
   const studio = require('../public/studio-catalog');
-  assert.equal(studio.tracks.length, 10);
-  for (let stage = 1; stage <= 10; stage++) {
+  assert.equal(studio.tracks.length, 15);
+  const last = studio.tracks.length;
+  for (let stage = 1; stage <= last; stage++) {
     const guide = getLearningGuide(stage);
     const track = studio.tracks[stage - 1];
     assert.equal(guide.current.stage, stage);
     assert.equal(guide.current.title, track.label);
     assert.equal(guide.current.studio.trackId, track.id);
     assert.equal(guide.current.studio.startPoints, track.startPoints);
+    assert.equal(guide.current.studio.requiredPoints, track.requiredPoints);
+    assert.equal(guide.current.studio.problemCount, track.problems.filter(problem => problem.kind === 'core').length);
     assert.equal(guide.current.goals.length, 3);
-    assert.equal(guide.roadmap.length, 10);
-    assert.equal(guide.status, stage === 10 ? 'last-stage' : 'next-stage');
-    assert.equal(guide.next?.stage ?? null, stage === 10 ? null : stage + 1);
+    assert.ok(guide.current.focus.length > 10);
+    assert.equal(guide.roadmap.length, last);
+    assert.equal(guide.status, stage === last ? 'last-stage' : 'next-stage');
+    assert.equal(guide.next?.stage ?? null, stage === last ? null : stage + 1);
     assert.deepEqual(guide.practice, (guide.next || guide.current).practice);
     assert.ok(guide.practice.task.length > 10);
     assert.ok(guide.practice.checks.length >= 2);
     assert.equal(new URL(guide.current.reading.url).hostname, 'docs.python.org');
-    assert.match(guide.promotionNote, /별도의 승급 심사는 없습니다/);
+    assert.match(guide.promotionNote, /승급 시험과 진단평가로 정해집니다/);
+    assert.doesNotMatch(guide.promotionNote, /승급 심사는 없습니다/);
     assert.match(guide.recommendationNote, /취약점을 분석한 결과는 아닙니다/);
     for (const field of ['remainingXp', 'completionPercent', 'weaknesses', 'completed']) {
       assert.equal(Object.hasOwn(guide, field), false);
@@ -98,16 +103,16 @@ test('all 10 learning guides follow the studio tracks and have actionable goals 
 test('the stage follows the studio score ranges and stays inside the roadmap', () => {
   const { stageForPoints } = require('../learning-guide');
   const studio = require('../public/studio-catalog');
-  assert.equal(studio.maxPoints, 2930);
-  assert.deepEqual(studio.tracks.map(track => track.startPoints), [0, 85, 205, 380, 620, 870, 1160, 1490, 1830, 2300]);
-  for (const [points, stage] of [[0, 1], [84, 1], [85, 2], [204, 2], [205, 3], [2299, 9], [2300, 10], [2930, 10], [99999, 10]]) {
+  assert.equal(studio.maxPoints, 2972);
+  assert.deepEqual(studio.tracks.map(track => track.startPoints), [0, 120, 245, 380, 535, 665, 805, 965, 1105, 1265, 1440, 1580, 1730, 1930, 2260]);
+  for (const [points, stage] of [[0, 1], [119, 1], [120, 2], [244, 2], [245, 3], [2259, 14], [2260, 15], [2972, 15], [99999, 15]]) {
     assert.equal(stageForPoints(points), stage, `${points}점`);
   }
   for (const invalid of [-1, NaN, Infinity, '100', null, undefined]) assert.equal(stageForPoints(invalid), 0);
 });
 
 test('unmapped stages do not invent a current or next curriculum stage', () => {
-  for (const stage of [0, 11, 999, -1, 1.5, '5', null]) {
+  for (const stage of [0, 16, 999, -1, 1.5, '5', null]) {
     const guide = getLearningGuide(stage);
     assert.equal(guide.status, 'unmapped');
     assert.equal(guide.current, null);
@@ -121,7 +126,7 @@ test('learning guide values are independent between requests', () => {
   first.next.goals.length = 0;
   first.roadmap[0].title = 'changed';
   assert.equal(getLearningGuide(5).next.goals.length, 3);
-  assert.equal(getLearningGuide(1).roadmap[0].title, '처음 만나는 파이썬');
+  assert.equal(getLearningGuide(1).roadmap[0].title, 'Python 입문자');
 });
 
 test('missing or forged server sessions cannot read personal data or trigger the source', async t => {
@@ -150,7 +155,7 @@ test('personal API returns only the session student with actual values and no or
   assert.equal(body.student.observedGrowth, null);
   assert.equal(body.student.history.length, 1);
   assert.deepEqual(body.ranking, { overall: 2, overallStudents: 3, school: 2, schoolStudents: 2 });
-  assert.equal(body.guide.next.title, '갈림길에서 선택하기');
+  assert.equal(body.guide.next.title, '출력 마스터');
   assert.equal(body.guide.next.stage, 3);
   assert.equal(body.collectedAt, new Date(app.clock.value).toISOString());
   const encoded = JSON.stringify(body);
@@ -292,8 +297,8 @@ test('the guide follows points while recorded levels are shown as stored, withou
   const cookie = await app.signIn();
   const cases = [
     { level: 1, points: 0, status: 'next-stage', stage: 1 },
-    { level: 16, points: 2300, status: 'last-stage', stage: 10 },
-    { level: 0, points: 99999, status: 'last-stage', stage: 10 },
+    { level: 16, points: 2300, status: 'last-stage', stage: 15 },
+    { level: 0, points: 99999, status: 'last-stage', stage: 15 },
   ];
   for (const { level, points, status, stage } of cases) {
     app.source.rows[0].crbf2_currentlevel = level;
@@ -305,7 +310,7 @@ test('the guide follows points while recorded levels are shown as stored, withou
     assert.equal(body.student.level, level);
     assert.equal(body.guide.status, status);
     assert.equal(body.guide.current.stage, stage);
-    assert.equal(body.guide.next?.stage ?? null, stage === 10 ? null : stage + 1);
+    assert.equal(body.guide.next?.stage ?? null, stage === 15 ? null : stage + 1);
     app.clock.value += 61000;
   }
 });

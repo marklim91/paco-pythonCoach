@@ -1,0 +1,37 @@
+{
+  "id": "l08_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "시저 암호 만들기",
+  "level": "도전",
+  "minutes": 15,
+  "description": "고대 로마의 시저는 편지 속 글자를 몇 칸씩 밀어서 적어 비밀을 지켰다고 해요. 우리도 같은 방법으로 암호문을 만들어 봐요.\n문장과 이동 칸 수 `k` 를 입력받아, 영어 알파벳만 `k` 칸 뒤의 글자로 바꾼 암호문을 출력해주세요. `z` 다음은 다시 `a` 로 돌아오고 대소문자는 그대로 유지해요. 알파벳이 아닌 글자는 바꾸지 않고 그대로 둬요.\n예를 들어 `k` 가 3 이면 `a` 는 `d` 로, `y` 는 `b` 로 바뀌어요.",
+  "input": "첫째 줄에 문장, 둘째 줄에 정수 k (0 ≤ k ≤ 100)가 입력됩니다.",
+  "output": "암호문을 출력합니다.",
+  "starter": "text = input()\nk = int(input())\n\n# 대문자, 소문자, 그 밖의 글자를 나누어 처리해 보세요.\n# 알파벳은 k 칸 뒤의 글자로 바꿔서 하나씩 이어 붙여 보세요.\n",
+  "solution": "text = input()\nk = int(input())\nresult = \"\"\nfor ch in text:\n    if ch.islower():\n        result += chr((ord(ch) - ord(\"a\") + k) % 26 + ord(\"a\"))\n    elif ch.isupper():\n        result += chr((ord(ch) - ord(\"A\") + k) % 26 + ord(\"A\"))\n    else:\n        result += ch\nprint(result)",
+  "hints": [
+    "글자와 번호를 서로 바꿔 주는 `ord()` 와 `chr()` 가 필요해요. 알파벳은 번호가 차례로 이어져 있어요.",
+    "`a` 를 0 번, `b` 를 1 번, … `z` 를 25 번으로 놓고 생각해 봐요. 위치에 `k` 를 더한 값이 26 이상이 되면 다시 0 번부터 시작해야 해요. 어떻게 처음으로 돌아가게 할까요?",
+    "대문자와 소문자는 시작 글자(`A`, `a`)가 달라서 따로 처리해야 해요. `isupper()`, `islower()` 로 구분하고, 둘 다 아니면 그대로 이어 붙여요."
+  ],
+  "explanation": "컴퓨터는 글자를 숫자(유니코드 번호)로 저장해요. `ord()` 로 숫자로 바꾸고, `a` 를 0 으로 하는 위치로 맞춘 뒤 `k` 를 더하고, `% 26` 으로 26 이상이 되면 다시 0 부터 돌게 했어요. 이렇게 '나머지 연산으로 원형으로 돌리기'는 시계, 요일 계산 등에서도 자주 쓰여요.",
+  "tests": [
+    {
+      "input": "Hello, World!\n3\n",
+      "output": "Khoor, Zruog!"
+    },
+    {
+      "input": "xyz ABC\n2\n",
+      "output": "zab CDE"
+    },
+    {
+      "input": "abc\n26\n",
+      "output": "abc"
+    },
+    {
+      "input": "파이썬 Python\n1\n",
+      "output": "파이썬 Qzuipo"
+    }
+  ]
+}

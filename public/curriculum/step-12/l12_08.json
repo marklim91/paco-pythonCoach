@@ -1,0 +1,37 @@
+{
+  "id": "l12_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "버그 세 마리 잡기",
+  "level": "도전",
+  "minutes": 15,
+  "description": "하루 걸음 수의 평균을 구해 주는 프로그램이 말썽이에요. 오류 메시지가 알려 주는 버그도 있고, 입력을 바꿔 봐야 드러나는 버그도 있어요.\n공백으로 구분된 숫자들의 평균을 소수 첫째 자리까지 출력하려는 코드예요. 버그가 3개 숨어 있어요. 모두 찾아 고쳐주세요. 입력이 빈 줄이면 `0.0` 을 출력해야 해요.\n\n```python\ndef average(nums):\n    for n in nums:\n        total = 0\n        total += n\n    return total / len(nums)\n\ndata = input().split()\nprint(average(data))\n```",
+  "input": "정수들이 공백으로 구분되어 입력됩니다. 빈 줄일 수도 있습니다.",
+  "output": "평균을 소수 첫째 자리까지 출력합니다.",
+  "starter": "def average(nums):\n    for n in nums:\n        total = 0\n        total += n\n    return total / len(nums)\n\ndata = input().split()\nprint(average(data))",
+  "solution": "def average(nums):\n    if not nums:\n        return 0.0\n    total = 0\n    for n in nums:\n        total += n\n    return total / len(nums)\n\ndata = [int(x) for x in input().split()]\nprint(f\"{average(data):.1f}\")",
+  "hints": [
+    "먼저 실행해 보세요. `input().split()` 이 돌려주는 조각은 숫자일까요, 글자일까요? 더하기 전에 무엇을 해야 할까요?",
+    "오류가 사라져도 평균이 이상하다면 `total` 이 반복할 때마다 어떤 값이 되는지 따라가 보세요. 합계를 0 으로 만드는 줄은 어디에 있어야 할까요?",
+    "빈 줄이면 `len(nums)` 가 0 이에요. 0 으로 나누기 전에 따로 처리해 보세요. 소수 첫째 자리는 `:.1f` 로 맞출 수 있어요."
+  ],
+  "explanation": "① `split()` 의 결과는 문자열 리스트이므로 정수로 바꿔야 해요(`TypeError`). ② `total = 0` 이 반복문 안에 있어 매번 초기화되므로 마지막 값만 남아요(논리 오류). 초기화는 반복문 밖에서 해야 해요. ③ ②를 고친 뒤에도 빈 리스트이면 `len(nums)` 가 0 이라 `ZeroDivisionError` 가 나요. (고치기 전에는 `total` 이 만들어지지 않아 다른 오류가 먼저 나와요.) 소수 첫째 자리까지 보여 주려면 `:.1f` 서식을 써요. 정상 입력뿐 아니라 '빈 입력, 하나짜리 입력' 같은 극단적인 경우를 테스트하는 습관이 버그를 잡아 줘요.",
+  "tests": [
+    {
+      "input": "1 2 3 4\n",
+      "output": "2.5"
+    },
+    {
+      "input": "\n",
+      "output": "0.0"
+    },
+    {
+      "input": "10\n",
+      "output": "10.0"
+    },
+    {
+      "input": "90 85 77\n",
+      "output": "84.0"
+    }
+  ]
+}

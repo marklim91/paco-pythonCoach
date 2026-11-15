@@ -1,0 +1,33 @@
+{
+  "id": "l11_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "두 점 사이의 거리",
+  "level": "입문",
+  "minutes": 10,
+  "description": "보물 지도에 두 지점이 찍혀 있어요. 둘 사이가 얼마나 먼지 재어 봐요.\n두 점 (x1, y1), (x2, y2) 의 좌표를 입력받아 두 점 사이의 거리를 소수 둘째 자리까지 출력해주세요. math 모듈을 사용해주세요.",
+  "input": "정수 x1 y1 x2 y2 가 공백으로 구분되어 입력됩니다.",
+  "output": "거리를 소수 둘째 자리까지 출력합니다.",
+  "starter": "x1, y1, x2, y2 = map(int, input().split())\n\n# 두 점 사이의 거리를 구해서 소수 둘째 자리까지 출력해 보세요.\n",
+  "solution": "import math\n\nx1, y1, x2, y2 = map(int, input().split())\ndistance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)\nprint(f\"{distance:.2f}\")",
+  "hints": [],
+  "explanation": "두 점 사이의 거리는 가로 차이와 세로 차이를 두 변으로 하는 직각삼각형의 빗변 길이예요. `math.sqrt` 로 제곱근을 구했고, `math.dist((x1, y1), (x2, y2))` 로 한 번에 구할 수도 있어요.",
+  "tests": [
+    {
+      "input": "0 0 3 4\n",
+      "output": "5.00"
+    },
+    {
+      "input": "1 1 1 1\n",
+      "output": "0.00"
+    },
+    {
+      "input": "-1 -1 2 3\n",
+      "output": "5.00"
+    },
+    {
+      "input": "0 0 1 1\n",
+      "output": "1.41"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "l07_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "문구점 계산대",
+  "level": "입문",
+  "minutes": 10,
+  "description": "문구점 계산대에서는 가격표에 없는 물건이 나오면 점원이 바로 알려 줘요. 그런 똑똑한 계산대를 만들어봐요.\n가격표는 연필 500원, 공책 1500원, 지우개 300원이에요. n 줄의 `상품 수량` 을 입력받아 마지막에 총액을 `총액: n원` 으로 출력해주세요. 가격표에 없는 상품은 계산하지 않고 그 자리에서 `없는 상품: 상품명` 을 출력해주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 상품 수량 이 입력됩니다.",
+  "output": "없는 상품 안내(있을 때만)와 총액을 출력합니다.",
+  "starter": "n = int(input())\n\n# 가격표를 딕셔너리로 만들어 보세요.\n# 상품을 한 줄씩 읽어 총액을 구하고, 가격표에 없는 상품은 안내 문구를 출력해 보세요.\n",
+  "solution": "prices = {\"연필\": 500, \"공책\": 1500, \"지우개\": 300}\nn = int(input())\ntotal = 0\nfor _ in range(n):\n    item, count = input().split()\n    if item in prices:\n        total += prices[item] * int(count)\n    else:\n        print(f\"없는 상품: {item}\")\nprint(f\"총액: {total}원\")",
+  "hints": [],
+  "explanation": "가격표를 딕셔너리로 만들면 상품명으로 가격을 바로 찾을 수 있어요. 없는 키를 꺼내면 `KeyError` 가 나므로 `in` 으로 먼저 확인했어요.",
+  "tests": [
+    {
+      "input": "2\n연필 3\n공책 1\n",
+      "output": "총액: 3000원"
+    },
+    {
+      "input": "2\n자 1\n지우개 2\n",
+      "output": "없는 상품: 자\n총액: 600원"
+    }
+  ]
+}

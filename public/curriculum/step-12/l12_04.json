@@ -1,0 +1,37 @@
+{
+  "id": "l12_04",
+  "kind": "core",
+  "type": "실습",
+  "title": "안전한 나눗셈",
+  "level": "입문",
+  "minutes": 8,
+  "description": "계산기에 글자를 넣거나 0 으로 나누라고 시키면 프로그램이 확 꺼져 버려요. 어떤 입력에도 끄떡없는 계산기가 필요해요.\n두 값을 한 줄에 하나씩 입력받아 첫 번째 수를 두 번째 수로 나눈 결과를 소수 둘째 자리까지 출력해주세요. 프로그램이 오류로 멈추지 않도록 예외를 처리해주세요.\n- 숫자가 아닌 값이 입력되면 `숫자를 입력하세요`\n- 0 으로 나누려 하면 `0으로 나눌 수 없습니다`",
+  "input": "첫째 줄과 둘째 줄에 값이 하나씩 입력됩니다.",
+  "output": "나눗셈 결과 또는 안내 문구를 출력합니다.",
+  "starter": "first = input()\nsecond = input()\n\n# 두 값을 숫자로 바꿔 첫 번째 수를 두 번째 수로 나눠 보세요.\n# 오류가 나도 프로그램이 멈추지 않게 만들어 보세요.\n",
+  "solution": "try:\n    a = float(input())\n    b = float(input())\n    print(f\"{a / b:.2f}\")\nexcept ValueError:\n    print(\"숫자를 입력하세요\")\nexcept ZeroDivisionError:\n    print(\"0으로 나눌 수 없습니다\")",
+  "hints": [
+    "오류가 날 수 있는 코드를 `try:` 아래에 넣고, 오류가 났을 때 할 일은 `except` 아래에 써요. 어느 줄에서 오류가 날 수 있을까요?",
+    "`abc` 를 `float()` 로 바꾸려 하면 `ValueError`, 0 으로 나누면 `ZeroDivisionError` 가 나요. 오류 종류마다 `except` 를 따로 써 보세요.",
+    "소수 둘째 자리까지 출력하려면 f-string 안에서 값 뒤에 `:.2f` 를 붙여 보세요."
+  ],
+  "explanation": "`try` 블록 안에서 오류(예외)가 발생하면 프로그램이 멈추는 대신 해당하는 `except` 블록으로 넘어가요. `float(\"abc\")` 는 `ValueError`, 0 으로 나누기는 `ZeroDivisionError` 를 발생시켜요. `except:` 만 써서 모든 오류를 한꺼번에 잡으면 진짜 버그까지 숨겨지므로, 예상되는 오류의 종류를 명시하는 것이 좋아요. 나눗셈 결과는 f-string 의 `:.2f` 로 소수 둘째 자리까지 맞춰요.",
+  "tests": [
+    {
+      "input": "10\n4\n",
+      "output": "2.50"
+    },
+    {
+      "input": "10\n0\n",
+      "output": "0으로 나눌 수 없습니다"
+    },
+    {
+      "input": "abc\n3\n",
+      "output": "숫자를 입력하세요"
+    },
+    {
+      "input": "7\n2\n",
+      "output": "3.50"
+    }
+  ]
+}

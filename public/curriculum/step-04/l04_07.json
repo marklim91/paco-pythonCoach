@@ -1,0 +1,37 @@
+{
+  "id": "l04_07",
+  "kind": "core",
+  "type": "실습",
+  "title": "피즈버즈 한 판",
+  "level": "입문",
+  "minutes": 8,
+  "description": "피즈버즈 게임에서는 어떤 수는 숫자 대신 특별한 단어로 불러야 해요. 규칙대로 말해 주는 프로그램을 만들어봐요.\n정수 n 을 입력받아 3 과 5 의 공배수이면 `FizzBuzz`, 3 의 배수이면 `Fizz`, 5 의 배수이면 `Buzz`, 그 외에는 n 을 그대로 출력해주세요.",
+  "input": "양의 정수 n 이 입력됩니다.",
+  "output": "FizzBuzz, Fizz, Buzz 또는 n 을 출력합니다.",
+  "starter": "n = int(input())\n\n# n 이 어떤 수의 배수인지에 따라 출력할 내용을 나누어 보세요.\n",
+  "solution": "n = int(input())\nif n % 15 == 0:\n    print(\"FizzBuzz\")\nelif n % 3 == 0:\n    print(\"Fizz\")\nelif n % 5 == 0:\n    print(\"Buzz\")\nelse:\n    print(n)",
+  "hints": [
+    "15 는 3 의 배수이기도 하고 5 의 배수이기도 해요. 3 의 배수부터 검사하면 15 에서 어떤 일이 생길까요?",
+    "3 과 5 의 공배수는 15 의 배수예요. 가장 까다로운 조건을 맨 먼저 검사하도록 순서를 정해 보세요.",
+    "배수인지는 나머지(`%`)가 0 인지로 알 수 있어요. 어느 조건에도 맞지 않을 때는 `else` 에서 n 을 그대로 출력해요."
+  ],
+  "explanation": "조건의 순서가 핵심이에요. `n % 3 == 0` 을 먼저 검사하면 15 도 `Fizz` 로 출력되고 끝나 버려요. 여러 조건이 겹칠 때는 더 좁은(특수한) 조건을 먼저 써야 해요.",
+  "tests": [
+    {
+      "input": "15\n",
+      "output": "FizzBuzz"
+    },
+    {
+      "input": "9\n",
+      "output": "Fizz"
+    },
+    {
+      "input": "10\n",
+      "output": "Buzz"
+    },
+    {
+      "input": "7\n",
+      "output": "7"
+    }
+  ]
+}

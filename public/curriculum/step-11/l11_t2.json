@@ -1,0 +1,33 @@
+{
+  "id": "l11_t2",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "만 나이 계산",
+  "level": "기초",
+  "minutes": 10,
+  "description": "'만 나이'로 따지면 나는 몇 살일까요? 기준 날짜를 정해 놓고 정확히 계산해 봐요.\n생년월일과 기준 날짜를 `YYYY-MM-DD` 형식으로 입력받아(첫째 줄에 생년월일, 둘째 줄에 기준 날짜) 만 나이를 출력해주세요. 만 나이는 기준 연도에서 태어난 연도를 빼고, 기준일에 아직 생일이 지나지 않았으면 1 을 더 빼요. 기준일이 생일과 같은 날이면 생일이 지난 것으로 봐요. (예: 생일 `2010-11-14`, 기준일 `2026-11-14` → `16`)",
+  "input": "첫째 줄에 생년월일, 둘째 줄에 기준 날짜가 입력됩니다.",
+  "output": "만 나이를 출력합니다.",
+  "starter": "birth_text = input()\nbase_text = input()\n\n# 두 글자를 날짜로 바꿔 보세요.\n# 연도의 차이를 구하고, 생일이 지났는지 확인해서 만 나이를 출력해 보세요.\n",
+  "solution": "from datetime import datetime\n\nbirth = datetime.strptime(input(), \"%Y-%m-%d\")\ntoday = datetime.strptime(input(), \"%Y-%m-%d\")\n\nage = today.year - birth.year\nif (today.month, today.day) < (birth.month, birth.day):\n    age -= 1\nprint(age)",
+  "hints": [],
+  "explanation": "`datetime` 객체의 `.year`, `.month`, `.day` 로 연·월·일을 꺼낼 수 있어요. (월, 일) 튜플끼리 비교하면 월을 먼저, 같으면 일을 비교하므로 '생일이 지났는지'를 한 번에 판단할 수 있어요.",
+  "tests": [
+    {
+      "input": "2012-05-20\n2026-11-14\n",
+      "output": "14"
+    },
+    {
+      "input": "2012-12-01\n2026-11-14\n",
+      "output": "13"
+    },
+    {
+      "input": "2000-02-29\n2024-02-28\n",
+      "output": "23"
+    },
+    {
+      "input": "2010-11-14\n2026-11-14\n",
+      "output": "16"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "c6003",
+  "kind": "practice",
+  "type": "연습",
+  "title": "두 줄로 인사하기",
+  "level": "연습",
+  "minutes": 4,
+  "description": "버스 정류장 전광판에는 글자가 두 줄로 나란히 뜨기도 해요. 그런 화면을 파이썬으로 흉내 내 봐요.\n첫 줄에 `Hello`, 둘째 줄에 `World` 를 출력해주세요.",
+  "input": "입력은 없습니다.",
+  "output": "첫째 줄에 Hello, 둘째 줄에 World 를 출력합니다.",
+  "starter": "# 두 줄이 나오도록 출력해 보세요.\nprint(\"\")\n",
+  "solution": "print('Hello')\nprint('World')",
+  "hints": [
+    "`print()` 는 글자를 출력하고 나면 줄을 바꿔요. 두 줄을 만들려면 어떻게 해야 할까요?",
+    "`print()` 를 쓴 순서대로 위에서 아래로 한 줄씩 출력돼요. 첫 줄에 나올 글자를 먼저 써 보세요."
+  ],
+  "explanation": "`print()` 는 출력이 끝나면 자동으로 줄을 바꿔요. 그래서 `print()` 를 두 번 쓰면 두 줄이 돼요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Hello\nWorld"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6003",
+    "label": "코드업 6003번 · 출력하기03"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "l09_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "몇 개든 더하는 함수",
+  "level": "입문",
+  "minutes": 8,
+  "description": "게임에서 아이템을 모으면 점수가 오르는데, 몇 개를 모을지는 그때그때 달라요. 몇 개가 들어와도 합계를 내 주는 함수가 있으면 좋겠죠?\n인자를 몇 개든 받아 모두 더한 값을 돌려주는 함수 `total(*nums)` 를 만들고, 입력받은 정수들의 합을 출력해주세요.",
+  "input": "정수 여러 개가 공백으로 구분되어 입력됩니다.",
+  "output": "합을 출력합니다.",
+  "starter": "# 1) 인자를 몇 개든 받아 합을 돌려주는 total(*nums) 함수를 만들어 보세요.\n# 2) 입력받은 정수들을 함수에 넘겨 합을 출력해 보세요.\n\nvalues = list(map(int, input().split()))\n",
+  "solution": "def total(*nums):\n    result = 0\n    for n in nums:\n        result += n\n    return result\n\nvalues = list(map(int, input().split()))\nprint(total(*values))",
+  "hints": [
+    "매개변수 이름 앞에 `*` 를 붙이면 넘겨받은 인자들이 튜플 하나로 모여요. 튜플은 `for` 문으로 하나씩 꺼낼 수 있어요.",
+    "합을 담아 둘 변수를 0 에서 시작해 하나씩 더하고, 다 더한 뒤 `return` 으로 돌려주면 돼요.",
+    "호출할 때 `total(*리스트)` 처럼 리스트 앞에 `*` 를 붙이면 리스트가 풀려서 인자 하나하나로 넘어가요."
+  ],
+  "explanation": "`def total(*nums)` 의 `*` 는 '인자를 몇 개든 받아 튜플로 묶는다'는 뜻이고, `total(*values)` 의 `*` 는 반대로 '리스트를 풀어서 인자로 넘긴다'는 뜻이에요. `print()` 가 값을 몇 개든 받을 수 있는 것도 같은 원리예요.",
+  "tests": [
+    {
+      "input": "1 2 3\n",
+      "output": "6"
+    },
+    {
+      "input": "5\n",
+      "output": "5"
+    },
+    {
+      "input": "-1 1\n",
+      "output": "0"
+    }
+  ]
+}

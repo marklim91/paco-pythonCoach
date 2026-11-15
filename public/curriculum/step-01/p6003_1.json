@@ -1,0 +1,24 @@
+{
+  "id": "p6003_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "두 줄 출력",
+  "level": "연습",
+  "minutes": 3,
+  "description": "문을 막 연 빵집 앞에 아침 인사 팻말을 세우려고 해요. 인사말을 두 줄로 나눠 적어 보면 어떨까요?\n첫 줄에 `Good`, 둘째 줄에 `Morning` 을 출력해주세요.",
+  "input": "입력은 없습니다.",
+  "output": "첫째 줄에 Good, 둘째 줄에 Morning 을 출력합니다.",
+  "starter": "# 위쪽 줄에 나올 글자부터 출력해 보세요.\nprint(\"\")\n",
+  "solution": "print('Good')\nprint('Morning')",
+  "hints": [
+    "`Good` 과 `Morning` 은 서로 다른 줄에 나와야 해요. 줄이 두 개 나오려면 `print()` 가 몇 번 실행돼야 할까요?",
+    "먼저 실행한 `print()` 의 글자가 위쪽 줄에 나와요. 어떤 글자를 먼저 출력할지 순서를 확인해 보세요."
+  ],
+  "explanation": "코드는 위에서 아래로 차례대로 실행되고, `print()` 한 번에 한 줄씩 출력돼요. 그래서 쓴 순서대로 줄이 나란히 쌓여요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Good\nMorning"
+    }
+  ]
+}

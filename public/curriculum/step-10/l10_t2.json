@@ -1,0 +1,31 @@
+{
+  "id": "l10_t2",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "줄 번호와 단어 수",
+  "level": "기초",
+  "minutes": 10,
+  "description": "국어 시간에 배운 시에 줄 번호를 붙이고, 단어가 모두 몇 개인지도 세어 봐요.\n같은 폴더의 `poem.txt` 파일(UTF-8)의 각 줄 앞에 `번호: ` 를 붙여 출력하고, 마지막 줄에 파일 전체의 단어 수를 `총 단어 수: n` 으로 출력해주세요. (번호는 1부터 시작하고, 단어는 공백으로 구분해요. 예: `1: 하늘은 파랗고`)",
+  "input": "표준 입력은 없습니다. poem.txt 파일이 주어집니다.",
+  "output": "번호가 붙은 줄들과 총 단어 수를 출력합니다.",
+  "starter": "# poem.txt 파일을 한 줄씩 읽어 보세요.\n# 줄마다 번호를 붙여 출력하고, 단어 수는 따로 세어 마지막에 출력해 보세요.\n",
+  "solution": "total = 0\nwith open(\"poem.txt\", \"r\", encoding=\"utf-8\") as f:\n    for number, line in enumerate(f, 1):\n        line = line.rstrip(\"\\n\")\n        print(f\"{number}: {line}\")\n        total += len(line.split())\nprint(f\"총 단어 수: {total}\")",
+  "hints": [],
+  "explanation": "`enumerate(f, 1)` 로 줄 번호를 1 부터 붙였어요. 줄을 `split()` 하면 단어 리스트가 되고, 그 길이가 단어 수예요. 한 번의 반복 안에서 출력과 집계를 함께 처리했어요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "1: 하늘은 파랗고\n2: 구름은 하얗다\n총 단어 수: 4",
+      "files": {
+        "poem.txt": "하늘은 파랗고\n구름은 하얗다\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "1: one two three\n총 단어 수: 3",
+      "files": {
+        "poem.txt": "one two three\n"
+      }
+    }
+  ]
+}

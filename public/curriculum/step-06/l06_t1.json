@@ -1,0 +1,29 @@
+{
+  "id": "l06_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "평균보다 큰 수",
+  "level": "입문",
+  "minutes": 10,
+  "description": "도서관에서 이번 달에 친구들이 빌린 책 권수를 모았어요. 평균보다 많이 빌린 친구는 몇 명일까요?\n정수들을 입력받아 평균보다 큰 수가 몇 개인지 출력해주세요.",
+  "input": "정수 여러 개가 공백으로 구분되어 입력됩니다.",
+  "output": "평균보다 큰 수의 개수를 출력합니다.",
+  "starter": "nums = list(map(int, input().split()))\n\n# 평균을 먼저 구한 뒤, 평균보다 큰 수가 몇 개인지 세어서 출력해 보세요.\n",
+  "solution": "nums = list(map(int, input().split()))\naverage = sum(nums) / len(nums)\ncount = 0\nfor n in nums:\n    if n > average:\n        count += 1\nprint(count)",
+  "hints": [],
+  "explanation": "먼저 리스트 전체로 평균을 구한 뒤, 다시 리스트를 돌며 조건에 맞는 원소를 셌어요. 데이터를 리스트에 저장해 두었기 때문에 이렇게 두 번 사용할 수 있어요. 한 줄로는 `len([n for n in nums if n > average])` 로 쓸 수 있어요.",
+  "tests": [
+    {
+      "input": "1 2 3 4 5\n",
+      "output": "2"
+    },
+    {
+      "input": "5 5\n",
+      "output": "0"
+    },
+    {
+      "input": "10 1 1\n",
+      "output": "1"
+    }
+  ]
+}

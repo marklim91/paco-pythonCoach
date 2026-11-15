@@ -1,0 +1,32 @@
+{
+  "id": "c6076",
+  "kind": "practice",
+  "type": "연습",
+  "title": "0부터 n까지 (for)",
+  "level": "연습",
+  "minutes": 4,
+  "description": "리모컨으로 볼륨을 올리면 소리가 한 칸씩 커지죠. 0칸에서 n칸까지 올라가는 과정을 화면에 차례로 나타내 봐요.\n정수 n 을 입력받아 0부터 n까지 한 줄에 하나씩 출력해주세요. `for` 와 `range()` 를 사용해 보세요.",
+  "input": "정수 한 개가 한 줄에 입력됩니다.",
+  "output": "0부터 n까지의 수를 한 줄에 하나씩 출력합니다.",
+  "starter": "n = int(input())\n\n# for 와 range() 로 0부터 n 까지 출력해 보세요.\n",
+  "solution": "n = int(input())\nfor i in range(n + 1):\n    print(i)",
+  "hints": [
+    "`range()` 괄호 안에 숫자를 하나만 쓰면 0부터 시작해서 그 숫자 바로 앞까지 만들어 줘요. `range(3)` 은 어떤 수들일까요?",
+    "끝 값은 포함되지 않아요. n 까지 출력하려면 괄호 안의 숫자를 어떻게 바꿔야 할까요?"
+  ],
+  "explanation": "`range(숫자 하나)` 는 0부터 시작해 그 숫자 바로 앞까지 만들어 줘요. n 까지 출력하려면 `range(n + 1)` 처럼 하나 더 큰 수를 써야 해요.",
+  "tests": [
+    {
+      "input": "4",
+      "output": "0\n1\n2\n3\n4"
+    },
+    {
+      "input": "0",
+      "output": "0"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6076",
+    "label": "코드업 6076번 · 정수 1개 입력받아 그 수까지 출력하기2"
+  }
+}

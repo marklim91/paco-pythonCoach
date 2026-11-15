@@ -125,7 +125,7 @@
     var school = byId("school-filter").value;
     byId("distribution-scope").textContent = school || "전체 학교";
     byId("distribution-note").textContent = rows.length ?
-      "스튜디오 100문제 만점 " + number(studio.maxPoints) + "점을 기준으로 나눈 구간별 학생 수입니다. 만점을 넘는 점수는 마지막 구간에 포함합니다." :
+      "스튜디오 만점 " + number(studio.maxPoints) + "점을 기준으로 나눈 구간별 학생 수입니다. 만점을 넘는 점수는 마지막 구간에 포함합니다." :
       "선택한 학교에 집계할 학생이 없습니다.";
     var list = byId("distribution-list");
     list.replaceChildren();
@@ -145,13 +145,15 @@
     if (!studio) return;
     var body = byId("scoring-body");
     body.replaceChildren();
-    studio.LEVELS.forEach(function (level) {
+    var rows = studio.LEVELS.map(function (level) {
       var count = studio.problems.filter(function (p) { return p.level === level; }).length;
+      return [level, studio.POINTS[level] + "점", count + "문제", number(count * studio.POINTS[level]) + "점"];
+    });
+    var practice = studio.problems.filter(function (p) { return p.kind === "practice"; }).length;
+    rows.push(["연습", studio.PRACTICE_POINTS + "점", practice + "문제", number(practice * studio.PRACTICE_POINTS) + "점"]);
+    rows.forEach(function (values) {
       var tr = document.createElement("tr");
-      cell(tr, level);
-      cell(tr, studio.POINTS[level] + "점");
-      cell(tr, count + "문제");
-      cell(tr, number(count * studio.POINTS[level]) + "점");
+      values.forEach(function (value) { cell(tr, value); });
       body.appendChild(tr);
     });
     byId("scoring-total").textContent = studio.problems.length + "문제 · 만점 " + number(studio.maxPoints) + "점";
@@ -162,7 +164,9 @@
       var title = document.createElement("strong");
       title.textContent = track.name + " · " + track.label;
       var detail = document.createElement("small");
-      detail.textContent = track.topics + " · " + track.problems.length + "문제 · " + number(track.totalPoints) + "점";
+      var cores = track.problems.filter(function (p) { return p.kind === "core"; }).length;
+      var extra = track.problems.length - cores;
+      detail.textContent = track.topics + " · 핵심 " + cores + "문제" + (extra ? " · 연습 " + extra + "문제" : "") + " · " + number(track.totalPoints) + "점";
       item.append(title, detail);
       tracks.appendChild(item);
     });

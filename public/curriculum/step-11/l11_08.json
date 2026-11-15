@@ -1,0 +1,37 @@
+{
+  "id": "l11_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "D-Day 계산기",
+  "level": "도전",
+  "minutes": 15,
+  "description": "시험이나 소풍까지 며칠 남았는지 세어 본 적 있나요?\n오늘 날짜와 목표 날짜를 `YYYY-MM-DD` 형식으로 입력받아(첫째 줄에 오늘, 둘째 줄에 목표일) D-Day 를 출력해주세요.\n- 목표일이 n일 남았으면 `D-n`\n- 목표일이 오늘이면 `D-Day`\n- 목표일이 n일 지났으면 `D+n`",
+  "input": "첫째 줄에 오늘 날짜, 둘째 줄에 목표 날짜가 입력됩니다.",
+  "output": "D-n, D-Day, D+n 중 하나를 출력합니다.",
+  "starter": "today_text = input()\ntarget_text = input()\n\n# 두 글자를 날짜로 바꾼 뒤 며칠 차이가 나는지 구해 보세요.\n# 차이에 따라 알맞은 D-Day 모양을 출력해 보세요.\n",
+  "solution": "from datetime import datetime\n\ntoday = datetime.strptime(input(), \"%Y-%m-%d\")\ntarget = datetime.strptime(input(), \"%Y-%m-%d\")\ndiff = (target - today).days\n\nif diff > 0:\n    print(f\"D-{diff}\")\nelif diff == 0:\n    print(\"D-Day\")\nelse:\n    print(f\"D+{-diff}\")",
+  "hints": [
+    "글자로 받은 날짜는 앞에서 배운 `strptime()` 으로 날짜로 바꿀 수 있어요. 날짜끼리 빼면 무엇이 나올까요?",
+    "날짜끼리 빼면 간격(`timedelta`)이 나오고, `.days` 로 일수를 꺼낼 수 있어요. 이 값이 양수, 0, 음수인 세 경우로 나눠 봐요.",
+    "이미 지난 날은 일수가 음수예요. `D+` 뒤에는 양수를 써야 하니 부호를 바꿔서 출력해야 해요."
+  ],
+  "explanation": "`datetime` 끼리 빼면 두 날짜의 간격(`timedelta`)이 나오고 `.days` 로 일수를 꺼낼 수 있어요. 목표일이 지난 경우 `diff` 가 음수이므로 `-diff` 로 부호를 바꿔 출력했어요. 모듈(날짜 계산)과 조건문(세 가지 경우)을 조합해 실생활 도구를 만든 예시예요.",
+  "tests": [
+    {
+      "input": "2026-11-14\n2026-12-25\n",
+      "output": "D-41"
+    },
+    {
+      "input": "2026-01-01\n2025-12-25\n",
+      "output": "D+7"
+    },
+    {
+      "input": "2026-03-02\n2026-03-02\n",
+      "output": "D-Day"
+    },
+    {
+      "input": "2024-02-28\n2024-03-01\n",
+      "output": "D-2"
+    }
+  ]
+}

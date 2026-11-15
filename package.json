@@ -10,6 +10,7 @@
     "build:new": "vite build",
     "preview:new": "vite preview",
     "build:pages": "node scripts/build-pages.js",
+    "build:catalog": "node scripts/build-studio-catalog.js",
     "test": "node --test"
   },
   "dependencies": {

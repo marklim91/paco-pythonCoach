@@ -1,0 +1,32 @@
+{
+  "id": "l12_07",
+  "kind": "core",
+  "type": "실습",
+  "title": "이름 오류 고치기",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": "시험 점수로 합격 여부를 알려 주는 프로그램이 '그런 이름은 몰라요!' 하고 오류를 냈어요. 이름이 어디서 어긋났을까요?\n점수를 입력받아 60점 이상이면 `합격`, 아니면 `불합격` 을 출력하려는 코드예요. `NameError` 가 나는 이유를 찾아 고쳐주세요.\n\n```python\nscore = int(input())\nif scroe >= 60:\n    print(\"합격\")\nelse:\n    print(\"불합격\")\n```",
+  "input": "점수(정수)가 입력됩니다.",
+  "output": "합격 또는 불합격 을 출력합니다.",
+  "starter": "score = int(input())\nif scroe >= 60:\n    print(\"합격\")\nelse:\n    print(\"불합격\")",
+  "solution": "score = int(input())\nif score >= 60:\n    print(\"합격\")\nelse:\n    print(\"불합격\")",
+  "hints": [
+    "`NameError: name '...' is not defined` 에서 따옴표 안의 이름이 파이썬이 모른다고 한 이름이에요. 그 이름을 코드에서 찾아보세요.",
+    "그 이름을 변수를 만든 줄의 이름과 한 글자씩 비교해 보세요. 눈으로 대충 보면 놓치기 쉬워요."
+  ],
+  "explanation": "`NameError` 는 만든 적 없는 이름을 사용했을 때 발생하며, 대부분 오타가 원인이에요. 오류 메시지가 문제의 이름을 정확히 알려 주므로 그 이름을 변수를 만든 곳의 철자와 비교하면 돼요.",
+  "tests": [
+    {
+      "input": "60\n",
+      "output": "합격"
+    },
+    {
+      "input": "59\n",
+      "output": "불합격"
+    },
+    {
+      "input": "100\n",
+      "output": "합격"
+    }
+  ]
+}

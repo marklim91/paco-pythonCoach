@@ -1,0 +1,25 @@
+{
+  "id": "l15_t2",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "재고 관리 시스템",
+  "level": "응용",
+  "minutes": 10,
+  "description": "문구점 사장님은 물건이 들어오고 나갈 때마다 남은 수량을 정확히 알아야 해요. 재고를 대신 관리해 주는 창고 도우미를 만들어볼까요?\n`Inventory` 클래스로 재고를 관리하고, `end` 가 입력되면 종료해주세요.\n- `in 상품 수량` : 입고\n- `out 상품 수량` : 출고. 상품이 없거나 재고가 부족하면 출고하지 않고 `출고 실패: 상품` 출력\n\n출고 메서드는 실패할 때 `ValueError` 를 발생시키고(raise), 호출한 쪽에서 `try-except` 로 처리해주세요. 종료할 때 재고가 1개 이상 남은 상품을 이름 순으로 한 줄에 하나씩 `상품 수량` 형식으로 출력하고, 남은 상품이 없으면 `재고 없음` 을 출력해주세요.",
+  "input": "명령어가 한 줄에 하나씩 입력되고 마지막 줄은 end 입니다.",
+  "output": "출고 실패 안내와 최종 재고를 출력합니다.",
+  "starter": "# 1) 상품과 수량을 관리하는 Inventory 클래스를 만들어 보세요.\n# 2) 출고할 수 없을 때 ValueError 를 일으키고, 호출한 쪽에서 try-except 로 처리해 보세요.\n# 3) end 가 입력될 때까지 명령어를 한 줄씩 읽어 보세요.\n",
+  "solution": "class Inventory:\n    def __init__(self):\n        self.items = {}\n\n    def add(self, name, amount):\n        self.items[name] = self.items.get(name, 0) + amount\n\n    def remove(self, name, amount):\n        if self.items.get(name, 0) < amount:\n            raise ValueError(name)\n        self.items[name] -= amount\n\n    def report(self):\n        return [(name, n) for name, n in sorted(self.items.items()) if n > 0]\n\n\ninventory = Inventory()\nwhile True:\n    parts = input().split()\n    if parts[0] == \"end\":\n        break\n    name, amount = parts[1], int(parts[2])\n    if parts[0] == \"in\":\n        inventory.add(name, amount)\n    elif parts[0] == \"out\":\n        try:\n            inventory.remove(name, amount)\n        except ValueError:\n            print(f\"출고 실패: {name}\")\n\nremaining = inventory.report()\nif remaining:\n    for name, n in remaining:\n        print(name, n)\nelse:\n    print(\"재고 없음\")",
+  "hints": [],
+  "explanation": "`remove()` 는 규칙을 어기는 요청이 오면 `raise` 로 예외를 발생시켜 '실패했다'는 사실만 알리고, 어떻게 안내할지는 호출한 쪽이 `try-except` 로 정해요. 이렇게 역할을 나누면 클래스를 다른 프로그램에서도 그대로 재사용할 수 있어요. `get(name, 0)` 으로 없는 상품과 재고 부족을 한 조건으로 처리했어요.",
+  "tests": [
+    {
+      "input": "in 연필 10\nout 연필 3\nout 공책 1\nout 연필 20\nin 공책 2\nend\n",
+      "output": "출고 실패: 공책\n출고 실패: 연필\n공책 2\n연필 7"
+    },
+    {
+      "input": "in a 1\nout a 1\nend\n",
+      "output": "재고 없음"
+    }
+  ]
+}

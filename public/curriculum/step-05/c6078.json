@@ -1,0 +1,32 @@
+{
+  "id": "c6078",
+  "kind": "practice",
+  "type": "연습",
+  "title": "q 가 나올 때까지",
+  "level": "연습",
+  "minutes": 4,
+  "description": "게임을 하다가 `q` 키를 누르면 종료되는 걸 본 적 있죠? 종료 키 `q` 까지 누른 글자를 차례로 기록해 봐요.\n영문자를 한 줄에 하나씩 입력받아 그대로 출력하다가, `q` 가 입력되면 `q` 를 출력한 뒤 멈춰주세요.",
+  "input": "영문자가 한 줄에 하나씩 여러 줄 입력됩니다.",
+  "output": "입력된 글자를 한 줄에 하나씩 출력하되, q 를 출력한 뒤 멈춥니다.",
+  "starter": "# 글자를 한 줄에 하나씩 계속 입력받아 보세요.\n# 입력받은 글자를 출력하고, q 였다면 반복을 멈춰 보세요.\n",
+  "solution": "while True:\n    c = input()\n    print(c)\n    if c == 'q':\n        break",
+  "hints": [
+    "언제 끝날지 모르니 앞에서 연습한 `while` 과 `break` 를 떠올려 보세요. 글자는 반복 안에서 `input()` 으로 받아요.",
+    "이번에는 `q` 도 출력해야 해요. 입력받은 글자를 먼저 `print()` 한 다음에 `q` 인지 확인해서 `break` 해 보세요."
+  ],
+  "explanation": "`q` 도 출력해야 하니까 `print()` 를 먼저 하고 나서 `q` 인지 확인해 `break` 해요. 멈추는 값을 출력할지 말지에 따라 확인하는 순서가 달라져요.",
+  "tests": [
+    {
+      "input": "x\nb\nk\nq\nz",
+      "output": "x\nb\nk\nq"
+    },
+    {
+      "input": "q",
+      "output": "q"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6078",
+    "label": "코드업 6078번 · 원하는 문자가 입력될 때까지 반복 출력하기"
+  }
+}

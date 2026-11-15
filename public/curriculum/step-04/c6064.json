@@ -1,0 +1,36 @@
+{
+  "id": "c6064",
+  "kind": "practice",
+  "type": "연습",
+  "title": "가장 작은 값",
+  "level": "연습",
+  "minutes": 4,
+  "description": "해수면 높이를 0 으로 잡으면 바닷속 지점의 높이는 마이너스가 돼요. 세 지점 중 가장 낮은 곳의 높이가 궁금해요.\n정수 3개를 입력받아 가장 작은 값을 출력해주세요.",
+  "input": "세 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "세 정수 중 가장 작은 값을 한 줄에 출력합니다.",
+  "starter": "a, b, c = map(int, input().split())\n\n# 세 수 중 가장 작은 값을 찾아서 출력해 보세요.\n",
+  "solution": "a, b, c = map(int, input().split())\nm = a if a < b else b\nprint(m if m < c else c)",
+  "hints": [
+    "세 수를 한꺼번에 비교하기 어렵다면 두 수씩 나누어 생각해 봐요. 먼저 a 와 b 중 작은 쪽을 정해 두면 어떨까요?",
+    "정한 값을 변수에 담아 두고 나머지 한 수와 다시 비교해 보세요. 작은 쪽을 고르는 일은 `a if 조건 else b` 식이나 `if` 문으로 할 수 있어요."
+  ],
+  "explanation": "세 수 중 가장 작은 값은 '두 수 중 작은 값' 을 두 번 구하면 찾을 수 있어요. 먼저 a 와 b 중 작은 값을 변수에 담고, 그 값과 c 를 한 번 더 비교해요.",
+  "tests": [
+    {
+      "input": "3 -1 5",
+      "output": "-1"
+    },
+    {
+      "input": "7 8 9",
+      "output": "7"
+    },
+    {
+      "input": "2 2 2",
+      "output": "2"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6064",
+    "label": "코드업 6064번 · 정수 3개 입력받아 가장 작은 값 출력하기"
+  }
+}

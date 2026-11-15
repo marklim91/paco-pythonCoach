@@ -1,0 +1,33 @@
+{
+  "id": "l14_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "미니 프로젝트 5: 성적 관리 프로그램",
+  "level": "심화",
+  "minutes": 20,
+  "description": "시험이 끝나면 성적표를 만드는 일이 한가득이에요. 평균, 등급, 1등까지 한 번에 정리해 주는 프로그램에 도전해요!\nn 명의 이름과 국어·수학·영어 점수를 입력받아 성적표를 출력해주세요. 기능별로 함수를 나누어 작성해주세요.\n\n출력:\n1. 학생마다 `이름 평균 등급` (평균은 소수 첫째 자리까지, 등급은 평균 90 이상 A, 80 이상 B, 70 이상 C, 60 이상 D, 그 외 F)\n2. `반 평균: x.x` (학생 평균들의 평균)\n3. `1등: 이름` (평균이 가장 높은 학생, 동점이면 먼저 입력된 학생)",
+  "input": "첫째 줄에 n, 다음 n 줄에 이름 국어 수학 영어 가 입력됩니다.",
+  "output": "학생별 성적, 반 평균, 1등을 출력합니다.",
+  "starter": "n = int(input())\n\n# 1) 학생 한 명의 이름과 평균을 읽어 오는 함수를 만들어 보세요.\n# 2) 평균으로 등급을 구하는 함수와, 성적표를 출력하는 함수도 만들어 보세요.\n",
+  "solution": "def get_grade(avg):\n    if avg >= 90:\n        return \"A\"\n    elif avg >= 80:\n        return \"B\"\n    elif avg >= 70:\n        return \"C\"\n    elif avg >= 60:\n        return \"D\"\n    return \"F\"\n\n\ndef read_students(n):\n    students = []\n    for _ in range(n):\n        parts = input().split()\n        scores = [int(x) for x in parts[1:]]\n        students.append({\"name\": parts[0], \"avg\": sum(scores) / len(scores)})\n    return students\n\n\ndef print_report(students):\n    for s in students:\n        print(f\"{s['name']} {s['avg']:.1f} {get_grade(s['avg'])}\")\n    class_avg = sum(s[\"avg\"] for s in students) / len(students)\n    print(f\"반 평균: {class_avg:.1f}\")\n    best = max(students, key=lambda s: s[\"avg\"])\n    print(f\"1등: {best['name']}\")\n\n\nn = int(input())\nstudents = read_students(n)\nprint_report(students)",
+  "hints": [
+    "평균을 받아 등급 글자를 돌려주는 함수를 따로 만들어 보세요. 입력 읽기와 보고서 출력도 각각 함수로 나눌 수 있어요.",
+    "학생 한 명의 이름과 평균을 딕셔너리 하나로 묶고, 학생들을 리스트에 모아 보세요.",
+    "가장 높은 평균을 가진 학생은 `max()` 에 `key=` 로 '무엇을 기준으로 큰지'를 알려 주면 찾을 수 있어요. 동점이면 먼저 나온 원소가 뽑혀요."
+  ],
+  "explanation": "프로그램이 길어지면 '입력 읽기', '등급 계산', '보고서 출력'처럼 역할별로 함수를 나눠요. 그러면 맨 아래 세 줄만 읽어도 전체 흐름이 보이고, 등급 기준이 바뀌어도 `get_grade` 만 고치면 돼요. `max()` 의 `key` 는 '무엇을 기준으로 가장 큰지'를 정하는 함수이고, 동점일 때는 먼저 나온 원소를 돌려줘요.",
+  "tests": [
+    {
+      "input": "3\n파코 90 80 100\n민희 70 65 60\n동빈 85 95 90\n",
+      "output": "파코 90.0 A\n민희 65.0 D\n동빈 90.0 A\n반 평균: 81.7\n1등: 파코"
+    },
+    {
+      "input": "1\nA 50 50 50\n",
+      "output": "A 50.0 F\n반 평균: 50.0\n1등: A"
+    },
+    {
+      "input": "2\n가 80 80 80\n나 70 80 90\n",
+      "output": "가 80.0 B\n나 80.0 B\n반 평균: 80.0\n1등: 가"
+    }
+  ]
+}

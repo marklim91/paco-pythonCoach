@@ -1,0 +1,29 @@
+{
+  "id": "l07_t2",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "가장 많이 나온 단어",
+  "level": "기초",
+  "minutes": 10,
+  "description": "동아리 채팅방에서 가장 자주 나온 단어는 무엇일까요? 단어를 세어서 챔피언을 찾아봐요.\n공백으로 구분된 단어들을 입력받아 가장 많이 나온 단어와 그 횟수를 공백으로 구분해 한 줄에 출력해주세요. 횟수가 같으면 먼저 등장한 단어를 출력해주세요.",
+  "input": "단어 여러 개가 공백으로 구분되어 입력됩니다.",
+  "output": "단어 횟수 형식으로 출력합니다.",
+  "starter": "words = input().split()\n\n# 단어마다 몇 번 나왔는지 세어 보세요.\n# 가장 많이 나온 단어와 횟수를 출력하되, 횟수가 같으면 먼저 등장한 단어를 골라 보세요.\n",
+  "solution": "words = input().split()\ncount = {}\nfor w in words:\n    count[w] = count.get(w, 0) + 1\n\nbest = \"\"\nbest_count = 0\nfor word, n in count.items():\n    if n > best_count:\n        best = word\n        best_count = n\nprint(best, best_count)",
+  "hints": [],
+  "explanation": "딕셔너리로 빈도를 센 뒤, 가장 큰 값을 가진 키를 찾았어요. 딕셔너리는 넣은 순서를 유지하고 `>` 로만 비교하므로 동점일 때는 먼저 등장한 단어가 남아요. `max(count, key=count.get)` 으로도 같은 결과를 얻을 수 있어요.",
+  "tests": [
+    {
+      "input": "a b a c\n",
+      "output": "a 2"
+    },
+    {
+      "input": "x y\n",
+      "output": "x 1"
+    },
+    {
+      "input": "b a a b\n",
+      "output": "b 2"
+    }
+  ]
+}

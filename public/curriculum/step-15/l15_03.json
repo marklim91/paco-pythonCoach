@@ -1,0 +1,29 @@
+{
+  "id": "l15_03",
+  "kind": "core",
+  "type": "실습",
+  "title": "서버 로그 분석",
+  "level": "기초",
+  "minutes": 12,
+  "description": "웹사이트가 갑자기 열리지 않으면 개발자는 서버가 남긴 기록(로그)부터 살펴봐요. 그 기록에서 문제가 된 줄만 쏙 뽑아 주면 얼마나 편할까요?\nn 줄의 로그가 `시간 레벨 메시지` 형식으로 입력돼요. 레벨은 `ERROR`, `WARN`, `INFO` 중 하나이고 메시지에는 공백이 있을 수 있어요. 로그를 분석해 아래처럼 출력해주세요.\n\n출력:\n1. `ERROR: n`, `WARN: n`, `INFO: n` (n 은 레벨별 로그 수)을 이 순서로 세 줄\n2. ERROR 로그를 입력 순서대로 `- 시간 메시지` 형식으로 출력",
+  "input": "첫째 줄에 n, 다음 n 줄에 로그가 입력됩니다.",
+  "output": "레벨별 개수 세 줄과 ERROR 로그 목록을 출력합니다.",
+  "starter": "n = int(input())\n\n# 레벨별 개수를 담을 곳과 ERROR 로그를 모아 둘 곳을 만들어 보세요.\n# 로그를 한 줄씩 읽어 시간, 레벨, 메시지로 나눠 보세요.\n",
+  "solution": "n = int(input())\ncounts = {\"ERROR\": 0, \"WARN\": 0, \"INFO\": 0}\nerrors = []\n\nfor _ in range(n):\n    time, level, message = input().split(maxsplit=2)\n    counts[level] += 1\n    if level == \"ERROR\":\n        errors.append(f\"- {time} {message}\")\n\nfor level, count in counts.items():\n    print(f\"{level}: {count}\")\nfor line in errors:\n    print(line)",
+  "hints": [
+    "메시지에는 공백이 있을 수 있어서 `split()` 만 쓰면 너무 잘게 나뉘어요. 몇 번까지만 나눌지 정하는 `maxsplit` 옵션이 있어요. 시간과 레벨을 떼어 내려면 몇 번 나누면 될까요?",
+    "레벨마다 개수를 세려면 이름과 개수를 짝지어 담는 딕셔너리가 편해요. 처음부터 세 레벨을 모두 0 으로 넣어 두면 어떤 점이 좋을까요?",
+    "ERROR 로그는 개수만 세는 게 아니라 나중에 출력할 수 있게 따로 모아 둬야 해요. 한 번의 반복 안에서 둘 다 처리해 보세요."
+  ],
+  "explanation": "로그 분석은 개발자가 실제로 자주 하는 작업이에요. `split(maxsplit=2)` 로 앞쪽 공백 두 곳에서만 나눠서 메시지 속 공백을 그대로 지켰어요. 딕셔너리를 미리 0 으로 채워 두면 출력 순서가 고정되고, 한 번도 나오지 않은 레벨도 0 으로 표시돼요. 한 번의 반복 안에서 '개수 세기'와 '오류 모으기'를 함께 처리한 점도 살펴보세요.",
+  "tests": [
+    {
+      "input": "4\n09:00 INFO 서버 시작\n09:05 ERROR 로그인 실패\n09:10 WARN 메모리 부족\n09:12 ERROR 파일 없음\n",
+      "output": "ERROR: 2\nWARN: 1\nINFO: 1\n- 09:05 로그인 실패\n- 09:12 파일 없음"
+    },
+    {
+      "input": "1\n10:00 INFO ok\n",
+      "output": "ERROR: 0\nWARN: 0\nINFO: 1"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "l14_t2",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "출석부 프로그램",
+  "level": "기초",
+  "minutes": 10,
+  "description": "아침 조회 시간에는 선생님이 이름을 부르며 출석을 확인해요. 그 출석부를 프로그램으로 옮겨봐요.\n명령어를 한 줄에 하나씩 입력받아 출석을 관리하고, `end` 가 입력되면 종료해주세요.\n- `in 이름` : 출석 처리. 이미 출석했으면 `이미 출석`\n- `out 이름` : 출석 취소. 출석하지 않은 이름이면 `출석하지 않음`\n- `list` : 출석한 사람을 이름 순으로 공백으로 구분해 출력. 아무도 없으면 `아무도 없음`",
+  "input": "명령어가 한 줄에 하나씩 입력되고 마지막 줄은 end 입니다.",
+  "output": "명령에 따른 결과를 출력합니다.",
+  "starter": "# 1) 출석한 사람들을 담아 둘 곳을 만들어 보세요.\n# 2) end 가 입력될 때까지 명령어를 한 줄씩 읽어 보세요.\n# 3) in, out, list 명령을 각각 처리해 보세요.\n",
+  "solution": "present = []\n\nwhile True:\n    parts = input().split()\n    cmd = parts[0]\n    if cmd == \"end\":\n        break\n    elif cmd == \"in\":\n        if parts[1] in present:\n            print(\"이미 출석\")\n        else:\n            present.append(parts[1])\n    elif cmd == \"out\":\n        if parts[1] in present:\n            present.remove(parts[1])\n        else:\n            print(\"출석하지 않음\")\n    elif cmd == \"list\":\n        if present:\n            print(*sorted(present))\n        else:\n            print(\"아무도 없음\")",
+  "hints": [],
+  "explanation": "명령을 읽고 종류에 따라 처리하는 구조에, 각 명령의 예외 상황(중복 출석, 없는 이름, 빈 명단)을 빠짐없이 처리했어요. `remove()` 는 값이 없으면 오류가 나서 `in` 으로 먼저 확인해요. 중복이 없어야 하는 데이터라서 `set` 을 써도 좋아요.",
+  "tests": [
+    {
+      "input": "in 파코\nin 민희\nin 파코\nlist\nout 동빈\nout 파코\nlist\nend\n",
+      "output": "이미 출석\n민희 파코\n출석하지 않음\n민희"
+    },
+    {
+      "input": "list\nend\n",
+      "output": "아무도 없음"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "p6048_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "a가 더 크니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "친구와 키를 대 보며 '내가 더 크다!' 하고 외쳐 본 적 있죠? 내가 더 큰지 알려 주는 프로그램을 만들어봐요.\n정수 a, b 를 입력받아 a 가 b 보다 크면 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "a 가 b 보다 크면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 비교한 결과를 print() 로 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(a > b)",
+  "hints": [
+    "부등호는 벌어진 쪽에 큰 수를 써요. `>` 와 `<` 중에서 a 가 더 큰지 물어볼 때 쓸 것은 무엇일까요?",
+    "두 수가 같을 때는 `False` 가 나와야 해요. `>` 와 `>=` 중 어느 것이 맞는지 확인해 보세요."
+  ],
+  "explanation": "`a > b` 는 a 가 b 보다 클 때만 `True` 이고, 두 수가 같을 때는 `False` 가 돼요.",
+  "tests": [
+    {
+      "input": "5 3",
+      "output": "True"
+    },
+    {
+      "input": "3 5",
+      "output": "False"
+    },
+    {
+      "input": "4 4",
+      "output": "False"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "c6002",
+  "kind": "practice",
+  "type": "연습",
+  "title": "Hello World 출력하기",
+  "level": "연습",
+  "minutes": 4,
+  "description": "온 세상 사람들에게 한꺼번에 인사를 건넨다면 어떤 말이 어울릴까요? 두 단어짜리 인사말을 화면에 띄워 봐요.\n화면에 `Hello World` 를 출력해주세요. 두 단어 사이의 공백 한 칸까지 똑같이 써야 해요.",
+  "input": "입력은 없습니다.",
+  "output": "Hello World 를 한 줄에 출력합니다. (두 단어 사이에 공백 한 칸)",
+  "starter": "# 두 단어와 그 사이의 공백을 따옴표 안에 적어 보세요.\nprint(\"\")\n",
+  "solution": "print('Hello World')",
+  "hints": [
+    "두 단어 사이의 공백도 출력해야 하는 글자의 일부예요. 공백은 따옴표 안 어디에 넣어야 할까요?",
+    "따옴표 안에 적은 공백은 출력할 때도 그대로 나와요. 공백을 딱 한 칸만 넣었는지 확인해 보세요."
+  ],
+  "explanation": "따옴표 안의 공백도 글자처럼 그대로 출력돼요. 두 단어를 한 쌍의 따옴표 안에 이어서 쓰면 가운데 공백까지 한 번에 나와요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Hello World"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6002",
+    "label": "코드업 6002번 · 출력하기02"
+  }
+}

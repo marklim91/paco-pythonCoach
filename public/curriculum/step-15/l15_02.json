@@ -1,0 +1,33 @@
+{
+  "id": "l15_02",
+  "kind": "core",
+  "type": "실습",
+  "title": "입력값 검증하기",
+  "level": "기초",
+  "minutes": 12,
+  "description": "설문조사에는 오타나 장난으로 쓴 값이 섞여 있을 때가 많아요. 믿을 수 있는 값만 골라 평균을 구해볼까요?\n설문으로 받은 나이 데이터가 공백으로 구분되어 입력되고, 그중 일부는 잘못된 값이에요. 0 이상 150 이하의 정수만 유효한 값으로 보고 다음을 출력해주세요.\n- `유효: n개, 무효: m개`\n- `평균 나이: x.x` (소수 첫째 자리까지, 유효한 값이 없으면 `평균 나이: 없음`)",
+  "input": "값들이 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "유효/무효 개수와 평균 나이를 출력합니다.",
+  "starter": "values = input().split()\n\n# 값 하나가 유효한 나이인지 알려 주는 함수를 만들어 보세요.\n# 유효한 값만 모아 개수와 평균을 출력해 보세요.\n",
+  "solution": "def is_valid_age(text):\n    try:\n        age = int(text)\n    except ValueError:\n        return False\n    return 0 <= age <= 150\n\n\nvalues = input().split()\nages = [int(v) for v in values if is_valid_age(v)]\ninvalid = len(values) - len(ages)\n\nprint(f\"유효: {len(ages)}개, 무효: {invalid}개\")\nif ages:\n    print(f\"평균 나이: {sum(ages) / len(ages):.1f}\")\nelse:\n    print(\"평균 나이: 없음\")",
+  "hints": [
+    "값 하나가 유효한지 `True` 또는 `False` 로 알려 주는 함수를 따로 만들어 보세요. 그 함수를 값마다 불러서 걸러 내면 돼요.",
+    "`int(\"abc\")` 처럼 정수로 바꿀 수 없는 글자를 넣으면 `ValueError` 가 나요. 오류가 나도 멈추지 않게 하려면 `try` / `except` 를 써 보세요.",
+    "정수로 바뀐 뒤에는 범위(0 이상 150 이하)도 확인해야 해요. 유효한 값이 하나도 없을 때는 평균을 구하지 않도록 먼저 확인해 보세요."
+  ],
+  "explanation": "실제 데이터에는 오타, 빈 값, 범위를 벗어난 값이 섞여 있어요. 검증 규칙을 `is_valid_age` 함수 하나에 모아 두면 읽기 쉽고 규칙이 바뀌어도 한 곳만 고치면 돼요. `\"abc\"` 나 `\"12.5\"` 는 `int()` 에서 `ValueError` 로, `-3` 이나 `200` 은 범위 검사로 걸러져요. `0 <= age <= 150` 처럼 파이썬은 비교를 이어 쓸 수 있어요.",
+  "tests": [
+    {
+      "input": "12 abc 15 -3 200 13\n",
+      "output": "유효: 3개, 무효: 3개\n평균 나이: 13.3"
+    },
+    {
+      "input": "x y\n",
+      "output": "유효: 0개, 무효: 2개\n평균 나이: 없음"
+    },
+    {
+      "input": "0 150 12.5\n",
+      "output": "유효: 2개, 무효: 1개\n평균 나이: 75.0"
+    }
+  ]
+}

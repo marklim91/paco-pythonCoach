@@ -1,0 +1,32 @@
+{
+  "id": "p6055_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "하나라도 0이니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "리모컨은 건전지 두 개 중 하나라도 다 닳으면 작동하지 않아요. 다 닳은 건전지가 있는지 컴퓨터가 알려 주면 편하겠죠?\n정수 a, b 를 입력받아 둘 중 하나라도 0 이면 `True`, 아니면 `False` 를 출력해주세요. (`or` 를 사용해요.)",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "a 와 b 중 하나라도 0 이면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# a 와 b 가 각각 0 인지 먼저 비교해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(a == 0 or b == 0)",
+  "hints": [
+    "'0 이다' 를 묻는 비교는 `== 0` 이에요. a 와 b 각각에 대해 이 비교를 만들어 보세요.",
+    "'둘 중 하나라도' 는 `or` 로 이어요. 비교 결과 두 개를 `or` 의 양쪽에 놓고 출력해 보세요."
+  ],
+  "explanation": "`a == 0` 과 `b == 0` 을 `or` 로 이으면 둘 중 하나라도 0 일 때 `True` 가 돼요. 비교 결과도 `True`/`False` 값이라서 `or` 로 바로 이을 수 있어요.",
+  "tests": [
+    {
+      "input": "0 5",
+      "output": "True"
+    },
+    {
+      "input": "3 4",
+      "output": "False"
+    },
+    {
+      "input": "0 0",
+      "output": "True"
+    }
+  ]
+}

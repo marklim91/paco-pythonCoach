@@ -1,0 +1,33 @@
+{
+  "id": "l11_04",
+  "kind": "core",
+  "type": "실습",
+  "title": "가장 많이 쓰인 글자",
+  "level": "입문",
+  "minutes": 8,
+  "description": "내가 쓴 글에서 가장 자주 나오는 글자는 무엇일까요? 글자 순위표를 만들어 봐요.\n문장을 입력받아 공백을 제외하고 가장 많이 나온 글자 3개를 `글자 횟수` 형식으로 한 줄에 하나씩 출력해주세요. 많이 나온 순서대로 쓰고, 횟수가 같으면 먼저 등장한 글자를 앞에 써주세요.",
+  "input": "서로 다른 글자가 3종류 이상인 문장이 입력됩니다.",
+  "output": "세 줄에 글자 횟수 를 출력합니다.",
+  "starter": "text = input()\n\n# 공백을 뺀 글자들이 각각 몇 번 나왔는지 세어 보세요.\n# 많이 나온 순서대로 3개를 출력해 보세요.\n",
+  "solution": "from collections import Counter\n\ntext = input().replace(\" \", \"\")\ncounter = Counter(text)\nfor ch, n in counter.most_common(3):\n    print(ch, n)",
+  "hints": [
+    "`collections` 모듈에는 개수를 세어 주는 `Counter` 가 들어 있어요. `from ... import ...` 로 필요한 것만 불러올 수 있어요.",
+    "`Counter(글자들)` 은 글자별 개수를 세어 줘요. 공백은 `replace()` 로 미리 없애 두면 세지 않아요.",
+    "`most_common(3)` 은 많이 나온 순서로 3개를 (글자, 횟수) 짝의 목록으로 돌려줘요. `for` 문으로 하나씩 꺼내 출력해 봐요."
+  ],
+  "explanation": "Lv.7 에서 딕셔너리로 직접 만들었던 빈도 세기를 `Counter` 가 한 줄로 해 줘요. `most_common(n)` 은 횟수가 많은 순으로 정렬해 주고, 횟수가 같으면 먼저 등장한 순서를 유지해요. 직접 구현할 줄 알면서도, 이미 있는 도구를 찾아 쓰는 것이 모듈 활용의 핵심이에요.",
+  "tests": [
+    {
+      "input": "banana band\n",
+      "output": "a 4\nn 3\nb 2"
+    },
+    {
+      "input": "mississippi\n",
+      "output": "i 4\ns 4\np 2"
+    },
+    {
+      "input": "가나다 가나 가\n",
+      "output": "가 3\n나 2\n다 1"
+    }
+  ]
+}

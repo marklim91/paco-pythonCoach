@@ -1,0 +1,35 @@
+{
+  "id": "l10_07",
+  "kind": "core",
+  "type": "실습",
+  "title": "합계를 파일로 저장",
+  "level": "기초",
+  "minutes": 12,
+  "description": "용돈 기입장에 숫자가 여기저기 흩어져 있어요. 합계를 내서 따로 적어 두면 나중에 찾기 쉬워요.\n같은 폴더의 `numbers.txt` 파일(UTF-8)에는 정수들이 공백이나 줄바꿈으로 구분되어 있어요. 모든 수의 합을 구해 `result.txt` 에 `합계: n` 형식으로 저장하고, `result.txt` 를 다시 읽어 출력해주세요.",
+  "input": "표준 입력은 없습니다. numbers.txt 파일이 주어집니다.",
+  "output": "result.txt 의 내용을 출력합니다.",
+  "starter": "# numbers.txt 파일을 열어 모든 정수를 읽어 보세요.\n# 합계를 구해 result.txt 파일에 저장해 보세요.\n# 저장한 result.txt 를 다시 읽어서 출력해 보세요.\n",
+  "solution": "with open(\"numbers.txt\", \"r\", encoding=\"utf-8\") as f:\n    numbers = [int(x) for x in f.read().split()]\n\nwith open(\"result.txt\", \"w\", encoding=\"utf-8\") as f:\n    f.write(f\"합계: {sum(numbers)}\\n\")\n\nwith open(\"result.txt\", \"r\", encoding=\"utf-8\") as f:\n    print(f.read(), end=\"\")",
+  "hints": [
+    "`f.read()` 는 파일 전체를 하나의 문자열로 읽어 줘요. 이 문자열을 숫자 조각들로 나누려면 어떻게 해야 할까요?",
+    "괄호 안에 아무것도 넣지 않은 `split()` 은 공백과 줄바꿈을 모두 구분자로 봐요. 나눈 조각은 `int()` 로 바꿔야 더할 수 있어요.",
+    "합계는 `result.txt` 를 `\"w\"` 모드로 열어 `write()` 로 저장해요. 그다음 읽기 모드로 다시 열어 읽은 내용을 출력해요."
+  ],
+  "explanation": "인자 없는 `split()` 은 공백, 탭, 줄바꿈을 모두 구분자로 보고 나누므로 숫자가 여러 줄에 흩어져 있어도 한 번에 처리돼요. '파일 읽기 → 계산 → 파일 쓰기'는 데이터 처리 프로그램의 기본 구조예요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "합계: 15",
+      "files": {
+        "numbers.txt": "1 2 3\n4 5\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "합계: -5",
+      "files": {
+        "numbers.txt": "10\n-20\n5\n"
+      }
+    }
+  ]
+}

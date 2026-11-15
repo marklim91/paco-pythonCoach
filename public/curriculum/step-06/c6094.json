@@ -1,0 +1,32 @@
+{
+  "id": "c6094",
+  "kind": "practice",
+  "type": "연습",
+  "title": "가장 빠른 번호",
+  "level": "연습",
+  "minutes": 4,
+  "description": "은행 번호표는 작은 번호부터 먼저 불러요. 번호표 여러 장 중에서 가장 먼저 불릴 번호는 무엇일까요?\n첫 줄에 번호의 개수 n, 둘째 줄에 번호 n개를 입력받아 가장 작은 번호를 출력해주세요.",
+  "input": "첫째 줄에 번호의 개수 n, 둘째 줄에 번호 n개가 공백으로 구분되어 입력됩니다.",
+  "output": "가장 작은 번호를 한 줄에 출력합니다.",
+  "starter": "n = int(input())\nnumbers = list(map(int, input().split()))\n\n# 가장 작은 번호를 찾아서 출력해 보세요.\n",
+  "solution": "n = int(input())\na = list(map(int, input().split()))\nm = a[0]\nfor x in a:\n    if x < m:\n        m = x\nprint(m)",
+  "hints": [
+    "리스트의 값을 하나씩 보면서 '지금까지 본 것 중 가장 작은 값'을 변수에 기억해 두면 어떨까요? 처음에는 무엇을 기억해 두어야 할까요?",
+    "더 작은 값을 만나면 기억해 둔 값을 바꿔요. 이 일을 한 번에 해 주는 내장 함수 `min()` 도 있어요."
+  ],
+  "explanation": "첫 번째 값을 가장 작은 값으로 두고 리스트를 돌면서 더 작은 값을 만날 때마다 바꿔 주면, 끝까지 본 뒤에 가장 작은 값이 남아요. 이 일을 한 번에 해 주는 내장 함수가 `min()` 이에요.",
+  "tests": [
+    {
+      "input": "5\n10 4 2 3 6",
+      "output": "2"
+    },
+    {
+      "input": "3\n9 9 8",
+      "output": "8"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6094",
+    "label": "코드업 6094번 · 이상한 출석 번호 부르기3"
+  }
+}

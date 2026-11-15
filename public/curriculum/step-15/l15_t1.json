@@ -1,0 +1,25 @@
+{
+  "id": "l15_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "직사각형 클래스",
+  "level": "기초",
+  "minutes": 10,
+  "description": "교실 칠판의 넓이와 둘레가 궁금할 때가 있죠? 가로와 세로만 알려 주면 스스로 계산해 주는 똑똑한 직사각형을 설계해봐요.\n가로와 세로를 가지는 `Rectangle` 클래스를 만들고 `area()`(넓이), `perimeter()`(둘레), `is_square()`(정사각형이면 True) 메서드를 작성해주세요. n 개의 직사각형을 입력받아 `넓이 a, 둘레 p` 를 출력하고, 정사각형이면 뒤에 `, 정사각형` 을 붙여주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 가로 세로 가 입력됩니다.",
+  "output": "직사각형마다 한 줄씩 출력합니다.",
+  "starter": "n = int(input())\n\n# 가로와 세로를 가진 Rectangle 클래스를 만들어 보세요.\n# 직사각형을 한 줄씩 읽어 넓이와 둘레를 출력해 보세요.\n",
+  "solution": "class Rectangle:\n    def __init__(self, width, height):\n        self.width = width\n        self.height = height\n\n    def area(self):\n        return self.width * self.height\n\n    def perimeter(self):\n        return (self.width + self.height) * 2\n\n    def is_square(self):\n        return self.width == self.height\n\n\nn = int(input())\nfor _ in range(n):\n    w, h = map(int, input().split())\n    rect = Rectangle(w, h)\n    text = f\"넓이 {rect.area()}, 둘레 {rect.perimeter()}\"\n    if rect.is_square():\n        text += \", 정사각형\"\n    print(text)",
+  "hints": [],
+  "explanation": "데이터(가로, 세로)와 그 데이터로 하는 계산(넓이, 둘레, 정사각형 여부)을 하나의 클래스로 묶었어요. 출력할 문자열을 변수에 만들어 두고 조건에 따라 덧붙이면 `print` 를 여러 갈래로 나누지 않아도 돼요.",
+  "tests": [
+    {
+      "input": "2\n3 4\n5 5\n",
+      "output": "넓이 12, 둘레 14\n넓이 25, 둘레 20, 정사각형"
+    },
+    {
+      "input": "1\n1 10\n",
+      "output": "넓이 10, 둘레 22"
+    }
+  ]
+}

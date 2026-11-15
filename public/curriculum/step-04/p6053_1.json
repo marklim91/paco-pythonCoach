@@ -1,0 +1,32 @@
+{
+  "id": "p6053_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "10보다 크지 않니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "'10보다 크다' 의 반대는 무엇일까요? 컴퓨터에게 반대로 물어보는 방법을 알아봐요.\n정수 n 을 입력받아 `not (n > 10)` 의 결과를 `True` 또는 `False` 로 출력해주세요.",
+  "input": "정수 한 개가 한 줄에 입력됩니다.",
+  "output": "not (n > 10) 의 결과(True 또는 False)를 한 줄에 출력합니다.",
+  "starter": "n = int(input())\n\n# 비교한 결과를 뒤집어서 출력해 보세요.\n",
+  "solution": "n = int(input())\nprint(not (n > 10))",
+  "hints": [
+    "`n > 10` 은 `True` 나 `False` 가 되는 식이에요. 이 결과를 뒤집으려면 어떤 키워드가 필요할까요?",
+    "`not` 은 뒤에 오는 값을 뒤집어 줘요. 비교 식 전체를 괄호로 묶은 뒤 앞에 `not` 을 붙이면 헷갈리지 않아요."
+  ],
+  "explanation": "`n > 10` 이 `True` 이면 `not` 은 `False` 로, `False` 이면 `True` 로 뒤집어요. 그래서 n 이 10 이하일 때, 즉 10 도 포함해서 `True` 가 나와요.",
+  "tests": [
+    {
+      "input": "5",
+      "output": "True"
+    },
+    {
+      "input": "11",
+      "output": "False"
+    },
+    {
+      "input": "10",
+      "output": "True"
+    }
+  ]
+}

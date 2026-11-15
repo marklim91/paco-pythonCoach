@@ -1,109 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import * as Tabs from "@radix-ui/react-tabs";
-import * as Dialog from "@radix-ui/react-dialog";
-import { cva } from "class-variance-authority";
 import {
-  BookOpen,
   Code2,
-  Bot,
-  ChevronRight,
-  ChevronLeft,
-  ArrowUpRight,
-  ArrowRight,
-  Play,
-  Send,
-  RotateCcw,
-  Check,
-  CheckCircle2,
-  Circle,
-  Map,
-  Lightbulb,
-  Terminal,
-  X,
-  Settings2,
-  ShieldCheck,
-  Copy,
-  Sparkles,
-  ExternalLink,
-  GraduationCap,
-  ListChecks,
-  LoaderCircle,
-  Square,
-  PanelLeft,
-  Clock3,
-  HelpCircle,
+  Flame,
+  Gem,
   LogOut,
+  Map,
+  Settings2,
+  Star,
+  GraduationCap,
 } from "lucide-react";
+import { h, Button, icon, Modal } from "./studio-ui.js";
+import { usePythonRunner } from "./studio-runner.js";
+import { RoadmapView } from "./studio-roadmap.js";
+import { LearnView } from "./studio-learn.js";
+import { ExamView, PlacementView } from "./studio-quiz.js";
 
-const h = React.createElement;
-// shadcn/ui's open-code Button, Tabs and Dialog composition, adapted to inline CSS without a build step.
-const buttonVariants = cva("btn", {
-  variants: {
-    variant: {
-      default: "btn-primary",
-      outline: "btn-outline",
-      ghost: "btn-ghost",
-    },
-    size: { default: "", sm: "btn-small", icon: "btn-icon" },
-  },
-  defaultVariants: { variant: "default", size: "default" },
-});
-const Button = React.forwardRef(
-  ({ className = "", variant, size, ...props }, ref) =>
-    h("button", {
-      type: "button",
-      ref,
-      className: buttonVariants({ variant, size, className }),
-      ...props,
-    }),
-);
-const icon = (Icon, props = {}) =>
-  h(Icon, { size: 18, "aria-hidden": true, ...props });
-const tab = (value, label) =>
-  h(Tabs.Trigger, { className: "tab-trigger", value, key: value }, label);
-const content = (value, ...children) =>
-  h(Tabs.Content, { className: "tab-content", value }, ...children);
-const badge = (text, className = "") =>
-  h("span", { className: "badge " + className }, text);
-function Modal({ open, onOpenChange, title, description, children }) {
-  return h(
-    Dialog.Root,
-    { open, onOpenChange },
-    h(
-      Dialog.Portal,
-      null,
-      h(Dialog.Overlay, { className: "dialog-overlay" }),
-      h(
-        Dialog.Content,
-        { className: "dialog-content" },
-        h(Dialog.Title, { className: "dialog-title" }, title),
-        h(
-          Dialog.Description,
-          { className: "dialog-description" },
-          description,
-        ),
-        h(
-          Dialog.Close,
-          { asChild: true },
-          h(
-            Button,
-            {
-              variant: "ghost",
-              size: "icon",
-              className: "dialog-close",
-              "aria-label": "닫기",
-            },
-            icon(X),
-          ),
-        ),
-        children,
-      ),
-    ),
-  );
-}
 const SITE_LINKS = [
-  { label: "파코 스튜디오", href: "./new.html" },
   { label: "내 학습", href: "./my-learning.html" },
   { label: "대시보드", href: "./dashboard.html" },
 ];
@@ -111,17 +24,7 @@ function SiteNav({ className, label }) {
   return h(
     "nav",
     { className, "aria-label": label },
-    SITE_LINKS.map((link) =>
-      h(
-        "a",
-        {
-          key: link.href,
-          href: link.href,
-          "aria-current": link.href === "./new.html" ? "page" : undefined,
-        },
-        link.label,
-      ),
-    ),
+    SITE_LINKS.map((link) => h("a", { key: link.href, href: link.href }, link.label)),
   );
 }
 function ThemeToggle() {
@@ -165,37 +68,76 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
 function App() {
   const [initial] = useState(() => {
     try {
       return readStudioState(localStorage);
     } catch (error) {
       return {
-        state: {
-          selected: "hello",
-          codes: {},
-          completed: [],
-          practiced: [],
-          coachUrl: DEFAULT_COACH_URL,
-          pointsUrl: "",
-          awarded: [],
-        },
-        warning:
-          "브라우저 저장소에 접근할 수 없어 임시 모드로 시작했어요. " +
-          error.message,
+        state: initialState(),
+        warning: "브라우저 저장소에 접근할 수 없어 임시 모드로 시작했어요. " + error.message,
       };
     }
   });
-  const [state, setState] = useState(() => ({
-    ...initial.state,
-    selected: initialProblemId(initial.state.selected, window.location.search),
-  }));
-  const [storageWarning, setStorageWarning] = useState(initial.warning);
+  const [state, setState] = useState(initial.state);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const [storageWarning] = useState(initial.warning);
   const storageDisabled = useRef(Boolean(initial.warning));
   const awarding = useRef(new Set());
+  const switchRequest = useRef(0);
+  const runner = usePythonRunner();
+  const [view, setView] = useState({ name: "roadmap" });
+  const [toasts, setToasts] = useState([]);
+  const [settings, setSettings] = useState(false);
+  const [coachDraft, setCoachDraft] = useState(state.coachUrl);
+  const [pointsDraft, setPointsDraft] = useState(state.pointsUrl);
+  const [configError, setConfigError] = useState("");
+  const [coachLoaded, setCoachLoaded] = useState(false);
   // 로그인한 학생의 학교·이름을 상단에 표시합니다. 확인할 수 없으면 기본 아바타만 보여줍니다.
   const [learner, setLearner] = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  // 저장과 화면 갱신은 항상 이 두 함수를 거칩니다. 비동기 작업(채점 등)이 끝난 뒤에도 최신 상태에서 이어서 계산합니다.
+  const getState = () => stateRef.current;
+  const commit = (next) => {
+    stateRef.current = next;
+    setState(next);
+    return next;
+  };
+  const apply = (update) => commit(update(stateRef.current));
+  function toast(message) {
+    if (!message) return;
+    const id = Math.random().toString(36).slice(2);
+    // 같은 안내가 이미 떠 있으면 겹쳐 쌓지 않습니다(승급 시험은 문제 2개의 적립 결과가 함께 나옵니다).
+    setToasts((list) => (list.some((item) => item.message === message) ? list : [...list.slice(-2), { id, message }]));
+    setTimeout(() => setToasts((list) => list.filter((item) => item.id !== id)), 3800);
+  }
+
+  useEffect(() => {
+    if (storageDisabled.current) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      storageDisabled.current = true;
+      toast("브라우저에 저장하지 못했어요. 현재 작업은 유지되지만 새로고침하면 사라질 수 있어요. " + error.message);
+    }
+  }, [state]);
+  useEffect(() => {
+    let active = true;
+    loadStudent(fetch, document.cookie)
+      .then((student) => active && setLearner(student))
+      .catch(() => {});
+    if (initial.notice) toast(initial.notice);
+    // 내 학습 현황의 추천 링크(?problem=문제ID)로 열면 그 문제부터 보여줍니다.
+    const requested = requestedProblemId(window.location.search);
+    if (requested) openProblem(requested);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   async function logout() {
     setLoggingOut(true);
     await endSession({
@@ -205,321 +147,98 @@ function App() {
       },
       cookiePath: new URL(".", window.location.href).pathname,
     });
-    window.location.replace(
-      new URL("login.html?reverify=1", window.location.href).href,
-    );
+    window.location.replace(new URL("login.html?reverify=1", window.location.href).href);
   }
-  useEffect(() => {
-    let active = true;
-    loadStudent(fetch, document.cookie)
-      .then((student) => active && setLearner(student))
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
-  const [roadmap, setRoadmap] = useState(false);
-  const [settings, setSettings] = useState(false);
-  const [coachDraft, setCoachDraft] = useState(state.coachUrl);
-  const [pointsDraft, setPointsDraft] = useState(state.pointsUrl);
-  const [configError, setConfigError] = useState("");
-  const [coachLoaded, setCoachLoaded] = useState(false);
-  const [problemTab, setProblemTab] = useState("problem");
-  const [runnerTab, setRunnerTab] = useState("input");
-  const [stdin, setStdin] = useState("");
-  const [runResult, setRunResult] = useState(null);
-  const [grade, setGrade] = useState(null);
-  const [busy, setBusy] = useState("");
-  const [toast, setToast] = useState("");
-  const [scrollTop, setScrollTop] = useState(0);
-  const [elapsed, setElapsed] = useState(null);
-  const job = useRef(null);
-  const switchRequest = useRef(0);
-  const editorRef = useRef(null);
-  // 연습 문제는 저장하지 않는 화면 상태예요. 새로고침하면 원래 문제로 돌아오지만 작성한 코드는 남아 있어요.
-  const [practiceIndex, setPracticeIndex] = useState(null);
-  const base = PROBLEMS.find((p) => p.id === state.selected);
-  const practice =
-    practiceIndex !== null && base.practice?.[practiceIndex]
-      ? practiceProblem(base, practiceIndex)
-      : null;
-  const problem = practice ?? base;
-  const track = TRACKS.find((t) => t.id === base.trackId);
-  const trackIndex = track.problems.findIndex((p) => p.id === base.id);
-  const problemIndex = PROBLEMS.findIndex((p) => p.id === base.id);
-  const code = state.codes[problem.id] ?? problem.starter;
-  const solved = practice
-    ? state.practiced.includes(problem.id)
-    : state.completed.includes(problem.id);
-  const trackCompleted = track.problems.filter((p) =>
-    state.completed.includes(p.id),
-  ).length;
 
-  useEffect(() => {
-    if (storageDisabled.current) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (error) {
-      storageDisabled.current = true;
-      setStorageWarning(
-        "브라우저에 저장하지 못했어요. 현재 작업은 유지되지만 새로고침하면 사라질 수 있어요. " +
-          error.message,
-      );
-    }
-  }, [state]);
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(""), 3500);
-    return () => clearTimeout(timer);
-  }, [toast]);
-  useEffect(
-    () => () => {
-      if (job.current) {
-        job.current.worker.terminate();
-        clearTimeout(job.current.timer);
-      }
-    },
-    [],
-  );
-  useEffect(() => {
-    setStdin(problem.tests[0].input);
-  }, [problem.id]);
-
-  function stopJob(message) {
-    if (job.current) {
-      job.current.worker.terminate();
-      clearTimeout(job.current.timer);
-      job.current = null;
-    }
-    setBusy("");
-    if (message) {
-      setRunResult({ output: "", error: message });
-      setGrade(null);
-      setRunnerTab("output");
-    }
+  // ---- 화면 이동 ----
+  function go(next) {
+    runner.stop();
+    setView(next);
+    window.scrollTo(0, 0);
   }
-  // 아직 불러오지 않은 문제는 본문을 받은 뒤에 바꿉니다. 그 사이 다른 문제를 누르면 마지막 선택만 적용합니다.
-  async function selectProblem(id) {
-    const request = ++switchRequest.current;
-    if (id === base.id) {
-      setRoadmap(false);
-      if (practice) showPractice(null);
+  const openRoadmap = () => go({ name: "roadmap" });
+  // 아직 불러오지 않은 문제는 본문을 받은 뒤에 엽니다. 그 사이 다른 칸을 누르면 마지막 선택만 적용합니다.
+  async function openProblem(id) {
+    const target = PROBLEM_BY_ID.get(id);
+    if (!target || target.kind === "exam") return;
+    if (MODEL.nodeState(stateRef.current, id).status === "locked") {
+      toast("앞 칸을 먼저 끝내야 열려요.");
       return;
     }
-    const target = PROBLEMS.find((p) => p.id === id);
-    if (!target) return;
+    const request = ++switchRequest.current;
     if (!target.tests) {
-      setToast("문제를 불러오는 중이에요…");
+      // 빨리 열리면 알림을 띄우지 않고, 오래 걸릴 때만 알려줍니다.
+      const notice = setTimeout(() => toast("문제를 불러오는 중이에요…"), 700);
       try {
         await loadProblem(id);
-      } catch (error) {
+      } catch {
         if (request === switchRequest.current)
-          setToast(
-            "문제를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러주세요.",
-          );
+          toast("문제를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 눌러주세요.");
         return;
+      } finally {
+        clearTimeout(notice);
       }
       if (request !== switchRequest.current) return;
-      setToast("");
     }
-    stopJob();
-    setState((previous) => ({ ...previous, selected: id }));
-    setPracticeIndex(null);
-    setRunResult(null);
-    setGrade(null);
-    setElapsed(null);
-    setProblemTab("problem");
-    setRunnerTab("input");
-    setRoadmap(false);
-    setScrollTop(0);
-    if (editorRef.current) editorRef.current.scrollTop = 0;
+    apply((previous) => ({ ...previous, selected: id }));
+    go({ name: "learn", id });
   }
-  // 연습 문제를 열거나(index) 원래 문제로 돌아갑니다(null). 실행 중이던 채점은 멈추고 결과 화면을 비웁니다.
-  function showPractice(index) {
-    stopJob();
-    setPracticeIndex(index);
-    setRunResult(null);
-    setGrade(null);
-    setElapsed(null);
-    setProblemTab("problem");
-    setRunnerTab("input");
-    setRoadmap(false);
-    setScrollTop(0);
-    if (editorRef.current) editorRef.current.scrollTop = 0;
-  }
-  function changeCode(value) {
-    setState((previous) => ({
-      ...previous,
-      codes: { ...previous.codes, [problem.id]: value },
-    }));
-  }
-  function execute(mode) {
-    if (job.current) return;
-    setBusy("Python 준비 중…");
-    setGrade(null);
-    setRunResult(null);
-    setElapsed(null);
-    setRunnerTab(mode === "grade" ? "tests" : "output");
-    const cases = mode === "grade" ? problem.tests : [{ input: stdin }];
-    const results = [];
-    let current = 0;
-    let started;
-    let worker;
-    let workerUrl;
-    try {
-      workerUrl = URL.createObjectURL(
-        new Blob([document.getElementById("worker-source").textContent], {
-          type: "text/javascript",
-        }),
-      );
-      worker = new Worker(workerUrl, { type: "module" });
-    } catch (error) {
-      setBusy("");
-      setRunResult({
-        output: "",
-        error: "Python 실행기를 만들지 못했어요: " + error.message,
-      });
-      setRunnerTab("output");
+  function openExam(level) {
+    if (!MODEL.isOpen(stateRef.current, level)) {
+      toast("아직 잠긴 레벨이에요. 앞 레벨을 먼저 통과하거나 ‘여기로 점프’를 써 보세요.");
       return;
-    } finally {
-      if (workerUrl) URL.revokeObjectURL(workerUrl);
     }
-    const active = { worker, timer: null };
-    job.current = active;
-    function armTimeout(ms, message) {
-      clearTimeout(active.timer);
-      active.timer = setTimeout(() => stopJob(message), ms);
-    }
-    function sendCase() {
-      setBusy(
-        mode === "grade"
-          ? `채점 중 ${current + 1}/${cases.length}`
-          : "실행 중…",
-      );
-      armTimeout(
-        5000,
-        "실행 제한 시간(5초)을 초과했어요. 무한 반복이 있는지 확인해주세요.",
-      );
-      worker.postMessage({ code, input: cases[current].input });
-    }
-    armTimeout(
-      90000,
-      "Python을 90초 안에 불러오지 못했어요. 인터넷 연결을 확인한 후 다시 시도해주세요.",
-    );
-    worker.onerror = (event) => {
-      event.preventDefault();
-      if (job.current !== active) return;
-      stopJob(
-        "Python 실행기 오류: " +
-          (event.message ||
-            "실행기를 불러올 수 없습니다. CDN 접근을 확인해주세요."),
-      );
-    };
-    worker.onmessage = ({ data }) => {
-      if (job.current !== active) return;
-      if (data.type === "fatal") {
-        stopJob(data.error);
-        return;
-      }
-      if (data.type === "ready") {
-        started = performance.now();
-        sendCase();
-        return;
-      }
-      if (data.type !== "result") return;
-      const result = {
-        ...data,
-        input: cases[current].input,
-        expected: cases[current].output,
-      };
-      result.passed =
-        !result.error &&
-        normalizeOutput(result.output) ===
-          normalizeOutput(result.expected ?? "");
-      results.push(result);
-      current += 1;
-      if (mode === "grade")
-        setGrade({
-          results: [...results],
-          total: cases.length,
-          finished: false,
-        });
-      if (current < cases.length) {
-        sendCase();
-        return;
-      }
-      setElapsed(Math.round(performance.now() - started));
-      stopJob();
-      if (mode === "run") setRunResult(result);
-      else {
-        const passed = results.every((item) => item.passed);
-        setGrade({
-          results,
-          total: cases.length,
-          finished: true,
-          passed,
-        });
-        if (passed && problem.isPractice) {
-          setState((previous) => ({
-            ...previous,
-            practiced: [...new Set([...previous.practiced, problem.id])],
-          }));
-          setToast(
-            "연습 완료! 원래 문제도 다시 도전해보세요. 연습은 점수가 없어요.",
-          );
-        } else if (passed) {
-          setState((previous) => ({
-            ...previous,
-            completed: [...new Set([...previous.completed, problem.id])],
-          }));
-          setToast("해결 완료! 한 걸음 더 성장했어요.");
-          awardPoints(problem);
-        }
-      }
-    };
+    switchRequest.current += 1;
+    go({ name: "exam", level });
   }
-  // 제출 통과 시 브라우저가 Power Automate 흐름을 직접 호출합니다. 학생·문제당 한 번만 적립하며 기록은 이 브라우저에만 남습니다.
-  async function awardPoints(solvedProblem) {
-    const url = state.pointsUrl || DEFAULT_POINTS_URL;
-    const points = pointsFor(solvedProblem);
+  function openPlacement(target) {
+    switchRequest.current += 1;
+    go({ name: "placement", target });
+  }
+  // '학습하기': 지금 풀 문제(또는 승급 시험)를 바로 엽니다.
+  function resume() {
+    const level = MODEL.currentLevel(stateRef.current);
+    if (level > MODEL.levelCount) return openRoadmap();
+    const step = MODEL.nextStep(stateRef.current, level);
+    if (step.kind === "exam") openExam(level);
+    else if (step.id) openProblem(step.id);
+  }
+
+  // ---- 보상 ----
+  function announce(result) {
+    for (const event of result.events || []) {
+      if (event.type === "combo") toast(`🔥 ${event.combo}연속 정답! 보석 +${event.gems}`);
+      else if (event.type === "daily-goal") toast(`🎯 오늘 목표를 달성했어요! 보석 +${event.gems}`);
+      else if (event.type === "week-streak") toast(`🔥 ${event.streak}일 연속 학습! 보석 +${event.gems}`);
+      else if (event.type === "freeze-used") toast("🧊 연속 학습 보호를 사용했어요!");
+    }
+  }
+  // 해결하면 브라우저가 Power Automate 흐름을 직접 호출합니다. 학생·문제당 한 번만 적립하며 기록은 이 브라우저에만 남습니다.
+  async function award(solvedProblem, points) {
+    const url = stateRef.current.pointsUrl || DEFAULT_POINTS_URL;
     if (!url || !points) {
-      if (!url)
-        setToast(
-          "해결 완료! 포인트 적립 주소가 설정되지 않았어요. 설정(톱니바퀴)에서 입력해주세요.",
-        );
+      if (!url) toast("해결했어요! 포인트 적립 주소가 설정되지 않았어요. 설정(톱니바퀴)에서 입력해주세요.");
       return;
     }
     let key;
     try {
       const student = await loadStudent(fetch, document.cookie);
       key = awardKey(student, solvedProblem.id);
-      if (state.awarded.includes(key) || awarding.current.has(key)) {
-        setToast("이미 포인트를 받은 문제예요.");
+      if (stateRef.current.awarded.includes(key) || awarding.current.has(key)) {
+        toast("이미 포인트를 받은 문제예요.");
         return;
       }
       awarding.current.add(key);
-      const result = await requestPoints({
-        url,
-        student,
-        problemId: solvedProblem.id,
-        points,
-        fetchImpl: fetch,
-      });
-      setState((previous) => ({
-        ...previous,
-        awarded: [...new Set([...previous.awarded, key])],
-      }));
-      setToast(
+      const result = await requestPoints({ url, student, problemId: solvedProblem.id, points, fetchImpl: fetch });
+      apply((previous) => ({ ...previous, awarded: [...new Set([...previous.awarded, key])] }));
+      toast(
         result.awarded
-          ? `해결 완료! +${points}점이 적립됐어요. (누적 ${result.points}점)`
+          ? `+${points}점이 적립됐어요. (누적 ${result.points}점)`
           : `이미 포인트를 받은 문제예요. (누적 ${result.points}점)`,
       );
     } catch (error) {
-      const network =
-        error instanceof TypeError ||
-        error.name === "TimeoutError" ||
-        error.name === "AbortError";
-      setToast(
+      const network = error instanceof TypeError || error.name === "TimeoutError" || error.name === "AbortError";
+      toast(
         "해결은 저장했지만 포인트를 확인하지 못했어요. " +
           (network
             ? "네트워크 연결이나 흐름 상태를 확인해주세요. 적립됐을 수 있으니 같은 문제를 반복 제출하지 마세요."
@@ -529,34 +248,17 @@ function App() {
       if (key) awarding.current.delete(key);
     }
   }
-  async function copyPrompt(kind) {
-    const question =
-      kind === "concept"
-        ? "이 문제에 필요한 개념을 쉬운 예시로 설명해주세요."
-        : kind === "hint"
-          ? "정답 코드를 바로 알려주지 말고, 다음 단계의 힌트만 주세요."
-          : "제 코드에서 개선할 점을 찾아주세요. 제가 스스로 고칠 수 있도록 질문해주세요.";
-    const text = `[${problem.title}]\n${problem.description.join("\n")}\n입력: ${problem.input}\n출력: ${problem.output}\n\n${question}\n\n현재 코드:\n\`\`\`python\n${code}\`\`\``;
+
+  // ---- 설정 ----
+  function saveSettings() {
     try {
-      await navigator.clipboard.writeText(text);
-      setToast("질문과 코드를 복사했어요. 코치 채팅에 붙여넣어주세요.");
-    } catch (error) {
-      setToast(
-        "복사하지 못했어요. 브라우저의 클립보드 권한을 확인해주세요.",
-      );
-    }
-  }
-  function saveCoach() {
-    try {
-      const url = validateCoachUrl(coachDraft);
-      const pointsUrl = pointsDraft.trim()
-        ? validatePointsUrl(pointsDraft)
-        : "";
-      setState((previous) => ({ ...previous, coachUrl: url, pointsUrl }));
+      const coachUrl = validateCoachUrl(coachDraft);
+      const pointsUrl = pointsDraft.trim() ? validatePointsUrl(pointsDraft) : "";
+      apply((previous) => ({ ...previous, coachUrl, pointsUrl }));
       setCoachLoaded(false);
       setSettings(false);
       setConfigError("");
-      setToast("설정을 저장했어요. 코치는 연결 버튼으로 열어주세요.");
+      toast("설정을 저장했어요. 코치는 연결 버튼으로 열어주세요.");
     } catch (error) {
       setConfigError(error.message);
     }
@@ -567,1138 +269,82 @@ function App() {
     setConfigError("");
     setSettings(true);
   }
-  function resetCode() {
-    if (
-      confirm(
-        "현재 코드를 지우고 이 문제의 시작 코드로 되돌릴까요? 해결 기록은 유지됩니다.",
-      )
-    ) {
-      changeCode(problem.starter);
-      setToast("시작 코드로 되돌렸어요.");
-    }
-  }
-  function onEditorKey(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      const node = event.currentTarget;
-      const start = node.selectionStart,
-        end = node.selectionEnd;
-      changeCode(code.slice(0, start) + "    " + code.slice(end));
-      requestAnimationFrame(() => {
-        node.selectionStart = node.selectionEnd = start + 4;
-      });
-    } else if (
-      (event.ctrlKey || event.metaKey) &&
-      event.key === "Enter"
-    ) {
-      event.preventDefault();
-      execute(event.shiftKey ? "grade" : "run");
-    }
-  }
-  const promptButton = (Icon, text, kind) =>
-    h(
-      "button",
-      { className: "prompt-button", onClick: () => copyPrompt(kind) },
-      icon(Icon),
-      text,
-      icon(ArrowUpRight),
-    );
-  // 점수 없는 연습 문제로 가는 카드예요. 원래 문제를 풀었다면 '한 번 더', 아직이라면 막힐 때 쓰는 연습으로 안내해요.
-  const practiceCard = () =>
-    problem.isPractice || !base.practice?.length
-      ? null
-      : h(
-          "div",
-          { className: "practice-card" },
-          h(
-            "strong",
-            null,
-            solved
-              ? "잘했어요! 한 번 더 연습해볼까요?"
-              : "비슷한 문제로 연습하기",
-          ),
-          h(
-            "p",
-            null,
-            solved
-              ? "방금 푼 방법을 다른 문제에 다시 써보면 훨씬 단단해져요. 점수는 없으니 편하게 도전해요."
-              : "같은 방법으로 풀 수 있는 다른 문제예요. 막혔다면 먼저 연습해보고 돌아와도 좋아요. 점수는 없어요.",
-          ),
-          base.practice.map((item, index) =>
-            h(
-              Button,
-              {
-                key: index,
-                variant: "outline",
-                size: "sm",
-                onClick: () => showPractice(index),
-              },
-              icon(ListChecks, { size: 14 }),
-              item.title,
-              state.practiced.includes(practiceId(base.id, index)) &&
-                " · 연습 완료",
-            ),
-          ),
-        );
+
+  const ctx = {
+    state,
+    getState,
+    commit,
+    apply,
+    runner,
+    toast,
+    announce,
+    award,
+    storageWarning,
+    openProblem,
+    openRoadmap,
+    openExam,
+    openPlacement,
+    coach: { loaded: coachLoaded, setLoaded: setCoachLoaded, openSettings },
+  };
+  const today = PcoProgress.dayKey(new Date());
+  const tab = (active, label, Icon, onClick) =>
+    h("button", { type: "button", className: "top-tab" + (active ? " active" : ""), "aria-current": active ? "page" : undefined, onClick }, icon(Icon, { size: 16 }), label);
+
+  let body;
+  if (view.name === "learn") body = h(LearnView, { key: view.id, ctx, problem: PROBLEM_BY_ID.get(view.id) });
+  else if (view.name === "exam") body = h(ExamView, { key: view.level, ctx, level: view.level });
+  else if (view.name === "placement") body = h(PlacementView, { key: "placement-" + view.target, ctx, target: view.target });
+  else body = h(RoadmapView, { ctx });
 
   return h(
     "div",
     { className: "shell" },
     h(
-      "aside",
-      { className: "rail", "aria-label": "주요 메뉴" },
-      h("div", { className: "brand-icon", title: "파코 스튜디오" }, "p"),
+      "header",
+      { className: "topbar" },
+      h("a", { className: "brand", href: "./new.html", title: "파코 스튜디오" }, h("span", { className: "brand-icon" }, "P"), h("span", { className: "brand-text" }, h("strong", null, "파코 스튜디오"), h("small", null, "나만의 속도로, 한 걸음씩"))),
       h(
         "nav",
-        { className: "rail-nav" },
-        h(
-          "button",
-          {
-            className: "rail-button active",
-            onClick: () => {
-              setRoadmap(false);
-              editorRef.current?.focus();
-            },
-            "aria-label": "코딩 학습",
-          },
-          icon(Code2),
-          "학습하기",
-        ),
-        h(
-          "button",
-          { className: "rail-button", onClick: () => setRoadmap(true) },
-          icon(Map),
-          "로드맵",
-        ),
-        h(
-          "button",
-          { className: "rail-button", onClick: () => setRoadmap(true) },
-          icon(GraduationCap),
-          "나의 진도",
-        ),
+        { className: "top-tabs", "aria-label": "주요 메뉴" },
+        tab(view.name === "learn", "학습하기", Code2, resume),
+        tab(view.name === "roadmap", "로드맵", Map, openRoadmap),
+        tab(false, "나의 진도", GraduationCap, () => {
+          openRoadmap();
+          setTimeout(() => document.getElementById("side")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+        }),
       ),
       h(
         "div",
-        { className: "rail-bottom" },
-        h(
-          Button,
-          {
-            size: "icon",
-            variant: "ghost",
-            onClick: openSettings,
-            "aria-label": "코치 설정",
-          },
-          icon(Settings2),
-        ),
+        { className: "top-chips", "aria-label": "나의 기록" },
+        h("span", { className: "stat-chip streak", title: "연속 학습일" }, icon(Flame, { size: 15 }), `${PcoProgress.liveStreak(state, today)}일 연속`),
+        h("span", { className: "stat-chip points", title: "이 브라우저에서 얻은 점수" }, icon(Star, { size: 15 }), `${MODEL.totalPoints(state)}점`),
+        h("span", { className: "stat-chip gems", title: "보석" }, icon(Gem, { size: 15 }), `${state.gems}`),
+      ),
+      h(
+        "div",
+        { className: "top-right" },
+        h(SiteNav, { className: "site-nav", label: "주요 페이지" }),
+        h(ThemeToggle),
+        h(Button, { size: "icon", variant: "ghost", onClick: openSettings, "aria-label": "연결 설정", title: "연결 설정" }, icon(Settings2)),
+        learner
+          ? h(
+              "div",
+              { className: "student-chip", title: `${learner.school} · ${learner.studentName} 학생` },
+              h("div", { className: "avatar", "aria-hidden": "true" }, learner.studentName.slice(0, 1)),
+              h("div", { className: "student-meta" }, h("small", null, learner.school), h("strong", null, `${learner.studentName} 학생`)),
+              h(Button, { variant: "ghost", size: "sm", onClick: logout, disabled: loggingOut, title: "로그아웃" }, icon(LogOut, { size: 14 }), h("span", { className: "logout-label" }, "로그아웃")),
+            )
+          : h("div", { className: "avatar", title: "로그인한 학생 정보 없음" }, "나"),
       ),
     ),
+    storageWarning && h("div", { className: "alert", role: "alert" }, storageWarning),
+    h("div", { className: "stage" }, body),
     h(
-      "main",
-      { className: "main" },
-      h(
-        "header",
-        { className: "topbar" },
-        h(
-          "a",
-          {
-            className: "wordmark",
-            href: "./new.html",
-            title: "파코 스튜디오",
-            style: { textDecoration: "none" },
-          },
-          "파코",
-          h("span", null, "CODE STUDIO"),
-        ),
-        h(
-          "div",
-          { className: "top-right" },
-          h(
-            "span",
-            null,
-            h("i", { className: "local-dot" }),
-            "나만의 속도로, 한 걸음씩",
-          ),
-          h(SiteNav, { className: "site-nav", label: "주요 페이지" }),
-          h(
-            Button,
-            {
-              variant: "ghost",
-              size: "sm",
-              onClick: () => setRoadmap(true),
-            },
-            icon(BookOpen),
-            "학습 둘러보기",
-          ),
-          h(ThemeToggle),
-          h("span", { className: "divider" }),
-          learner
-            ? h(
-                "div",
-                {
-                  className: "student-chip",
-                  title: `${learner.school} · ${learner.studentName} 학생`,
-                },
-                h(
-                  "div",
-                  { className: "avatar", "aria-hidden": "true" },
-                  learner.studentName.slice(0, 1),
-                ),
-                h(
-                  "div",
-                  { className: "student-meta" },
-                  h("small", null, learner.school),
-                  h("strong", null, `${learner.studentName} 학생`),
-                ),
-                h(
-                  Button,
-                  {
-                    variant: "ghost",
-                    size: "sm",
-                    onClick: logout,
-                    disabled: loggingOut,
-                    title: "로그아웃",
-                  },
-                  icon(LogOut, { size: 14 }),
-                  h("span", { className: "logout-label" }, "로그아웃"),
-                ),
-              )
-            : h(
-                "div",
-                { className: "avatar", title: "로그인한 학생 정보 없음" },
-                "나",
-              ),
-        ),
-      ),
-      h(
-        "div",
-        { className: "workspace" },
-        h(
-          "div",
-          { className: "breadcrumb" },
-          icon(BookOpen),
-          "학습 공간",
-          icon(ChevronRight),
-          track.name,
-          icon(ChevronRight),
-          h("strong", null, track.label),
-        ),
-        h(
-          "div",
-          { className: "heading" },
-          h(
-            "div",
-            null,
-            h("div", { className: "eyebrow" }, "YOUR CODING JOURNEY"),
-            h("h1", null, track.label),
-            h("p", null, track.description),
-          ),
-          h(
-            "div",
-            { className: "heading-actions" },
-            h(
-              "div",
-              { className: "progress-pill" },
-              icon(CheckCircle2, { size: 14, color: "#19705b" }),
-              h(
-                "span",
-                null,
-                "트랙 진도 ",
-                h(
-                  "b",
-                  null,
-                  `${trackCompleted} / ${track.problems.length}`,
-                ),
-              ),
-              h(
-                "div",
-                {
-                  className: "progress-track",
-                  role: "progressbar",
-                  "aria-label": "현재 트랙 진도",
-                  "aria-valuenow": trackCompleted,
-                  "aria-valuemin": 0,
-                  "aria-valuemax": track.problems.length,
-                },
-                h("div", {
-                  className: "progress-fill",
-                  style: {
-                    width: `${(trackCompleted / track.problems.length) * 100}%`,
-                  },
-                }),
-              ),
-            ),
-            h(
-              Button,
-              { variant: "outline", onClick: () => setRoadmap(true) },
-              icon(PanelLeft),
-              "문제 목록",
-            ),
-          ),
-        ),
-        storageWarning &&
-          h("div", { className: "alert", role: "alert" }, storageWarning),
-        h(
-          "section",
-          { className: "lesson-bar", "aria-label": "트랙 및 문제 선택" },
-          h(
-            "select",
-            {
-              className: "track-select",
-              value: track.id,
-              "aria-label": "학습 트랙",
-              onChange: (event) =>
-                selectProblem(
-                  TRACKS.find((t) => t.id === event.target.value)
-                    .problems[0].id,
-                ),
-            },
-            TRACKS.map((t) =>
-              h(
-                "option",
-                { key: t.id, value: t.id },
-                `${t.name} · ${t.label}`,
-              ),
-            ),
-          ),
-          h(
-            "div",
-            { className: "step-list" },
-            track.problems.map((p, index) =>
-              h(
-                React.Fragment,
-                { key: p.id },
-                index > 0 && h("span", { className: "step-link" }),
-                h(
-                  "button",
-                  {
-                    className:
-                      "step" + (p.id === base.id ? " current" : ""),
-                    onClick: () => selectProblem(p.id),
-                    title: `${p.title} · ${p.level}`,
-                    "aria-label": `${index + 1}번 ${p.title} (${p.level})${state.completed.includes(p.id) ? " · 해결 완료" : ""}`,
-                    "aria-current":
-                      p.id === base.id ? "step" : undefined,
-                  },
-                  h(
-                    "span",
-                    {
-                      className:
-                        "step-number" +
-                        (state.completed.includes(p.id) ? " done" : ""),
-                    },
-                    state.completed.includes(p.id)
-                      ? icon(Check)
-                      : String(index + 1).padStart(2, "0"),
-                  ),
-                  h("span", { className: "step-label" }, p.topic),
-                ),
-              ),
-            ),
-          ),
-          h(
-            Button,
-            {
-              variant: "ghost",
-              size: "sm",
-              onClick: () => setRoadmap(true),
-            },
-            "전체 보기",
-            icon(ChevronRight),
-          ),
-        ),
-        h(
-          "p",
-          { className: "mobile-note" },
-          "작은 화면에서는 문제 → 코드 → 코치 순서로 학습할 수 있어요.",
-        ),
-        h(
-          "div",
-          { className: "panels" },
-          h(
-            "section",
-            {
-              className: "panel problem-panel",
-              "aria-label": "문제 설명",
-            },
-            h(
-              "div",
-              { className: "panel-head" },
-              icon(BookOpen),
-              "문제",
-              badge("SAMPLE"),
-            ),
-            h(
-              Tabs.Root,
-              {
-                className: "tabs",
-                value: problemTab,
-                onValueChange: setProblemTab,
-              },
-              h(
-                Tabs.List,
-                { className: "tab-list", "aria-label": "문제 정보" },
-                tab("problem", "문제 설명"),
-                tab("concept", "개념 배우기"),
-                tab("hints", "힌트 & 해설"),
-              ),
-              content(
-                "problem",
-                h(
-                  "div",
-                  { className: "problem-number" },
-                  `${problem.isPractice ? "PRACTICE" : "PROBLEM"} ${String(problemIndex + 1).padStart(2, "0")}`,
-                ),
-                h("h2", { className: "problem-title" }, problem.title),
-                h(
-                  "div",
-                  { className: "problem-meta" },
-                  badge(problem.level),
-                  h("span", { className: "tag" }, problem.topic),
-                  h(
-                    "span",
-                    { className: "tiny muted" },
-                    problem.isPractice
-                      ? `약 ${problem.minutes}분 · 점수 없음`
-                      : `약 ${problem.minutes}분 · ${pointsFor(problem)}점`,
-                  ),
-                  solved &&
-                    badge(problem.isPractice ? "연습 완료" : "해결 완료"),
-                ),
-                problem.isPractice &&
-                  h(
-                    "div",
-                    { className: "practice-banner" },
-                    h(
-                      "span",
-                      null,
-                      `‘${base.title}’와 같은 방법으로 풀 수 있는 연습 문제예요. 점수는 없으니 편하게 도전해요.`,
-                    ),
-                    h(
-                      Button,
-                      {
-                        variant: "outline",
-                        size: "sm",
-                        onClick: () => showPractice(null),
-                      },
-                      icon(ChevronLeft, { size: 14 }),
-                      "원래 문제로",
-                    ),
-                  ),
-                h(
-                  "div",
-                  { className: "prose" },
-                  problem.description.map((text, i) =>
-                    h("p", { key: i }, text),
-                  ),
-                ),
-                h(
-                  "div",
-                  { className: "concept-callout" },
-                  icon(Lightbulb),
-                  h(
-                    "span",
-                    null,
-                    problem.id === "hello"
-                      ? "처음이라도 괜찮아요! 오른쪽에 코드를 적고 실행 버튼을 눌러보세요."
-                      : `${problem.topic} 개념이 낯설다면 위의 ‘개념 배우기’ 탭부터 살펴보세요.`,
-                  ),
-                ),
-                h("h3", { className: "section-title" }, "입력"),
-                h("p", { className: "prose" }, problem.input),
-                h("h3", { className: "section-title" }, "출력"),
-                h("p", { className: "prose" }, problem.output),
-                h("h3", { className: "section-title" }, "입출력 예시"),
-                problem.tests
-                  .slice(0, 2)
-                  .map((test, i) =>
-                    h(
-                      "div",
-                      { className: "io-card", key: i },
-                      h(
-                        "div",
-                        { className: "io-head" },
-                        `예제 ${i + 1}`,
-                        icon(Code2, { size: 12 }),
-                      ),
-                      h(
-                        "div",
-                        { className: "io-body" },
-                        h(
-                          "div",
-                          { className: "io-col" },
-                          h("label", null, "입력"),
-                          h("pre", null, test.input || "(없음)"),
-                        ),
-                        h(
-                          "div",
-                          { className: "io-col" },
-                          h("label", null, "출력"),
-                          h("pre", null, test.output),
-                        ),
-                      ),
-                    ),
-                  ),
-                h("h3", { className: "section-title" }, "기억해주세요"),
-                h(
-                  "ul",
-                  { className: "constraint-list" },
-                  problem.constraints.map((text, i) =>
-                    h("li", { key: i }, text),
-                  ),
-                ),
-                solved && practiceCard(),
-              ),
-              content(
-                "concept",
-                h("div", { className: "eyebrow" }, "LEARN THE BASICS"),
-                h("h2", { className: "problem-title" }, problem.topic),
-                h("p", { className: "prose" }, problem.concept),
-                h(
-                  "pre",
-                  { className: "concept-code" },
-                  problem.conceptCode,
-                ),
-                h(
-                  "div",
-                  { className: "concept-callout" },
-                  icon(Lightbulb),
-                  "예제 코드를 직접 바꿔 실행해보면 더 쉽게 이해할 수 있어요.",
-                ),
-              ),
-              content(
-                "hints",
-                h(
-                  "h2",
-                  { className: "problem-title" },
-                  "조금씩, 스스로 풀어봐요",
-                ),
-                h(
-                  "p",
-                  { className: "prose", style: { marginBottom: 20 } },
-                  problem.isPractice
-                    ? "힌트를 하나씩 열어보세요. 원래 문제를 풀었던 방법을 떠올려보면 도움이 돼요."
-                    : "힌트를 하나씩 열어보세요. 비슷한 예제는 직접 시도해본 뒤에 확인하는 것을 추천해요.",
-                ),
-                problem.hints.map((text, i) =>
-                  h(
-                    "details",
-                    { className: "hint", key: problem.id + i },
-                    h("summary", null, `힌트 ${i + 1}`),
-                    h("p", null, text),
-                  ),
-                ),
-                !problem.isPractice &&
-                  h(
-                    "details",
-                    { className: "hint", key: problem.id + "-example" },
-                    h("summary", null, "비슷한 예제 살펴보기"),
-                    h(
-                      "p",
-                      null,
-                      "이 문제의 정답이 아니라 같은 방법을 쓰는 다른 문제예요. 예제와 우리 문제에서 무엇이 다른지 찾아, 직접 바꿔서 풀어보세요.",
-                    ),
-                    h("p", null, problem.example.intro),
-                    h(
-                      "pre",
-                      { className: "concept-code" },
-                      problem.example.code,
-                    ),
-                    h(
-                      "div",
-                      { className: "io-card" },
-                      h("div", { className: "io-head" }, "예제 실행 결과"),
-                      h(
-                        "div",
-                        { className: "io-body" },
-                        h(
-                          "div",
-                          { className: "io-col" },
-                          h("label", null, "입력"),
-                          h("pre", null, problem.example.input || "(없음)"),
-                        ),
-                        h(
-                          "div",
-                          { className: "io-col" },
-                          h("label", null, "출력"),
-                          h("pre", null, problem.example.output),
-                        ),
-                      ),
-                    ),
-                  ),
-                practiceCard(),
-              ),
-            ),
-            h(
-              "div",
-              { className: "problem-footer" },
-              h(
-                "span",
-                null,
-                problem.isPractice
-                  ? "연습 문제 · 점수 없음"
-                  : `${trackIndex + 1} / ${track.problems.length} 문제`,
-              ),
-              problem.isPractice
-                ? h(
-                    "div",
-                    { className: "row" },
-                    h(
-                      Button,
-                      {
-                        variant: "ghost",
-                        size: "sm",
-                        onClick: () => showPractice(null),
-                      },
-                      icon(ChevronLeft),
-                      "원래 문제로",
-                    ),
-                  )
-                : h(
-                    "div",
-                    { className: "row" },
-                    h(
-                      Button,
-                      {
-                        variant: "ghost",
-                        size: "sm",
-                        disabled: problemIndex === 0,
-                        onClick: () =>
-                          selectProblem(PROBLEMS[problemIndex - 1].id),
-                        "aria-label": "이전 문제",
-                      },
-                      icon(ChevronLeft),
-                    ),
-                    h(
-                      Button,
-                      {
-                        variant: "ghost",
-                        size: "sm",
-                        disabled: problemIndex === PROBLEMS.length - 1,
-                        onClick: () =>
-                          selectProblem(PROBLEMS[problemIndex + 1].id),
-                      },
-                      "다음 문제",
-                      icon(ChevronRight),
-                    ),
-                  ),
-            ),
-          ),
-          h(
-            "section",
-            {
-              className: "panel editor-panel",
-              "aria-label": "Python 코드 작성 및 실행",
-            },
-            h(
-              "div",
-              { className: "panel-head" },
-              icon(Code2),
-              "코드 에디터",
-              h("span", { className: "grow" }),
-              h(
-                "span",
-                { className: "tiny muted", style: { fontWeight: 400 } },
-                storageWarning ? "임시 저장 모드" : "브라우저 자동 저장",
-              ),
-            ),
-            h(
-              "div",
-              { className: "editor-toolbar" },
-              h(
-                "div",
-                { className: "language" },
-                h("span", { className: "python-logo" }, "Py"),
-                "Python 3",
-                h("span", { className: "muted" }, "· solution.py"),
-              ),
-              h(
-                Button,
-                {
-                  size: "icon",
-                  variant: "ghost",
-                  onClick: resetCode,
-                  disabled: Boolean(busy),
-                  title: "시작 코드로 되돌리기",
-                  "aria-label": "코드 초기화",
-                },
-                icon(RotateCcw, { size: 13 }),
-              ),
-            ),
-            h(
-              "div",
-              { className: "code-wrap" },
-              h(
-                "pre",
-                { className: "line-numbers", "aria-hidden": true },
-                h(
-                  "div",
-                  { style: { transform: `translateY(-${scrollTop}px)` } },
-                  code
-                    .split("\n")
-                    .map((_, i) => i + 1)
-                    .join("\n"),
-                ),
-              ),
-              h("textarea", {
-                ref: editorRef,
-                className: "editor",
-                "aria-label": "Python 코드",
-                value: code,
-                spellCheck: false,
-                autoCapitalize: "off",
-                autoComplete: "off",
-                readOnly: Boolean(busy),
-                onChange: (event) => changeCode(event.target.value),
-                onKeyDown: onEditorKey,
-                onScroll: (event) =>
-                  setScrollTop(event.currentTarget.scrollTop),
-              }),
-            ),
-            h(
-              "div",
-              { className: "editor-status" },
-              h("span", null, "UTF-8", "　·　", "들여쓰기 4칸"),
-              h("span", null, "Python · WebAssembly"),
-            ),
-            h(
-              Tabs.Root,
-              {
-                className: "runner",
-                value: runnerTab,
-                onValueChange: setRunnerTab,
-              },
-              h(
-                Tabs.List,
-                { className: "tab-list", "aria-label": "실행 정보" },
-                tab("input", "테스트 입력"),
-                tab("output", "실행 결과"),
-                tab("tests", "채점 결과"),
-              ),
-              content(
-                "input",
-                h(
-                  "div",
-                  { className: "input-label" },
-                  "직접 입력해보세요",
-                ),
-                h("textarea", {
-                  className: "stdin",
-                  "aria-label": "테스트 입력",
-                  placeholder: "이 문제는 입력이 필요하지 않아요.",
-                  value: stdin,
-                  onChange: (event) => setStdin(event.target.value),
-                }),
-                h(
-                  "p",
-                  { className: "input-note" },
-                  "실행은 이 입력을, 제출은 문제의 모든 테스트 케이스를 사용해요.",
-                ),
-              ),
-              content(
-                "output",
-                runResult
-                  ? h(
-                      React.Fragment,
-                      null,
-                      h(
-                        "div",
-                        {
-                          className:
-                            "result-head " +
-                            (runResult.error
-                              ? "result-fail"
-                              : "result-pass"),
-                        },
-                        icon(runResult.error ? X : CheckCircle2, {
-                          size: 14,
-                        }),
-                        runResult.error
-                          ? "실행 중 오류가 발생했어요"
-                          : "실행 완료",
-                        elapsed !== null &&
-                          h(
-                            "span",
-                            { className: "muted tiny" },
-                            `${elapsed} ms`,
-                          ),
-                      ),
-                      h(
-                        "pre",
-                        { className: "output" },
-                        runResult.output ||
-                          (!runResult.error ? "(출력 없음)" : ""),
-                      ),
-                      runResult.stderr &&
-                        h(
-                          "pre",
-                          { className: "output error" },
-                          runResult.stderr,
-                        ),
-                      runResult.error &&
-                        h(
-                          "pre",
-                          { className: "output error" },
-                          runResult.error,
-                        ),
-                    )
-                  : h(
-                      "div",
-                      { className: "empty-result" },
-                      icon(busy ? LoaderCircle : Terminal),
-                      busy || "코드를 실행하면 여기에 결과가 나타나요.",
-                    ),
-              ),
-              content(
-                "tests",
-                grade
-                  ? h(
-                      React.Fragment,
-                      null,
-                      h(
-                        "div",
-                        {
-                          className:
-                            "result-head " +
-                            (grade.passed
-                              ? "result-pass"
-                              : grade.finished
-                                ? "result-fail"
-                                : "muted"),
-                          role: "status",
-                        },
-                        icon(grade.passed ? CheckCircle2 : ListChecks, {
-                          size: 15,
-                        }),
-                        grade.finished
-                          ? grade.passed
-                            ? "모든 테스트를 통과했어요!"
-                            : "조금만 더 생각해볼까요?"
-                          : "채점하고 있어요…",
-                        h(
-                          "span",
-                          { className: "tiny muted" },
-                          `${grade.results.filter((r) => r.passed).length} / ${grade.total}`,
-                        ),
-                      ),
-                      grade.results.map((result, i) =>
-                        h(
-                          "div",
-                          { className: "case-row", key: i },
-                          h(
-                            "details",
-                            null,
-                            h(
-                              "summary",
-                              {
-                                className: result.passed
-                                  ? "result-pass"
-                                  : "result-fail",
-                              },
-                              `${result.passed ? "✓" : "×"} 테스트 ${i + 1} · ${result.passed ? "통과" : result.error ? "실행 오류" : "출력이 달라요"}`,
-                            ),
-                            h(
-                              "div",
-                              { className: "case-detail" },
-                              h(
-                                "div",
-                                null,
-                                "기대 출력",
-                                h("pre", null, result.expected),
-                              ),
-                              h(
-                                "div",
-                                null,
-                                "내 출력",
-                                h("pre", null, result.output || "(없음)"),
-                              ),
-                            ),
-                            result.error &&
-                              h(
-                                "pre",
-                                { className: "output error" },
-                                result.error,
-                              ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : h(
-                      "div",
-                      { className: "empty-result" },
-                      icon(busy ? LoaderCircle : ListChecks),
-                      busy ||
-                        "제출하면 테스트 케이스별 결과를 볼 수 있어요.",
-                    ),
-              ),
-            ),
-            h(
-              "div",
-              { className: "execution-bar" },
-              h(
-                "span",
-                { className: "execution-note", role: "status" },
-                busy || "Ctrl + Enter로 실행",
-              ),
-              h(
-                "div",
-                { className: "execution-buttons" },
-                busy
-                  ? h(
-                      Button,
-                      {
-                        variant: "outline",
-                        onClick: () =>
-                          stopJob(
-                            "실행을 중지했어요. 코드를 수정하고 다시 시도해보세요.",
-                          ),
-                      },
-                      icon(Square),
-                      "중지",
-                    )
-                  : h(
-                      React.Fragment,
-                      null,
-                      h(
-                        Button,
-                        {
-                          variant: "outline",
-                          onClick: () => execute("run"),
-                        },
-                        icon(Play),
-                        "실행",
-                      ),
-                      h(
-                        Button,
-                        { onClick: () => execute("grade") },
-                        icon(Send),
-                        "제출하기",
-                      ),
-                    ),
-              ),
-            ),
-          ),
-          h(
-            "section",
-            { className: "panel coach-panel", "aria-label": "코딩 코치" },
-            h(
-              "div",
-              { className: "panel-head" },
-              icon(Sparkles),
-              "파코 코치",
-              badge("AI PARTNER", "coach-label"),
-            ),
-            coachLoaded
-              ? h(
-                  React.Fragment,
-                  null,
-                  h(
-                    "div",
-                    { className: "coach-frame-tools" },
-                    h(
-                      Button,
-                      {
-                        variant: "ghost",
-                        size: "sm",
-                        onClick: () => copyPrompt("hint"),
-                      },
-                      icon(Copy, { size: 12 }),
-                      "문제·코드 복사",
-                    ),
-                    h(
-                      "a",
-                      {
-                        href: state.coachUrl,
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        title: "연결이 안 되면 새 창에서 열기",
-                      },
-                      icon(ExternalLink, { size: 13 }),
-                    ),
-                  ),
-                  h("iframe", {
-                    className: "coach-frame",
-                    title: "파코 코딩 코치 대화",
-                    src: state.coachUrl,
-                    referrerPolicy: "no-referrer",
-                    sandbox:
-                      "allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox",
-                  }),
-                  h(
-                    "div",
-                    { className: "coach-frame-tools" },
-                    "연결·로그인은 외부 서비스에서 제공해요.",
-                    h(
-                      Button,
-                      {
-                        variant: "ghost",
-                        size: "sm",
-                        onClick: () => setCoachLoaded(false),
-                      },
-                      "도움말",
-                    ),
-                  ),
-                )
-              : h(
-                  "div",
-                  { className: "coach-body" },
-                  h(
-                    "div",
-                    { className: "coach-greeting" },
-                    h("div", { className: "coach-avatar" }, icon(Bot)),
-                    h("h3", null, "막히는 순간, 함께 생각해요."),
-                    h(
-                      "p",
-                      null,
-                      "정답보다 중요한 건 생각하는 과정이에요.",
-                      h("br"),
-                      "파코와 대화하며 나만의 답을 찾아보세요.",
-                    ),
-                  ),
-                  h(
-                    "div",
-                    { className: "coach-section-label" },
-                    "이렇게 질문해보세요",
-                  ),
-                  promptButton(
-                    Lightbulb,
-                    "이 문제에 필요한 개념이 궁금해",
-                    "concept",
-                  ),
-                  promptButton(
-                    HelpCircle,
-                    "정답 말고, 작은 힌트만 줄래?",
-                    "hint",
-                  ),
-                  promptButton(
-                    Code2,
-                    "내 코드를 함께 살펴봐줄래?",
-                    "review",
-                  ),
-                  h(
-                    "div",
-                    { className: "coach-bottom" },
-                    h(
-                      "div",
-                      { className: "coach-note" },
-                      icon(ShieldCheck),
-                      h(
-                        "span",
-                        null,
-                        "질문 버튼은 문제와 코드를 복사해요. 외부 코치에 자동 전송하지 않으니, 직접 붙여넣어주세요. 이름 등 개인정보는 입력하지 마세요.",
-                      ),
-                    ),
-                    h(
-                      Button,
-                      {
-                        className: "wide",
-                        onClick: () => setCoachLoaded(true),
-                      },
-                      icon(Bot),
-                      "코치 연결하기",
-                      icon(ArrowRight),
-                    ),
-                    h(
-                      "div",
-                      { className: "coach-links" },
-                      h(
-                        "span",
-                        { className: "tiny muted" },
-                        "외부 iframe · 인터넷 필요",
-                      ),
-                      h(
-                        Button,
-                        {
-                          variant: "ghost",
-                          size: "sm",
-                          onClick: openSettings,
-                        },
-                        icon(Settings2, { size: 12 }),
-                        "연결 설정",
-                      ),
-                    ),
-                  ),
-                ),
-          ),
-        ),
-        h(
-          "footer",
-          { className: "workspace-footer" },
-          h(
-            "span",
-            null,
-            icon(ShieldCheck),
-            storageWarning
-              ? "임시 모드 · 학습 기록 저장 불가"
-              : "코드와 진도는 이 브라우저에만 저장돼요.",
-          ),
-          h(SiteNav, { className: "footer-links", label: "바로가기" }),
-          h(
-            "span",
-            null,
-            "샘플 커리큘럼 · ",
-            `${PROBLEMS.length}개 문제`,
-            "　·　작은 시도가 큰 변화를 만들어요.",
-          ),
-        ),
-      ),
-    ),
-    h(
-      Modal,
-      {
-        open: roadmap,
-        onOpenChange: setRoadmap,
-        title: "나만의 코딩 여정",
-        description: `입문부터 도전까지, 원하는 문제를 자유롭게 선택하세요. 전체 ${PROBLEMS.length}개 중 ${state.completed.length}개 해결 · 제공 전 샘플 문제입니다.`,
-      },
-      h(
-        "div",
-        { className: "track-grid" },
-        TRACKS.map((t) =>
-          h(
-            "section",
-            { className: "track-card", key: t.id },
-            h(
-              "div",
-              { className: "track-card-header" },
-              badge(t.name),
-              h("h3", null, t.label),
-              h("p", null, t.topics),
-            ),
-            t.problems.map((p) =>
-              h(
-                "button",
-                {
-                  className:
-                    "roadmap-item" +
-                    (p.id === base.id ? " selected" : ""),
-                  key: p.id,
-                  onClick: () => selectProblem(p.id),
-                },
-                icon(
-                  state.completed.includes(p.id) ? CheckCircle2 : Circle,
-                ),
-                h(
-                  "div",
-                  { className: "grow" },
-                  p.title,
-                  h(
-                    "small",
-                    null,
-                    `${p.level} · ${pointsFor(p)}점 · ` +
-                      (state.completed.includes(p.id)
-                        ? "해결 완료"
-                        : state.codes[p.id] !== undefined ||
-                            p.id === state.selected
-                          ? "진행 중"
-                          : "시작 전"),
-                  ),
-                ),
-                icon(ChevronRight),
-              ),
-            ),
-          ),
-        ),
-      ),
+      "footer",
+      { className: "workspace-footer" },
+      h("span", null, "코드와 진도는 이 브라우저에만 저장돼요."),
+      h(SiteNav, { className: "footer-links", label: "바로가기" }),
+      h("span", null, `${TRACKS.length}개 레벨 · 핵심 ${PROBLEMS.filter((p) => p.kind === "core").length}문제`),
     ),
     h(
       Modal,
@@ -1709,23 +355,9 @@ function App() {
         description:
           "코치 주소와 포인트 적립 흐름 주소를 이 브라우저에 저장해요. 코치는 기존 파코의 공개 주소를 기본으로 사용하며, 다른 코치는 iframe 삽입이 허용된 HTTPS 주소를 입력해주세요.",
       },
-      h(
-        "label",
-        { className: "config-label", htmlFor: "coach-url" },
-        "코치 iframe 주소",
-      ),
-      h("input", {
-        id: "coach-url",
-        className: "config-input",
-        type: "url",
-        value: coachDraft,
-        onChange: (event) => setCoachDraft(event.target.value),
-      }),
-      h(
-        "label",
-        { className: "config-label", htmlFor: "points-url" },
-        "포인트 적립 흐름 주소 (Power Automate)",
-      ),
+      h("label", { className: "config-label", htmlFor: "coach-url" }, "코치 iframe 주소"),
+      h("input", { id: "coach-url", className: "config-input", type: "url", value: coachDraft, onChange: (event) => setCoachDraft(event.target.value) }),
+      h("label", { className: "config-label", htmlFor: "points-url" }, "포인트 적립 흐름 주소 (Power Automate)"),
       h("input", {
         id: "points-url",
         className: "config-input",
@@ -1735,8 +367,7 @@ function App() {
         value: pointsDraft,
         onChange: (event) => setPointsDraft(event.target.value),
       }),
-      configError &&
-        h("div", { className: "alert", role: "alert" }, configError),
+      configError && h("div", { className: "alert", role: "alert" }, configError),
       h(
         "p",
         { className: "prose" },
@@ -1745,30 +376,13 @@ function App() {
       h(
         "div",
         { className: "config-actions" },
-        h(
-          Button,
-          {
-            variant: "outline",
-            onClick: () => setCoachDraft(DEFAULT_COACH_URL),
-          },
-          "기본 주소",
-        ),
-        h(Button, { onClick: saveCoach }, "주소 저장"),
+        h(Button, { variant: "outline", onClick: () => setCoachDraft(DEFAULT_COACH_URL) }, "기본 주소"),
+        h(Button, { onClick: saveSettings }, "주소 저장"),
       ),
     ),
-    toast && h("div", { className: "toast", role: "status" }, toast),
+    toasts.length > 0 &&
+      h("div", { className: "toast-stack", role: "status" }, toasts.map((item) => h("div", { className: "toast", key: item.id }, item.message))),
   );
 }
-// 첫 화면에 필요한 문제 본문을 받은 뒤에 화면을 그립니다.
-loadProblem(startupProblemId(window.location.search)).then(
-  () =>
-    createRoot(document.getElementById("root")).render(
-      h(ErrorBoundary, null, h(App)),
-    ),
-  () => {
-    const message = document.getElementById("boot-message");
-    if (message)
-      message.textContent =
-        "첫 문제를 불러오지 못했습니다. 인터넷 연결을 확인한 후 새로고침해주세요.";
-  },
-);
+// 로드맵은 문제 본문 없이 목록만으로 그려지므로 바로 시작합니다. 풀 문제의 파일은 new.html이 미리 요청해 둡니다.
+createRoot(document.getElementById("root")).render(h(ErrorBoundary, null, h(App)));

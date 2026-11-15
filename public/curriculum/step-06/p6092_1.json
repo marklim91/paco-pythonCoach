@@ -1,0 +1,28 @@
+{
+  "id": "p6092_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "7은 몇 번?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "뽑기 상자에서 숫자 공을 여러 개 꺼냈어요. 행운의 숫자 7 은 몇 번이나 나왔을까요?\n첫 줄에 개수 n, 둘째 줄에 정수 n개를 입력받아 7 이 몇 번 나왔는지 출력해주세요.",
+  "input": "첫째 줄에 정수의 개수 n, 둘째 줄에 정수 n개가 공백으로 구분되어 입력됩니다.",
+  "output": "7이 나온 횟수를 한 줄에 출력합니다.",
+  "starter": "n = int(input())\nnumbers = list(map(int, input().split()))\n\n# numbers 에 7 이 몇 번 들어 있는지 알아내서 출력해 보세요.\n",
+  "solution": "n = int(input())\na = list(map(int, input().split()))\nprint(a.count(7))",
+  "hints": [
+    "7 을 만날 때마다 1 씩 늘려 가며 세는 방법도 있지만, 리스트에게 직접 물어볼 수도 있어요. 리스트에는 값을 세어 주는 메서드가 있어요.",
+    "메서드 이름은 `count` 예요. 리스트 이름 뒤에 점(`.`)을 찍고 `count()` 의 괄호 안에 세고 싶은 값을 넣어요."
+  ],
+  "explanation": "`리스트.count(값)` 은 그 값이 리스트에 몇 번 들어 있는지 알려 줘요. 반복문으로 직접 세지 않아도 한 줄로 끝나요.",
+  "tests": [
+    {
+      "input": "5\n7 1 7 3 7",
+      "output": "3"
+    },
+    {
+      "input": "3\n1 2 3",
+      "output": "0"
+    }
+  ]
+}

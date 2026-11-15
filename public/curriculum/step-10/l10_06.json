@@ -1,0 +1,35 @@
+{
+  "id": "l10_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "일기 이어 쓰기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "일기는 하루하루 이어서 쓰는 거예요. 어제 쓴 내용을 지워 버리면 안 되겠죠?\n한 줄을 입력받아 같은 폴더의 `diary.txt` 파일(UTF-8) 맨 끝에 새 줄로 추가한 뒤, 파일 전체 내용을 출력해주세요. 기존 내용은 지우지 말고 이어서 써주세요.",
+  "input": "추가할 문장이 한 줄 입력됩니다. diary.txt 파일이 주어집니다.",
+  "output": "추가한 뒤의 파일 전체 내용을 출력합니다.",
+  "starter": "sentence = input()\n\n# diary.txt 파일의 맨 끝에 sentence 를 한 줄로 이어 써 보세요.\n# 그다음 파일 전체 내용을 읽어서 출력해 보세요.\n",
+  "solution": "line = input()\nwith open(\"diary.txt\", \"a\", encoding=\"utf-8\") as f:\n    f.write(line + \"\\n\")\n\nwith open(\"diary.txt\", \"r\", encoding=\"utf-8\") as f:\n    print(f.read(), end=\"\")",
+  "hints": [
+    "`\"w\"` 모드로 열면 파일 내용이 지워져요. 지우지 않고 맨 끝에 이어서 쓰는 모드는 무엇이었죠?",
+    "이어 쓰기 모드는 `\"a\"`(append)예요. `write()` 로 쓸 때 끝에 `\"\\n\"` 을 붙여야 다음 글이 새 줄에서 시작해요.",
+    "추가한 뒤 전체 내용을 보려면 파일을 읽기 모드로 다시 열어 `read()` 로 읽어서 출력해요."
+  ],
+  "explanation": "파일 열기 모드는 `r`(읽기), `w`(새로 쓰기 - 기존 내용 삭제), `a`(이어 쓰기) 세 가지가 기본이에요. 기록을 계속 쌓아야 하는 일기, 로그, 방명록 등은 `a` 모드를 써요.",
+  "tests": [
+    {
+      "input": "화요일: 비\n",
+      "output": "월요일: 맑음\n화요일: 비",
+      "files": {
+        "diary.txt": "월요일: 맑음\n"
+      }
+    },
+    {
+      "input": "끝\n",
+      "output": "1\n2\n끝",
+      "files": {
+        "diary.txt": "1\n2\n"
+      }
+    }
+  ]
+}

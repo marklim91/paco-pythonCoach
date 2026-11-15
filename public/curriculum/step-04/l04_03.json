@@ -1,0 +1,41 @@
+{
+  "id": "l04_03",
+  "kind": "core",
+  "type": "실습",
+  "title": "점수로 등급 매기기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "시험이 끝나면 점수에 맞는 등급이 성적표에 적혀요. 점수를 넣으면 등급을 알려 주는 프로그램을 만들어봐요.\n0~100 사이의 점수를 입력받아 등급을 출력해주세요. 90점 이상 `A`, 80점 이상 `B`, 70점 이상 `C`, 60점 이상 `D`, 그 외에는 `F` 예요.",
+  "input": "점수(0~100 정수)가 입력됩니다.",
+  "output": "A, B, C, D, F 중 하나를 출력합니다.",
+  "starter": "score = int(input())\n\n# 점수에 맞는 등급을 조건문으로 나누어 출력해 보세요.\n",
+  "solution": "score = int(input())\nif score >= 90:\n    print(\"A\")\nelif score >= 80:\n    print(\"B\")\nelif score >= 70:\n    print(\"C\")\nelif score >= 60:\n    print(\"D\")\nelse:\n    print(\"F\")",
+  "hints": [
+    "95점은 90점 이상이기도 하고 80점 이상이기도 해요. 어떤 조건부터 검사해야 `A` 가 제대로 나올까요?",
+    "`elif` 는 앞의 조건이 거짓일 때만 검사해요. 높은 점수 기준부터 `if`, `elif` 를 차례로 이어 보세요.",
+    "어느 조건에도 맞지 않을 때 실행되는 `else` 로 `F` 를 처리해 보세요."
+  ],
+  "explanation": "`elif` 는 위 조건이 모두 거짓일 때만 검사해요. 그래서 두 번째 조건에 `score >= 80 and score < 90` 처럼 쓰지 않아도 돼요. 만약 `elif` 대신 `if` 를 여러 개 쓰면 95점일 때 `A`, `B`, `C`, `D` 가 모두 출력되는 실수가 생겨요.",
+  "tests": [
+    {
+      "input": "95\n",
+      "output": "A"
+    },
+    {
+      "input": "80\n",
+      "output": "B"
+    },
+    {
+      "input": "79\n",
+      "output": "C"
+    },
+    {
+      "input": "60\n",
+      "output": "D"
+    },
+    {
+      "input": "59\n",
+      "output": "F"
+    }
+  ]
+}

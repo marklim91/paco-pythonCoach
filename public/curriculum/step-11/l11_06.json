@@ -1,0 +1,32 @@
+{
+  "id": "l11_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "모둠 나누기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "체육 시간에 모둠을 나누다 보면 인원이 딱 떨어지지 않을 때가 있어요.\n학생 수 n 과 한 모둠의 최대 인원 k 를 입력받아 필요한 모둠의 수를 출력해주세요. (남는 학생이 있으면 모둠이 하나 더 필요해요)",
+  "input": "양의 정수 n k 가 공백으로 구분되어 입력됩니다.",
+  "output": "필요한 모둠의 수를 출력합니다.",
+  "starter": "n, k = map(int, input().split())\n\n# n 명을 k 명씩 나눌 때 필요한 모둠의 수를 구해 보세요.\n# 남는 학생이 있을 때는 어떻게 되는지 생각해 보세요.\n",
+  "solution": "import math\n\nn, k = map(int, input().split())\nprint(math.ceil(n / k))",
+  "hints": [
+    "11명을 4명씩 나누면 2모둠이 되고 3명이 남아요. 남은 학생도 모둠이 필요하니 모두 3모둠이죠?",
+    "나눗셈 결과를 올림하면 한 번에 계산돼요. `math` 모듈에 올림 함수 `ceil()` 이 있어요."
+  ],
+  "explanation": "나눗셈 결과를 올림해야 하는 상황(모둠, 버스 대수, 상자 개수 등)에는 `math.ceil()` 을 써요. 내림은 `math.floor()`, 반올림은 `round()` 예요.",
+  "tests": [
+    {
+      "input": "10 3\n",
+      "output": "4"
+    },
+    {
+      "input": "9 3\n",
+      "output": "3"
+    },
+    {
+      "input": "1 5\n",
+      "output": "1"
+    }
+  ]
+}

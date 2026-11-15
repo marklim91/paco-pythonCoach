@@ -1,0 +1,29 @@
+{
+  "id": "l05_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "3 또는 5의 배수의 합",
+  "level": "입문",
+  "minutes": 10,
+  "description": "금고의 비밀번호는 정해진 규칙으로 고른 수들을 모두 더한 값이래요. 그 값을 대신 계산해 주는 프로그램을 만들어봐요.\n양의 정수 n 을 입력받아 1 부터 n 까지의 수 중 3 의 배수이거나 5 의 배수인 수의 합을 출력해주세요.",
+  "input": "양의 정수 n 이 입력됩니다.",
+  "output": "합을 출력합니다.",
+  "starter": "n = int(input())\n\n# 1 부터 n 까지 하나씩 살펴보며 3 의 배수이거나 5 의 배수인 수만 더해 보세요.\n# 모두 더한 합을 마지막에 출력해 보세요.\n",
+  "solution": "n = int(input())\ntotal = 0\nfor i in range(1, n + 1):\n    if i % 3 == 0 or i % 5 == 0:\n        total += i\nprint(total)",
+  "hints": [],
+  "explanation": "반복문으로 모든 수를 확인하면서 조건에 맞는 수만 누적했어요. `or` 를 사용하므로 15 처럼 둘 다에 해당하는 수도 한 번만 더해져요.",
+  "tests": [
+    {
+      "input": "10\n",
+      "output": "33"
+    },
+    {
+      "input": "1\n",
+      "output": "0"
+    },
+    {
+      "input": "15\n",
+      "output": "60"
+    }
+  ]
+}

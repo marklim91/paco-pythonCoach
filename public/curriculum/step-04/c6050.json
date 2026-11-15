@@ -1,0 +1,36 @@
+{
+  "id": "c6050",
+  "kind": "practice",
+  "type": "연습",
+  "title": "작거나 같니?",
+  "level": "연습",
+  "minutes": 4,
+  "description": "오늘 기온이 어제와 같거나 더 따뜻한지 궁금할 때가 있죠? 어제 기온을 a, 오늘 기온을 b 라고 두고 비교해 봐요.\n정수 a, b 를 입력받아 b 가 a 보다 크거나 같으면 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "b 가 a 보다 크거나 같으면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 두 수가 같은 경우에도 True 가 되도록 비교해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(b >= a)",
+  "hints": [
+    "'크거나 같다' 를 한 번에 나타내는 비교 연산자가 따로 있어요. 부등호와 등호가 합쳐진 모양이에요.",
+    "문제에 나온 순서가 중요해요. 'b 가 a 보다 크거나 같다' 에서 `>=` 의 왼쪽에는 어느 변수가 와야 할까요?"
+  ],
+  "explanation": "`>=` 는 '크거나 같다' 를 한 번에 확인하는 비교 연산자예요. 'a 가 b 이하' 를 뜻하는 `a <= b` 로 써도 결과가 같아요.",
+  "tests": [
+    {
+      "input": "0 -1",
+      "output": "False"
+    },
+    {
+      "input": "3 3",
+      "output": "True"
+    },
+    {
+      "input": "2 8",
+      "output": "True"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6050",
+    "label": "코드업 6050번 · 정수 2개 입력받아 비교하기3"
+  }
+}

@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 // The studio loads these plain scripts and the problem files at run time, so the build output needs them next to new.html.
-const STUDIO_RUNTIME_FILES = ['studio-catalog.js', 'studio-core.js', 'curriculum'];
+const STUDIO_RUNTIME_FILES = ['studio-catalog.js', 'studio-progress.js', 'studio-markdown.js', 'studio-core.js', 'curriculum'];
 const copyStudioRuntimeFiles = {
   name: 'copy-studio-runtime-files',
   apply: 'build',

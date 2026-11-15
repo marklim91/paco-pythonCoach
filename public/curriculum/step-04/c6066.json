@@ -1,0 +1,32 @@
+{
+  "id": "c6066",
+  "kind": "practice",
+  "type": "연습",
+  "title": "even / odd",
+  "level": "연습",
+  "minutes": 4,
+  "description": "영어로 짝수는 even, 홀수는 odd 라고 해요. 숫자마다 영어 이름표를 붙여 볼까요?\n정수 3개를 입력받아 각각 짝수면 `even`, 홀수면 `odd` 를 한 줄에 하나씩 출력해주세요.",
+  "input": "세 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "세 정수 각각에 대해 even 또는 odd 를 한 줄에 하나씩 출력합니다.",
+  "starter": "a, b, c = map(int, input().split())\n\n# 세 수 각각이 짝수인지 홀수인지 판단해서 한 줄씩 출력해 보세요.\n",
+  "solution": "a, b, c = map(int, input().split())\nif a % 2 == 0:\n    print('even')\nelse:\n    print('odd')\nif b % 2 == 0:\n    print('even')\nelse:\n    print('odd')\nif c % 2 == 0:\n    print('even')\nelse:\n    print('odd')",
+  "hints": [
+    "수 하나마다 `even` 이나 `odd` 가 꼭 한 줄씩 나와야 해요. 짝수가 아니면 곧 홀수니까 `if` / `else` 한 쌍이 어울려요.",
+    "짝수인지는 2로 나눈 나머지(`%`)가 0 인지로 확인해요. 같은 모양의 `if` / `else` 를 세 수에 각각 써 보세요."
+  ],
+  "explanation": "수 하나마다 `if` / `else` 한 쌍을 쓰면 짝수와 홀수 중 정확히 한 가지가 출력돼요. 짝수가 아니면 곧 홀수라서 홀수 조건을 따로 쓰지 않아도 돼요.",
+  "tests": [
+    {
+      "input": "1 2 8",
+      "output": "odd\neven\neven"
+    },
+    {
+      "input": "3 3 4",
+      "output": "odd\nodd\neven"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6066",
+    "label": "코드업 6066번 · 정수 3개 입력받아 짝/홀 출력하기"
+  }
+}

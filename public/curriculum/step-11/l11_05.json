@@ -1,0 +1,33 @@
+{
+  "id": "l11_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "빗변의 길이",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": "사다리를 벽에 기대 세우려는데 얼마나 긴 사다리가 필요한지 알고 싶어요.\n직각삼각형의 두 변 a, b 를 입력받아 빗변의 길이를 소수 둘째 자리까지 출력해주세요. (빗변 = √(a² + b²))",
+  "input": "양의 정수 a b 가 공백으로 구분되어 입력됩니다.",
+  "output": "빗변의 길이를 소수 둘째 자리까지 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# a 와 b 로 빗변의 길이를 구해 보세요.\n# 결과를 소수 둘째 자리까지 출력해 보세요.\n",
+  "solution": "import math\n\na, b = map(int, input().split())\nprint(f\"{math.sqrt(a ** 2 + b ** 2):.2f}\")",
+  "hints": [
+    "제곱근을 구해 주는 도구는 `math` 모듈에 들어 있어요. 먼저 `import` 로 불러와야 해요.",
+    "`math.sqrt(x)` 는 x 의 제곱근이에요. x 자리에 a² + b² 를 넣어야 하는데, 제곱은 `**` 로 계산해요.",
+    "소수 둘째 자리까지 맞추려면 f-string 안에서 `:.2f` 를 써 보세요."
+  ],
+  "explanation": "`math.sqrt()` 는 제곱근을 구해요. 같은 계산을 해 주는 `math.hypot(a, b)` 함수도 있어요. 필요한 기능이 있을 때 먼저 표준 라이브러리에 있는지 찾아보는 습관을 들이면 좋아요.",
+  "tests": [
+    {
+      "input": "3 4\n",
+      "output": "5.00"
+    },
+    {
+      "input": "1 1\n",
+      "output": "1.41"
+    },
+    {
+      "input": "5 12\n",
+      "output": "13.00"
+    }
+  ]
+}

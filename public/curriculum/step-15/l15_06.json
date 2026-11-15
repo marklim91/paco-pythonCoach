@@ -1,0 +1,29 @@
+{
+  "id": "l15_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "동물 클래스 상속",
+  "level": "기초",
+  "minutes": 12,
+  "description": "강아지는 멍멍, 고양이는 야옹! 동물 친구들이 저마다 다른 소리로 자기소개를 하게 만들어봐요.\n이름을 가지는 `Animal` 클래스를 만들고, 이를 상속받는 `Dog` 와 `Cat` 클래스를 만들어주세요. `speak()` 메서드는 Dog 는 `멍멍`, Cat 은 `야옹` 을 돌려줘요. n 줄의 `dog 이름` 또는 `cat 이름` 을 입력받아 `이름: 울음소리` 를 출력해주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 종류(dog 또는 cat)와 이름이 입력됩니다.",
+  "output": "동물마다 이름: 울음소리 를 출력합니다.",
+  "starter": "n = int(input())\n\n# 1) 이름을 가진 Animal 클래스와, 이를 상속받는 Dog, Cat 클래스를 만들어 보세요.\n# 2) 동물을 한 줄씩 읽어 객체를 만들고 이름과 울음소리를 출력해 보세요.\n",
+  "solution": "class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return \"...\"\n\n    def introduce(self):\n        return f\"{self.name}: {self.speak()}\"\n\n\nclass Dog(Animal):\n    def speak(self):\n        return \"멍멍\"\n\n\nclass Cat(Animal):\n    def speak(self):\n        return \"야옹\"\n\n\nkinds = {\"dog\": Dog, \"cat\": Cat}\nn = int(input())\nfor _ in range(n):\n    kind, name = input().split()\n    animal = kinds[kind](name)\n    print(animal.introduce())",
+  "hints": [
+    "클래스 이름 옆 괄호 안에 부모 클래스를 적으면 그 클래스를 물려받아요. 자식이 부모에게서 무엇을 물려받는지 생각해 보세요.",
+    "자식 클래스에 `__init__` 이 없으면 부모의 `__init__` 을 그대로 써요. 울음소리처럼 서로 다른 부분만 자식에서 다시 정의해 보세요.",
+    "`dog` 면 `Dog`, `cat` 이면 `Cat` 객체를 만들어야 해요. `if` 로 나눠도 되지만 클래스도 딕셔너리의 값이 될 수 있다는 점을 떠올려 보세요."
+  ],
+  "explanation": "상속은 공통 부분(이름, `introduce`)을 부모 클래스에 한 번만 쓰고, 다른 부분(`speak`)만 자식 클래스에서 다시 정의(오버라이딩)하는 방법이에요. `introduce()` 는 부모에 있지만 `self.speak()` 는 실제 객체의 종류에 맞는 메서드를 불러요. 덕분에 새 동물을 추가해도 기존 코드를 고칠 필요가 없어요.",
+  "tests": [
+    {
+      "input": "2\ndog 바둑이\ncat 나비\n",
+      "output": "바둑이: 멍멍\n나비: 야옹"
+    },
+    {
+      "input": "1\ncat 파코\n",
+      "output": "파코: 야옹"
+    }
+  ]
+}

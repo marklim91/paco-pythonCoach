@@ -1,0 +1,35 @@
+{
+  "id": "l10_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "가장 긴 단어 찾기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "영어 단어장에서 가장 길어서 외우기 힘든 단어는 무엇일까요?\n같은 폴더의 `words.txt` 파일(UTF-8)에는 한 줄에 단어가 하나씩 있어요. 가장 긴 단어와 그 길이를 공백으로 구분해 한 줄로 출력해주세요. 길이가 같으면 먼저 나온 단어를 출력해주세요. (예: 가장 긴 단어가 grape 이면 `grape 5`)",
+  "input": "표준 입력은 없습니다. words.txt 파일이 주어집니다.",
+  "output": "단어 길이 형식으로 출력합니다.",
+  "starter": "# words.txt 파일을 한 줄씩 읽어 보세요.\n# 가장 긴 단어와 그 길이를 찾아 출력해 보세요.\n",
+  "solution": "longest = \"\"\nwith open(\"words.txt\", \"r\", encoding=\"utf-8\") as f:\n    for line in f:\n        word = line.strip()\n        if len(word) > len(longest):\n            longest = word\nprint(longest, len(longest))",
+  "hints": [
+    "지금까지 본 단어 중 가장 긴 것을 기억해 둘 변수가 하나 필요해요. 처음에는 무엇을 넣어 두면 좋을까요?",
+    "줄 끝의 줄바꿈 문자를 `strip()` 으로 지운 뒤 `len()` 으로 길이를 재요. 지우지 않으면 글자 수가 하나 더 나와요.",
+    "지금까지의 최고보다 더 길 때만 바꾸면, 길이가 같을 때는 먼저 나온 단어가 그대로 남아요. `>` 와 `>=` 중 어느 쪽이 맞을까요?"
+  ],
+  "explanation": "'지금까지 본 것 중 최고'를 변수에 기억하며 갱신하는 패턴이에요. `>` 로 비교하면 길이가 같을 때는 바꾸지 않으므로 먼저 나온 단어가 유지돼요. 길이를 재기 전에 `strip()` 으로 줄바꿈 문자를 제거해야 해요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "banana 6",
+      "files": {
+        "words.txt": "apple\nbanana\nkiwi\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "cat 3",
+      "files": {
+        "words.txt": "cat\ndog\nox\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "l02_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "직사각형 계산",
+  "level": "입문",
+  "minutes": 10,
+  "description": "게시판에 색지를 붙이고 가장자리에 리본을 두르려고 해요. 색지의 넓이와 리본의 길이(둘레)를 미리 알면 준비하기 쉽겠죠?\n직사각형의 가로와 세로(정수)를 공백으로 구분해 입력받아 첫째 줄에 넓이, 둘째 줄에 둘레를 출력해주세요.",
+  "input": "가로와 세로(정수)가 공백으로 구분되어 입력됩니다.",
+  "output": "넓이와 둘레를 두 줄에 출력합니다.",
+  "starter": "width, height = map(int, input().split())\n\n# 넓이와 둘레를 계산해서 두 줄로 출력해 보세요.\n",
+  "solution": "w, h = map(int, input().split())\nprint(w * h)\nprint((w + h) * 2)",
+  "hints": [],
+  "explanation": "한 줄에 입력된 두 값을 `split()` 으로 나누고 `map(int, …)` 으로 정수로 바꿨어요. 둘레는 덧셈을 먼저 해야 하므로 괄호가 필요해요.",
+  "tests": [
+    {
+      "input": "3 4\n",
+      "output": "12\n14"
+    },
+    {
+      "input": "10 10\n",
+      "output": "100\n40"
+    },
+    {
+      "input": "1 7\n",
+      "output": "7\n16"
+    }
+  ]
+}

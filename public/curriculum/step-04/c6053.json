@@ -1,0 +1,36 @@
+{
+  "id": "c6053",
+  "kind": "practice",
+  "type": "연습",
+  "title": "참거짓 뒤집기",
+  "level": "연습",
+  "minutes": 4,
+  "description": "동전을 뒤집으면 앞면은 뒷면이 되고 뒷면은 앞면이 돼요. 참과 거짓도 이렇게 뒤집을 수 있어요.\n정수 1개를 입력받아 `bool` 로 바꾼 값의 반대(`not`)를 `True` 또는 `False` 로 출력해주세요.",
+  "input": "정수 한 개가 한 줄에 입력됩니다.",
+  "output": "bool 로 바꾼 값의 반대(True 또는 False)를 한 줄에 출력합니다.",
+  "starter": "n = int(input())\n\n# n 을 참/거짓 값으로 바꾼 뒤, 그 반대를 출력해 보세요.\n",
+  "solution": "n = int(input())\nprint(not bool(n))",
+  "hints": [
+    "참을 거짓으로, 거짓을 참으로 뒤집어 주는 키워드는 `not` 이에요. `not True` 는 무엇일까요?",
+    "먼저 `bool()` 로 참/거짓 값을 만든 다음, 그 앞에 `not` 을 붙여 보세요. 0 이면 `True`, 아니면 `False` 가 나와야 해요."
+  ],
+  "explanation": "`not` 은 `True` 를 `False` 로, `False` 를 `True` 로 뒤집어요. 0 은 `bool` 로 바꾸면 `False` 이고, 거기에 `not` 을 붙이면 `True` 가 돼요.",
+  "tests": [
+    {
+      "input": "0",
+      "output": "True"
+    },
+    {
+      "input": "1",
+      "output": "False"
+    },
+    {
+      "input": "5",
+      "output": "False"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6053",
+    "label": "코드업 6053번 · 참 거짓 바꾸기"
+  }
+}

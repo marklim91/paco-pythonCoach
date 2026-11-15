@@ -1,0 +1,33 @@
+{
+  "id": "l12_03",
+  "kind": "core",
+  "type": "실습",
+  "title": "논리 오류 고치기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "오류 메시지도 없이 실행은 되는데 답만 틀리다면 어디가 잘못된 걸까요? 값이 어떻게 변하는지 따라가 보면 단서가 보여요.\n1부터 n 까지의 곱(n!)을 구하려는 코드예요. 오류 없이 실행되지만 항상 0 이 출력돼요. 원인을 찾아 고쳐주세요.\n\n```python\nn = int(input())\nresult = 0\nfor i in range(n):\n    result *= i\nprint(result)\n```",
+  "input": "1 이상의 정수 n 이 입력됩니다.",
+  "output": "1 × 2 × … × n 의 값을 출력합니다.",
+  "starter": "n = int(input())\nresult = 0\nfor i in range(n):\n    result *= i\nprint(result)",
+  "solution": "n = int(input())\nresult = 1\nfor i in range(1, n + 1):\n    result *= i\nprint(result)",
+  "hints": [
+    "오류 메시지가 없을 땐 반복문 안에 `print(i, result)` 를 넣어 값이 어떻게 변하는지 눈으로 따라가 보세요.",
+    "처음에 `result` 에 넣어 둔 값에서 출발해 계속 곱하고 있어요. 0 에 무엇을 곱해도 0 이라는 점을 떠올려 보세요.",
+    "`range(n)` 은 0 부터 n-1 까지 만들어 줘요. 1 부터 n 까지 곱하려면 시작과 끝 값을 어떻게 정해야 할까요?"
+  ],
+  "explanation": "오류 메시지가 없는데 결과가 틀린 것을 '논리 오류'라고 해요. ① 곱셈의 누적은 0 이 아니라 1 에서 시작해야 해요. ② `range(n)` 은 0 부터 시작하고 n 을 포함하지 않으므로 `range(1, n + 1)` 로 고쳐야 해요. 논리 오류는 중간값을 `print` 로 찍어 보며 예상과 달라지는 지점을 찾는 것이 가장 좋은 방법이에요.",
+  "tests": [
+    {
+      "input": "5\n",
+      "output": "120"
+    },
+    {
+      "input": "1\n",
+      "output": "1"
+    },
+    {
+      "input": "3\n",
+      "output": "6"
+    }
+  ]
+}

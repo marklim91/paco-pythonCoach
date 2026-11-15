@@ -1,0 +1,29 @@
+{
+  "id": "l07_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "명령어 전화번호부",
+  "level": "도전",
+  "minutes": 15,
+  "description": "스마트폰 연락처에는 저장, 검색, 삭제 기능이 있어요. 그 기능들을 직접 만들어 봐요.\n명령어를 한 줄씩 입력받아 아래 규칙대로 전화번호부를 관리하고, `end` 가 입력되면 종료해주세요.\n- `add 이름 번호` : 저장 (이미 있으면 새 번호로 바꿈), 출력 없음\n- `find 이름` : 번호를 출력, 없으면 `없음`\n- `del 이름` : 삭제 후 `삭제됨`, 없으면 `없음`",
+  "input": "명령어가 한 줄에 하나씩 입력되고 마지막 줄은 end 입니다.",
+  "output": "find, del 명령마다 결과를 한 줄 출력합니다.",
+  "starter": "# 1) 이름과 번호를 저장할 딕셔너리를 만들어 보세요.\n# 2) 명령어를 한 줄씩 읽으면서 add, find, del 을 처리해 보세요. end 가 입력되면 멈춰요.\n",
+  "solution": "book = {}\nwhile True:\n    parts = input().split()\n    cmd = parts[0]\n    if cmd == \"end\":\n        break\n    elif cmd == \"add\":\n        book[parts[1]] = parts[2]\n    elif cmd == \"find\":\n        print(book.get(parts[1], \"없음\"))\n    elif cmd == \"del\":\n        if parts[1] in book:\n            del book[parts[1]]\n            print(\"삭제됨\")\n        else:\n            print(\"없음\")",
+  "hints": [
+    "몇 줄이 입력될지 모르는데 `end` 에서 멈추려면 어떤 반복문이 좋을까요? `while True:` 로 계속 읽다가 `break` 로 빠져나오는 방법이 있어요.",
+    "읽은 한 줄을 `split()` 으로 나누면 첫 번째 조각이 명령어예요. 명령어가 `add`, `find`, `del` 중 무엇인지에 따라 `if` / `elif` 로 나눠 처리해 보세요.",
+    "항목을 지울 때는 `del 딕셔너리[키]` 를 써요. 없는 키를 지우면 오류가 나니, 지우기 전에 `in` 으로 키가 있는지 확인해 보세요."
+  ],
+  "explanation": "실제 프로그램처럼 '명령 읽기 → 종류에 따라 처리 → 반복' 구조를 만들었어요. 같은 키에 값을 다시 넣으면 덮어쓰기가 되므로 수정 기능이 따로 필요 없어요. 삭제 전에 `in` 으로 키가 있는지 확인해야 `KeyError` 를 피할 수 있어요. 전화번호는 `010` 처럼 0 으로 시작할 수 있어 정수가 아닌 문자열로 저장했어요.",
+  "tests": [
+    {
+      "input": "add 파코 010-1234-5678\nfind 파코\nfind 민희\nend\n",
+      "output": "010-1234-5678\n없음"
+    },
+    {
+      "input": "add a 111\nadd a 222\nfind a\ndel a\nfind a\ndel a\nend\n",
+      "output": "222\n삭제됨\n없음\n없음"
+    }
+  ]
+}

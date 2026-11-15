@@ -1,0 +1,33 @@
+{
+  "id": "l15_08",
+  "kind": "core",
+  "type": "도전",
+  "title": "졸업 프로젝트: 텍스트 RPG 전투",
+  "level": "심화",
+  "minutes": 20,
+  "description": "턴제 게임에서는 내 차례에 한 번, 상대 차례에 한 번씩 공격을 주고받아요. 두 캐릭터의 싸움을 코드로 재현해봐요.\n`Character` 클래스로 턴제 전투를 시뮬레이션해주세요. 캐릭터는 이름, 체력(hp), 공격력(atk)을 가져요.\n- 첫 번째 캐릭터부터 번갈아 가며 상대를 공격해요.\n- 공격하면 상대의 hp 가 공격력만큼 줄어들어요. (0 보다 작아지면 0)\n- 공격할 때마다 `공격자 → 상대: 남은 HP n` 을 출력해요.\n- 상대의 hp 가 0 이 되면 `승자: 이름 (n턴)` 을 출력하고 끝내요. (턴 = 전체 공격 횟수)",
+  "input": "두 줄에 걸쳐 이름 hp atk 가 입력됩니다. (atk 는 1 이상)",
+  "output": "전투 과정과 승자를 출력합니다.",
+  "starter": "# 1) 이름, hp, atk 를 가진 Character 클래스를 만들어 보세요.\n# 2) 입력 두 줄로 캐릭터 두 명을 만든 뒤, 번갈아 공격하는 전투를 만들어 보세요.\n# 3) 한쪽의 hp 가 0 이 되면 승자와 턴 수를 출력해 보세요.\n",
+  "solution": "class Character:\n    def __init__(self, name, hp, atk):\n        self.name = name\n        self.hp = hp\n        self.atk = atk\n\n    def attack(self, other):\n        other.hp = max(0, other.hp - self.atk)\n        print(f\"{self.name} → {other.name}: 남은 HP {other.hp}\")\n\n    def is_alive(self):\n        return self.hp > 0\n\n\ndef read_character():\n    name, hp, atk = input().split()\n    return Character(name, int(hp), int(atk))\n\n\nattacker = read_character()\ndefender = read_character()\nturn = 0\n\nwhile True:\n    turn += 1\n    attacker.attack(defender)\n    if not defender.is_alive():\n        print(f\"승자: {attacker.name} ({turn}턴)\")\n        break\n    attacker, defender = defender, attacker",
+  "hints": [
+    "캐릭터가 할 수 있는 일을 메서드로 나눠 보세요. 상대를 공격하는 일, 그리고 아직 살아 있는지 알려 주는 일이 필요해요.",
+    "공격하는 쪽과 공격받는 쪽을 변수 두 개로 두고, 한 번 공격이 끝날 때마다 둘의 역할을 서로 바꾸면 번갈아 공격할 수 있어요.",
+    "hp 가 0 아래로 내려가지 않게 하려면 `max()` 를 쓸 수 있어요. 어떤 두 값 중 큰 것을 고르면 될지 생각해 보세요."
+  ],
+  "explanation": "클래스 하나로 두 캐릭터 객체를 만들고, 한 객체의 메서드가 다른 객체의 상태를 바꾸는 '객체 간 상호작용'을 구현했어요. `attacker` 와 `defender` 를 매 턴 맞바꾸는 방법(Lv.2 의 값 교환!)으로 번갈아 공격하는 코드를 한 번만 썼어요. 변수, 조건, 반복, 함수, 클래스가 모두 들어 있는 이 프로그램을 스스로 완성했다면 Python Junior Developer 예요!",
+  "tests": [
+    {
+      "input": "용사 30 10\n슬라임 25 8\n",
+      "output": "용사 → 슬라임: 남은 HP 15\n슬라임 → 용사: 남은 HP 22\n용사 → 슬라임: 남은 HP 5\n슬라임 → 용사: 남은 HP 14\n용사 → 슬라임: 남은 HP 0\n승자: 용사 (5턴)"
+    },
+    {
+      "input": "A 5 1\nB 10 9\n",
+      "output": "A → B: 남은 HP 9\nB → A: 남은 HP 0\n승자: B (2턴)"
+    },
+    {
+      "input": "파코 1 100\n버그 99 1\n",
+      "output": "파코 → 버그: 남은 HP 0\n승자: 파코 (1턴)"
+    }
+  ]
+}

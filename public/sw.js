@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pco-webapp-v11';
+const CACHE_NAME = 'pco-webapp-v12';
 const OFFLINE_URL = './offline.html';
 const ASSETS = [
   './',

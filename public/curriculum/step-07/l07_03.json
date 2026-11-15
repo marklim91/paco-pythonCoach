@@ -1,0 +1,33 @@
+{
+  "id": "l07_03",
+  "kind": "core",
+  "type": "실습",
+  "title": "반장 선거 개표",
+  "level": "입문",
+  "minutes": 8,
+  "description": "누가 반장이 되었을까요? 투표 결과를 세어서 당선자를 발표해 봐요.\nn 명의 투표 결과(후보 이름)를 입력받아, 가장 많은 표를 받은 후보의 이름과 득표수를 이 순서대로 공백으로 구분해 한 줄에 출력해주세요. 동점이면 이름이 사전 순으로 가장 앞선 후보를 출력해주세요.",
+  "input": "첫째 줄에 n, 다음 n 줄에 후보 이름이 하나씩 입력됩니다.",
+  "output": "당선자 이름 득표수 를 출력합니다.",
+  "starter": "n = int(input())\n\n# 후보별 득표수를 세어 보세요.\n# 가장 많은 표를 받은 후보를 찾아 출력하되, 동점이면 사전 순으로 가장 앞선 이름을 골라 보세요.\n",
+  "solution": "n = int(input())\nvotes = {}\nfor _ in range(n):\n    name = input()\n    votes[name] = votes.get(name, 0) + 1\n\ntop = max(votes.values())\nwinners = sorted(name for name, v in votes.items() if v == top)\nprint(winners[0], top)",
+  "hints": [
+    "먼저 후보별 득표수를 세어야 해요. 앞에서 단어 횟수를 셌던 것처럼 이름을 키, 득표수를 값으로 하는 딕셔너리를 써 보세요.",
+    "`values()` 는 딕셔너리의 값들만 모아 줘요. `max()` 와 함께 쓰면 가장 많은 득표수를 알 수 있어요.",
+    "그 득표수를 받은 후보가 여러 명일 수 있어요. 그 후보들의 이름만 모아 `sorted()` 로 정렬하면 사전 순으로 가장 앞선 이름이 나와요."
+  ],
+  "explanation": "`values()` 는 값들만 모아 주므로 `max(votes.values())` 로 최다 득표수를 얻어요. 그다음 그 득표수를 가진 후보만 골라 `sorted()` 로 정렬하면 사전 순 첫 번째가 답이 돼요. 동점 같은 '예외 상황'의 규칙을 정확히 구현했는지 꼭 테스트해 보세요.",
+  "tests": [
+    {
+      "input": "5\n파코\n민희\n파코\n동빈\n파코\n",
+      "output": "파코 3"
+    },
+    {
+      "input": "4\n하늘\n가람\n하늘\n가람\n",
+      "output": "가람 2"
+    },
+    {
+      "input": "1\n인호\n",
+      "output": "인호 1"
+    }
+  ]
+}

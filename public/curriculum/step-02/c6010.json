@@ -1,0 +1,36 @@
+{
+  "id": "c6010",
+  "kind": "practice",
+  "type": "연습",
+  "title": "정수 하나 그대로",
+  "level": "연습",
+  "minutes": 4,
+  "description": "'7' 과 7 은 같은 걸까요? 겉모습은 같아도 컴퓨터는 둘을 다르게 봐요.\n정수 1개를 입력받아 정수(`int`)로 바꾼 뒤 그대로 출력해주세요.",
+  "input": "정수 한 개가 한 줄에 입력됩니다.",
+  "output": "입력받은 정수를 그대로 출력합니다.",
+  "starter": "text = input()\n\n# text 를 정수로 바꿔서 출력해 보세요.\n",
+  "solution": "n = int(input())\nprint(n)",
+  "hints": [
+    "입력받은 글자를 정수로 바꿔 주는 함수가 있었죠? 이름을 떠올려 봐요.",
+    "`int()` 괄호 안에 바꿀 값을 넣어요. 바꾼 결과를 `print()` 로 출력해 보세요."
+  ],
+  "explanation": "`input()` 은 항상 글자(문자열)를 돌려줘요. 그래서 `int()` 로 바꿔야 `'7'` 이 계산에 쓸 수 있는 정수 `7` 이 돼요.",
+  "tests": [
+    {
+      "input": "10",
+      "output": "10"
+    },
+    {
+      "input": "-77",
+      "output": "-77"
+    },
+    {
+      "input": "0",
+      "output": "0"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6010",
+    "label": "코드업 6010번 · 정수 1개 입력받아 int로 변환하여 출력하기"
+  }
+}

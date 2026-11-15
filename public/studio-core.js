@@ -1,12 +1,17 @@
-// 문제 목록(제목·난이도 등)은 studio-catalog.js에서 읽고, 문제 본문은 loadProblem이 선택한 문제만 불러와 합칩니다.
+// 문제 목록(제목·종류·난이도 등)은 studio-catalog.js에서 읽고, 문제 본문은 loadProblem이 선택한 문제만 불러와 합칩니다.
+// 승급·잠금 규칙은 studio-progress.js(PcoProgress)가 정합니다.
 const TRACKS = PcoStudio.tracks.map((track) => ({
   ...track,
-  problems: track.problems.map((problem) => ({ ...problem })),
+  problems: track.problems.map((problem) => ({ ...problem, trackId: track.id })),
+  exam: track.exam.map((problem) => ({ ...problem, trackId: track.id })),
 }));
-const PROBLEMS = TRACKS.flatMap((track) =>
-  track.problems.map((problem) => ({ ...problem, trackId: track.id })),
-);
-const STORAGE_KEY = "paco-studio-v1";
+// 레벨 목록과 같은 객체를 가리키므로 문제 본문을 한 번 불러오면 어디서나 보입니다.
+const PROBLEMS = TRACKS.flatMap((track) => [...track.problems, ...track.exam]);
+const PROBLEM_BY_ID = new Map(PROBLEMS.map((problem) => [problem.id, problem]));
+const MODEL = PcoProgress.createModel(TRACKS);
+const STORAGE_KEY = "paco-studio-v2";
+// 이전 화면(10단계 목록)의 저장 키입니다. 코치·포인트 주소만 이어받고 학습 기록은 새 방식과 달라 옮기지 않습니다.
+const LEGACY_STORAGE_KEY = "paco-studio-v1";
 const DEFAULT_COACH_URL =
   "https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_bot_QSDFLs/webchat?__version__=2&enableFileAttachment=false&cliAgent=true";
 // 이전 기본 코치 주소를 저장해 둔 브라우저는 새 코치로 옮깁니다. 직접 입력한 다른 주소는 그대로 둡니다.
@@ -24,6 +29,7 @@ const POINTS_BY_LEVEL = {
   도전: 50,
   심화: 80,
 };
+const PRACTICE_POINTS = PcoStudio.PRACTICE_POINTS;
 function normalizeOutput(value) {
   return value
     .replace(/\r\n/g, "\n")
@@ -56,7 +62,9 @@ function validatePointsUrl(value) {
   }
   return url.href;
 }
+// 연습 문제는 난이도와 상관없이 정해진 점수를 받고, 핵심·시험 문제는 난이도에 따라 받습니다.
 function pointsFor(problem) {
+  if (problem.kind === "practice") return PRACTICE_POINTS;
   return POINTS_BY_LEVEL[problem.level] || 0;
 }
 function awardKey(student, problemId) {
@@ -168,78 +176,173 @@ async function requestPoints({
   }
   return { points: result.points, awarded: result.awarded !== false };
 }
-// 연습 문제는 원래 문제 id 뒤에 -p1, -p2를 붙여 구분합니다. 문제 id는 영문 소문자·숫자·_만 써서 겹치지 않습니다.
-function practiceId(problemId, index) {
-  return `${problemId}-p${index + 1}`;
-}
-function isPracticeId(id) {
-  const match = /^(.+)-p[1-9]\d*$/.exec(id);
-  return Boolean(match && PROBLEMS.some((p) => p.id === match[1]));
-}
-function readStudioState(storage) {
-  const initial = {
-    selected: "hello",
+
+// ---- 저장된 학습 상태 -------------------------------------------------------
+const isRecord = (value) =>
+  Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const isCount = (value) => Number.isSafeInteger(value) && value >= 0;
+function initialState() {
+  return {
+    selected: PROBLEMS[0].id,
     codes: {},
-    completed: [],
-    practiced: [],
     coachUrl: DEFAULT_COACH_URL,
     pointsUrl: "",
     awarded: [],
+    ...PcoProgress.freshProgress(),
   };
+}
+// 문제 id를 키로 쓰는 기록입니다. 더는 없는 문제의 기록은 조용히 버리고, 형식이 틀리면 저장 데이터가 깨진 것으로 봅니다.
+function readMap(value, name, valid) {
+  if (value === undefined) return {};
+  if (!isRecord(value)) throw new Error(`저장된 ${name} 형식이 올바르지 않아요.`);
+  const result = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (!PROBLEM_BY_ID.has(id)) continue;
+    if (!valid(entry)) throw new Error(`저장된 ${name} 형식이 올바르지 않아요.`);
+    result[id] = entry;
+  }
+  return result;
+}
+function readSolvedEntry(entry) {
+  return (
+    isRecord(entry) &&
+    typeof entry.clean === "boolean" &&
+    typeof entry.first === "boolean" &&
+    typeof entry.peek === "boolean" &&
+    typeof entry.coach === "boolean" &&
+    isCount(entry.hints) &&
+    isCount(entry.tries) &&
+    isCount(entry.points)
+  );
+}
+function readProgress(parsed) {
+  const fresh = PcoProgress.freshProgress();
+  const count = (name) => {
+    if (parsed[name] === undefined) return fresh[name];
+    if (!isCount(parsed[name])) throw new Error(`저장된 ${name} 값이 올바르지 않아요.`);
+    return parsed[name];
+  };
+  let passed = {};
+  if (parsed.passed !== undefined) {
+    if (!isRecord(parsed.passed)) throw new Error("저장된 승급 기록이 올바르지 않아요.");
+    for (const [level, how] of Object.entries(parsed.passed)) {
+      if (!PcoProgress.HOW.includes(how)) throw new Error("저장된 승급 기록이 올바르지 않아요.");
+      if (/^[1-9]\d*$/.test(level) && Number(level) <= MODEL.levelCount) passed[Number(level)] = how;
+    }
+  }
+  let daily = {};
+  if (parsed.daily !== undefined) {
+    if (!isRecord(parsed.daily)) throw new Error("저장된 오늘의 학습 기록이 올바르지 않아요.");
+    for (const [day, points] of Object.entries(parsed.daily)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !isCount(points)) throw new Error("저장된 오늘의 학습 기록이 올바르지 않아요.");
+      daily[day] = points;
+    }
+  }
+  const lastDay = parsed.lastDay === undefined ? "" : parsed.lastDay;
+  if (typeof lastDay !== "string" || (lastDay && !/^\d{4}-\d{2}-\d{2}$/.test(lastDay)))
+    throw new Error("저장된 학습 날짜가 올바르지 않아요.");
+  if (parsed.placementDone !== undefined && typeof parsed.placementDone !== "boolean")
+    throw new Error("저장된 진단평가 기록이 올바르지 않아요.");
+  return {
+    solved: readMap(parsed.solved, "해결 기록", readSolvedEntry),
+    passed,
+    hintsUsed: readMap(parsed.hintsUsed, "힌트 기록", isCount),
+    peeked: readMap(parsed.peeked, "예시 정답 기록", (entry) => entry === true),
+    coachUsed: readMap(parsed.coachUsed, "코치 기록", (entry) => entry === true),
+    tries: readMap(parsed.tries, "시도 기록", isCount),
+    mistakes: readMap(
+      parsed.mistakes,
+      "실수 노트",
+      (entry) =>
+        isRecord(entry) &&
+        typeof entry.reason === "string" &&
+        typeof entry.coach === "boolean" &&
+        (entry.resolved === undefined || typeof entry.resolved === "boolean"),
+    ),
+    gems: count("gems"),
+    streak: count("streak"),
+    lastDay,
+    freeze: count("freeze"),
+    combo: count("combo"),
+    daily,
+    placementDone: parsed.placementDone === true,
+  };
+}
+// 이전 화면의 코치·포인트 주소만 새 저장소로 옮깁니다. 읽을 수 없는 값은 건너뛰고 오류로 만들지 않습니다.
+function readLegacySettings(storage, initial) {
+  let raw = null;
+  try {
+    raw = storage.getItem(LEGACY_STORAGE_KEY);
+  } catch {
+    return { state: initial, warning: "" };
+  }
+  if (!raw) return { state: initial, warning: "" };
+  const state = { ...initial };
+  try {
+    const old = JSON.parse(raw);
+    if (isRecord(old)) {
+      if (typeof old.coachUrl === "string") {
+        try {
+          state.coachUrl = LEGACY_COACH_URLS.includes(old.coachUrl)
+            ? DEFAULT_COACH_URL
+            : validateCoachUrl(old.coachUrl);
+        } catch {
+          /* 잘못된 주소는 기본 코치를 씁니다. */
+        }
+      }
+      if (typeof old.pointsUrl === "string" && old.pointsUrl) {
+        try {
+          state.pointsUrl = validatePointsUrl(old.pointsUrl);
+        } catch {
+          /* 허용되지 않는 포인트 주소는 가져오지 않습니다. */
+        }
+      }
+    }
+  } catch {
+    return { state: initial, warning: "" };
+  }
+  return {
+    state,
+    warning: "",
+    notice:
+      "학습 방식이 레벨 로드맵으로 바뀌었어요. 이전 기록은 옮기지 못했지만 진단평가로 내 레벨을 찾을 수 있어요.",
+  };
+}
+function readStudioState(storage) {
+  const initial = initialState();
   try {
     const raw = storage.getItem(STORAGE_KEY);
-    if (!raw) return { state: initial, warning: "" };
+    if (!raw) return readLegacySettings(storage, initial);
     const parsed = JSON.parse(raw);
     if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      Array.isArray(parsed) ||
-      typeof parsed.codes !== "object" ||
-      !parsed.codes ||
-      Array.isArray(parsed.codes) ||
-      !Array.isArray(parsed.completed) ||
-      !PROBLEMS.some((p) => p.id === parsed.selected) ||
-      typeof parsed.coachUrl !== "string"
+      !isRecord(parsed) ||
+      !isRecord(parsed.codes) ||
+      typeof parsed.coachUrl !== "string" ||
+      typeof parsed.selected !== "string"
     )
       throw new Error("저장 형식이 올바르지 않아요.");
     const codes = {};
     for (const [id, code] of Object.entries(parsed.codes)) {
-      if (
-        !(PROBLEMS.some((p) => p.id === id) || isPracticeId(id)) ||
-        typeof code !== "string"
-      )
-        throw new Error("저장된 코드 형식이 올바르지 않아요.");
-      codes[id] = code;
+      if (typeof code !== "string") throw new Error("저장된 코드 형식이 올바르지 않아요.");
+      if (PROBLEM_BY_ID.has(id)) codes[id] = code;
     }
-    if (
-      !parsed.completed.every((id) => PROBLEMS.some((p) => p.id === id))
-    )
-      throw new Error("저장된 진도가 올바르지 않아요.");
-    const practiced = Array.isArray(parsed.practiced) ? parsed.practiced : [];
-    if (!practiced.every((id) => typeof id === "string" && isPracticeId(id)))
-      throw new Error("저장된 연습 기록이 올바르지 않아요.");
     const pointsUrl =
       typeof parsed.pointsUrl === "string" && parsed.pointsUrl
         ? validatePointsUrl(parsed.pointsUrl)
         : "";
     const awarded = Array.isArray(parsed.awarded)
-      ? [
-          ...new Set(
-            parsed.awarded.filter((key) => typeof key === "string"),
-          ),
-        ]
+      ? [...new Set(parsed.awarded.filter((key) => typeof key === "string"))]
       : [];
     return {
       state: {
-        selected: parsed.selected,
+        selected: PROBLEM_BY_ID.has(parsed.selected) ? parsed.selected : initial.selected,
         codes,
-        completed: [...new Set(parsed.completed)],
-        practiced: [...new Set(practiced)],
         coachUrl: LEGACY_COACH_URLS.includes(parsed.coachUrl)
           ? DEFAULT_COACH_URL
           : validateCoachUrl(parsed.coachUrl),
         pointsUrl,
         awarded,
+        ...readProgress(parsed),
       },
       warning: "",
     };
@@ -260,45 +363,29 @@ function browserStorage() {
   }
 }
 // 내 학습 현황의 추천 링크(new.html?problem=문제ID)로 열면 저장된 문제 대신 그 문제를 보여줍니다.
-function initialProblemId(saved, search) {
+function requestedProblemId(search) {
   const requested = new URLSearchParams(search).get("problem");
-  return requested && PROBLEMS.some((p) => p.id === requested)
-    ? requested
-    : saved;
+  return requested && PROBLEM_BY_ID.has(requested) ? requested : "";
 }
+// 화면 라이브러리를 내려받는 동안 미리 받아 둘 문제입니다: 링크가 가리키는 문제, 없으면 지금 풀 문제입니다.
 function startupProblemId(search, storage = browserStorage()) {
-  return initialProblemId(readStudioState(storage).state.selected, search);
+  const requested = requestedProblemId(search);
+  if (requested) return requested;
+  if (!storage) return PROBLEMS[0].id;
+  const { state } = readStudioState(storage);
+  const next = MODEL.nextStep(state, MODEL.currentLevel(state));
+  return next.id && next.kind !== "exam" ? next.id : state.selected;
 }
-const PROBLEM_TEXT_KEYS = [
-  "input",
-  "output",
-  "concept",
-  "conceptCode",
-  "starter",
-];
-const PROBLEM_LIST_KEYS = ["description", "constraints", "hints"];
-// 힌트 탭에서 보여주는 '비슷한 예제'입니다. 문제의 정답 코드(solution)는 테스트 검증용이라 화면에 쓰지 않고 읽지도 않습니다.
-const EXAMPLE_TEXT_KEYS = ["intro", "code", "input", "output"];
-// 문제마다 둘 수 있는 점수 없는 '비슷한 연습 문제'입니다. 정답 코드(solution)는 역시 읽지 않습니다.
-const PRACTICE_TEXT_KEYS = ["title", "input", "output", "starter"];
-const PRACTICE_LIST_KEYS = ["description", "constraints", "hints"];
-function isPractice(item) {
-  const isText = (value) => typeof value === "string";
+
+// ---- 문제 본문 ----------------------------------------------------------------
+const isText = (value) => typeof value === "string";
+function isTest(test) {
   return Boolean(
-    item &&
-      PRACTICE_TEXT_KEYS.every((key) => isText(item[key])) &&
-      PRACTICE_LIST_KEYS.every(
-        (key) =>
-          Array.isArray(item[key]) &&
-          item[key].length > 0 &&
-          item[key].every(isText),
-      ) &&
-      Number.isFinite(item.minutes) &&
-      Array.isArray(item.tests) &&
-      item.tests.length > 0 &&
-      item.tests.every(
-        (test) => test && isText(test.input) && isText(test.output),
-      ),
+    test &&
+      isText(test.input) &&
+      isText(test.output) &&
+      (test.files === undefined ||
+        (isRecord(test.files) && Object.values(test.files).every(isText))),
   );
 }
 function problemDetailUrl(problem) {
@@ -306,68 +393,42 @@ function problemDetailUrl(problem) {
   return `./curriculum/step-${step}/${problem.id}.json`;
 }
 function parseProblemDetail(problem, data) {
-  const isText = (value) => typeof value === "string";
   if (
-    !data ||
+    !isRecord(data) ||
     data.id !== problem.id ||
-    !PROBLEM_TEXT_KEYS.every((key) => isText(data[key])) ||
-    !PROBLEM_LIST_KEYS.every(
-      (key) =>
-        Array.isArray(data[key]) &&
-        data[key].length > 0 &&
-        data[key].every(isText),
-    ) ||
-    !data.example ||
-    !EXAMPLE_TEXT_KEYS.every((key) => isText(data.example[key])) ||
-    (data.practice !== undefined &&
-      !(Array.isArray(data.practice) && data.practice.every(isPractice))) ||
+    !isText(data.description) ||
+    !data.description.trim() ||
+    !["input", "output", "starter", "solution", "explanation"].every((key) => isText(data[key])) ||
+    !Array.isArray(data.hints) ||
+    !data.hints.every((hint) => isText(hint) && hint.trim()) ||
     !Array.isArray(data.tests) ||
     data.tests.length === 0 ||
-    !data.tests.every(
-      (test) => test && isText(test.input) && isText(test.output),
-    )
+    !data.tests.every(isTest) ||
+    (data.link !== undefined &&
+      !(isRecord(data.link) && isText(data.link.url) && isText(data.link.label)))
   )
     throw new Error("문제 파일의 형식이 올바르지 않아요: " + problem.id);
   return {
-    ...Object.fromEntries(
-      [...PROBLEM_TEXT_KEYS, ...PROBLEM_LIST_KEYS, "tests"].map((key) => [
-        key,
-        data[key],
-      ]),
-    ),
-    example: Object.fromEntries(
-      EXAMPLE_TEXT_KEYS.map((key) => [key, data.example[key]]),
-    ),
-    practice: (data.practice ?? []).map((item) =>
-      Object.fromEntries(
-        [
-          ...PRACTICE_TEXT_KEYS,
-          ...PRACTICE_LIST_KEYS,
-          "minutes",
-          "tests",
-        ].map((key) => [key, item[key]]),
-      ),
-    ),
-  };
-}
-// 연습 문제를 일반 문제처럼 화면·채점에 쓸 수 있는 모양으로 만듭니다. 난이도는 점수가 없는 '연습'이고, 개념 설명은 원래 문제의 것을 씁니다.
-function practiceProblem(problem, index) {
-  return {
-    ...problem.practice[index],
-    id: practiceId(problem.id, index),
-    problemId: problem.id,
-    isPractice: true,
-    level: "연습",
-    topic: problem.topic,
-    concept: problem.concept,
-    conceptCode: problem.conceptCode,
-    trackId: problem.trackId,
+    description: data.description,
+    input: data.input,
+    output: data.output,
+    starter: data.starter,
+    // 예시 정답은 틀린 뒤 코치와 이야기해 본 다음에만 화면에 보여줍니다(PcoProgress.helpStatus).
+    solution: data.solution,
+    hints: data.hints,
+    explanation: data.explanation,
+    tests: data.tests.map((test) => ({
+      input: test.input,
+      output: test.output,
+      ...(test.files ? { files: test.files } : {}),
+    })),
+    ...(data.link ? { link: { url: data.link.url, label: data.link.label } } : {}),
   };
 }
 const problemLoads = new Map();
-// 문제 본문(설명·테스트·힌트·비슷한 예제 등)은 처음 열 때 한 번만 불러옵니다. 실패하면 다음에 다시 시도합니다.
+// 문제 본문은 처음 열 때 한 번만 불러옵니다. 실패하면 다음에 다시 시도합니다.
 function loadProblem(id, fetchImpl = fetch) {
-  const problem = PROBLEMS.find((p) => p.id === id);
+  const problem = PROBLEM_BY_ID.get(id);
   if (!problem) return Promise.reject(new Error("알 수 없는 문제예요: " + id));
   if (problem.tests) return Promise.resolve(problem);
   if (!problemLoads.has(id)) {
@@ -388,4 +449,83 @@ function loadProblem(id, fetchImpl = fetch) {
     );
   }
   return problemLoads.get(id);
+}
+// 승급 시험 문제처럼 여러 문제를 한꺼번에 준비해야 할 때 씁니다.
+function loadProblems(ids, fetchImpl = fetch) {
+  return Promise.all(ids.map((id) => loadProblem(id, fetchImpl)));
+}
+
+// ---- 진단평가 문항 ------------------------------------------------------------
+function parsePlacement(data) {
+  const valid =
+    isRecord(data) &&
+    Array.isArray(data.items) &&
+    data.items.length > 0 &&
+    data.items.every(
+      (item) =>
+        isRecord(item) &&
+        isText(item.id) &&
+        Number.isInteger(item.level) &&
+        item.level >= 1 &&
+        item.level <= MODEL.levelCount &&
+        isText(item.question) &&
+        (item.code === undefined || item.code === null || isText(item.code)) &&
+        (item.files === undefined || (isRecord(item.files) && Object.values(item.files).every(isText))) &&
+        Array.isArray(item.choices) &&
+        item.choices.length >= 2 &&
+        item.choices.every(isText) &&
+        Number.isInteger(item.answer) &&
+        item.answer >= 0 &&
+        item.answer < item.choices.length &&
+        isText(item.explanation),
+    );
+  if (!valid) throw new Error("진단평가 파일의 형식이 올바르지 않아요.");
+  const byLevel = {};
+  for (const item of data.items) (byLevel[item.level] ||= []).push(item);
+  return byLevel;
+}
+let placementLoad = null;
+// 진단평가 문항은 처음 시작할 때 한 번만 불러옵니다. 실패하면 다음에 다시 시도합니다.
+function loadPlacement(fetchImpl = fetch) {
+  placementLoad ||= fetchImpl("./curriculum/placement.json")
+    .then((response) => {
+      if (!response.ok)
+        throw new Error("진단평가 문항을 불러오지 못했어요. (" + response.status + ")");
+      return response.json();
+    })
+    .then(parsePlacement)
+    .catch((error) => {
+      placementLoad = null;
+      throw error;
+    });
+  return placementLoad;
+}
+// 한 번의 진단평가에서는 레벨마다 문항을 섞어 보여주되, 같은 레벨 안의 문항은 겹치지 않습니다.
+function shuffled(list, random = Math.random) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// ---- 코치에게 전할 질문 -------------------------------------------------------
+// 외부 코치에는 문제·내 코드·오류·시도 정보만 붙여넣습니다. 이름·학번 같은 개인정보는 넣지 않습니다.
+function buildCoachPrompt({ question, problem, levelLabel, code, error, failures, hintsUsed }) {
+  const parts = [
+    `[${levelLabel} · ${problem.title}]`,
+    `이 학생은 ${levelLabel} 단계예요. 이 단계에서 배운 개념 안에서만 설명해주세요.`,
+    problem.description,
+  ];
+  if (problem.input) parts.push(`입력: ${problem.input}`);
+  if (problem.output) parts.push(`출력: ${problem.output}`);
+  parts.push("", question);
+  const status = [];
+  if (failures > 0) status.push(`${failures}번 틀림`);
+  if (hintsUsed > 0) status.push(`힌트 ${hintsUsed}개 사용`);
+  if (status.length) parts.push(`지금까지: ${status.join(" · ")}`);
+  if (error) parts.push(`오류 메시지: ${error}`);
+  parts.push("", "현재 코드:", "```python", code, "```");
+  return parts.join("\n");
 }

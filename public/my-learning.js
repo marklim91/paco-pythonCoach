@@ -42,12 +42,17 @@
     loading = false;
     clearRecord();
   }
-  var STUDIO_KEY = "paco-studio-v1";
-  function readStudioCompleted() {
+  var STUDIO_KEY = "paco-studio-v2";
+  // 스튜디오가 이 브라우저에 저장한 해결 기록(solved)과 통과한 레벨(passed)만 읽습니다.
+  function readStudioRecord() {
     try {
       var saved = JSON.parse(window.localStorage.getItem(STUDIO_KEY));
-      return saved && Array.isArray(saved.completed) ? saved.completed : [];
-    } catch (error) { return []; }
+      var isMap = function (value) { return value && typeof value === "object" && !Array.isArray(value); };
+      return {
+        completed: saved && isMap(saved.solved) ? Object.keys(saved.solved) : [],
+        passed: saved && isMap(saved.passed) ? saved.passed : {},
+      };
+    } catch (error) { return { completed: [], passed: {} }; }
   }
   function meterBar(percent, label) {
     var bar = document.createElement("div");
@@ -67,14 +72,19 @@
     var bar = byId("score-progress-bar");
     bar.replaceChildren(meterBar(percent, "스튜디오 만점 " + number.format(studio.maxPoints) + "점 중 " + percent + "%"));
     text("score-progress-note", student.points > studio.maxPoints ?
-      "스튜디오 100문제 만점을 넘는 점수는 100%로 표시해요." :
-      "스튜디오 100문제를 모두 해결했을 때의 점수를 만점으로 계산했어요.");
+      "스튜디오 만점을 넘는 점수는 100%로 표시해요." :
+      "스튜디오의 핵심·연습 문제와 승급 시험을 모두 해결했을 때의 점수를 만점으로 계산했어요.");
     var scoring = byId("my-scoring-body");
     scoring.replaceChildren();
-    studio.LEVELS.forEach(function (level) {
+    var scoringRows = studio.LEVELS.map(function (level) {
       var count = studio.problems.filter(function (p) { return p.level === level; }).length;
+      return [level, studio.POINTS[level] + "점", count + "문제", number.format(count * studio.POINTS[level]) + "점"];
+    });
+    var practiceCount = studio.problems.filter(function (p) { return p.kind === "practice"; }).length;
+    scoringRows.push(["연습", studio.PRACTICE_POINTS + "점", practiceCount + "문제", number.format(practiceCount * studio.PRACTICE_POINTS) + "점"]);
+    scoringRows.forEach(function (values) {
       var row = document.createElement("tr");
-      [level, studio.POINTS[level] + "점", count + "문제", number.format(count * studio.POINTS[level]) + "점"].forEach(function (value) {
+      values.forEach(function (value) {
         var cell = document.createElement("td");
         cell.textContent = value;
         row.appendChild(cell);
@@ -82,10 +92,11 @@
       scoring.appendChild(row);
     });
 
-    var completed = readStudioCompleted();
+    var record = readStudioRecord();
+    var completed = record.completed;
     var progress = studio.progress(completed);
-    text("studio-progress-text", progress.solved ?
-      "이 브라우저에서 " + progress.total + "문제 중 " + progress.solved + "문제를 해결했어요." :
+    text("studio-progress-text", progress.solved || progress.practiceSolved ?
+      "이 브라우저에서 핵심 " + progress.total + "문제 중 " + progress.solved + "문제를 해결했어요. (연습 " + progress.practiceSolved + "개 해결)" :
       "이 브라우저에는 해결한 스튜디오 문제 기록이 아직 없어요.");
     var tracks = byId("track-progress");
     tracks.replaceChildren();
@@ -94,6 +105,7 @@
       var title = document.createElement("span");
       title.textContent = track.name + " · " + track.label;
       if (guide.current && guide.current.stage === index + 1) title.textContent += " (현재)";
+      if (record.passed[index + 1]) title.textContent += " · 통과";
       var count = document.createElement("strong");
       count.textContent = track.solved + " / " + track.total;
       item.append(title, count, meterBar(Math.round(track.solved / track.total * 100),
@@ -103,11 +115,16 @@
 
     var next = byId("next-problems");
     next.replaceChildren();
-    var picks = studio.nextProblems(completed, 3, guide.current ? guide.current.stage : 1);
+    // 이 브라우저의 스튜디오 기록이 있으면 실제로 열린 레벨에서, 없으면 점수가 가리키는 단계에서 추천합니다.
+    var hasRecord = completed.length > 0 || Object.keys(record.passed).length > 0;
+    var localStage = 1;
+    while (record.passed[localStage] && localStage < studio.tracks.length) localStage += 1;
+    var stage = hasRecord ? localStage : (guide.current ? guide.current.stage : 1);
+    var picks = studio.nextProblems(completed, 3, stage);
     if (!picks.length) {
       var done = document.createElement("li");
       done.className = "caption";
-      done.textContent = "스튜디오 100문제를 모두 해결했어요! 풀이를 다시 보며 더 간결하게 고쳐 보세요.";
+      done.textContent = "스튜디오 핵심 문제를 모두 해결했어요! 풀이를 다시 보며 더 간결하게 고쳐 보세요.";
       next.appendChild(done);
     }
     picks.forEach(function (pick) {
@@ -116,7 +133,7 @@
       link.href = new URL("new.html?problem=" + encodeURIComponent(pick.problem.id), base).href;
       link.textContent = pick.track.name + " · " + pick.problem.title;
       var detail = document.createElement("small");
-      detail.textContent = pick.problem.level + " · " + pick.problem.points + "점 · 약 " + pick.problem.minutes + "분 · " + pick.problem.topic;
+      detail.textContent = pick.problem.level + " · " + pick.problem.points + "점 · 약 " + pick.problem.minutes + "분 · " + pick.problem.type;
       item.append(link, detail);
       next.appendChild(item);
     });

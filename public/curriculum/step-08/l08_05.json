@@ -1,0 +1,28 @@
+{
+  "id": "l08_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "이메일 나누기",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": "편지에는 받는 사람과 주소가 따로 적혀 있죠? 이메일 주소에도 '누구' 와 '어디' 가 함께 들어 있어요.\n아이디@도메인 형식의 이메일 주소를 입력받아 첫째 줄에 아이디, 둘째 줄에 도메인을 출력해주세요.\n예를 들어 `me@site.com` 이면 첫째 줄에 `me`, 둘째 줄에 `site.com` 이 나와요.",
+  "input": "아이디@도메인 형식의 이메일 주소가 입력됩니다.",
+  "output": "아이디와 도메인을 두 줄에 출력합니다.",
+  "starter": "email = input()\n\n# 이메일 주소를 아이디와 도메인으로 나눠서 한 줄씩 출력해 보세요.\n",
+  "solution": "user, domain = input().split(\"@\")\nprint(user)\nprint(domain)",
+  "hints": [
+    "`split()` 은 공백이 아닌 다른 글자를 기준으로도 나눌 수 있어요. 괄호 안에 기준이 될 글자를 넣어 보세요.",
+    "`@` 를 기준으로 나누면 조각이 정확히 두 개예요. 변수 두 개에 한 번에 담은 뒤 한 줄씩 출력해 보세요."
+  ],
+  "explanation": "`split()` 에 구분자를 넣으면 공백 대신 그 글자를 기준으로 나눠요. 결과가 두 조각이므로 두 변수에 바로 나눠 담을 수 있어요.",
+  "tests": [
+    {
+      "input": "paco@school.kr\n",
+      "output": "paco\nschool.kr"
+    },
+    {
+      "input": "hello.world@example.com\n",
+      "output": "hello.world\nexample.com"
+    }
+  ]
+}

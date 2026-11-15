@@ -1,0 +1,32 @@
+{
+  "id": "l09_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "절댓값 함수",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": "영하 5도와 영상 5도는 0도에서 떨어진 정도가 똑같죠? 부호는 잊고 그 크기만 알려 주는 함수를 만들어봐요.\n정수를 받아 절댓값을 돌려주는 함수 `my_abs(n)` 을 만들고 결과를 출력해주세요. 내장 함수 `abs()` 는 사용하지 말아 주세요.",
+  "input": "정수 n 이 입력됩니다.",
+  "output": "n 의 절댓값을 출력합니다.",
+  "starter": "# 1) 정수의 절댓값을 돌려주는 my_abs(n) 함수를 만들어 보세요. (abs() 는 쓰지 않아요)\n# 2) 입력받은 정수로 함수를 호출해 결과를 출력해 보세요.\n\nn = int(input())\n",
+  "solution": "def my_abs(n):\n    if n < 0:\n        return -n\n    return n\n\nprint(my_abs(int(input())))",
+  "hints": [
+    "음수이면 부호를 바꾸고, 0 이상이면 그대로 돌려주면 돼요. 어떤 조건으로 두 경우를 나눌 수 있을까요?",
+    "부호를 바꾼 값은 `-n` 으로 만들 수 있어요. 함수 안에서는 `return` 을 여러 번 써도 괜찮아요."
+  ],
+  "explanation": "`return` 을 만나면 함수는 즉시 끝나고 값을 돌려줘요. 그래서 `if` 안의 `return` 이 실행되면 아래 `return n` 은 실행되지 않으므로 `else` 가 필요 없어요.",
+  "tests": [
+    {
+      "input": "-5\n",
+      "output": "5"
+    },
+    {
+      "input": "3\n",
+      "output": "3"
+    },
+    {
+      "input": "0\n",
+      "output": "0"
+    }
+  ]
+}

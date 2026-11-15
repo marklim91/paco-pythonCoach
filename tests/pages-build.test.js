@@ -186,11 +186,14 @@ test('export from the real public folder contains everything the studio loads at
   const opts = options(t);
   await buildPages(opts);
   const output = files(opts.outputDir).map(file => file.split(path.sep).join('/'));
-  for (const file of ['new.html', 'studio.css', 'studio-core.js', 'studio-app.js', 'studio-catalog.js']) {
+  for (const file of ['new.html', 'studio.css', 'studio-catalog.js', 'studio-progress.js', 'studio-markdown.js', 'studio-core.js', 'studio-app.js',
+    'studio-ui.js', 'studio-runner.js', 'studio-code.js', 'studio-coach.js', 'studio-learn.js', 'studio-roadmap.js', 'studio-quiz.js']) {
     assert.ok(output.includes(file), file);
   }
-  const problemFiles = output.filter(file => /^curriculum\/step-\d\d\/[a-z0-9_]+\.json$/.test(file));
-  assert.equal(problemFiles.length, studioCatalog.problems.length);
+  const curriculum = output.filter(file => /^curriculum\/step-\d\d\/[a-z0-9_]+\.json$/.test(file));
+  assert.equal(curriculum.filter(file => !file.endsWith('/level.json')).length, studioCatalog.problems.length);
+  assert.equal(curriculum.filter(file => file.endsWith('/level.json')).length, studioCatalog.tracks.length);
+  assert.ok(output.includes('curriculum/placement.json'), 'the placement questions are published too');
 });
 
 test('public snapshot IDs do not expose source identities or carry cross-deployment history', () => {

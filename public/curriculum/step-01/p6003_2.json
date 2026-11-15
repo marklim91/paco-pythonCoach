@@ -1,0 +1,24 @@
+{
+  "id": "p6003_2",
+  "kind": "practice",
+  "type": "연습",
+  "title": "세 줄 출력",
+  "level": "연습",
+  "minutes": 3,
+  "description": "빛의 삼원색인 빨강, 초록, 파랑을 영어로 하면 뭘까요? 화면에 하나씩 적어 볼까요?\n`Red`, `Green`, `Blue` 를 이 순서대로 한 줄에 하나씩 출력해주세요.",
+  "input": "입력은 없습니다.",
+  "output": "첫째 줄에 Red, 둘째 줄에 Green, 셋째 줄에 Blue 를 출력합니다.",
+  "starter": "# 색 이름 세 개를 한 줄에 하나씩 출력해 보세요.\nprint(\"\")\n",
+  "solution": "print('Red')\nprint('Green')\nprint('Blue')",
+  "hints": [
+    "세 줄을 만들려면 `print()` 가 몇 번 필요할까요? 한 번에 한 줄씩 출력된다는 점을 떠올려 보세요.",
+    "색 이름의 첫 글자는 모두 대문자예요. 순서대로 위에서 아래로 한 줄씩 출력되는지 확인해 보세요."
+  ],
+  "explanation": "`print()` 를 쓴 횟수만큼 줄이 늘어나요. 세 줄이 필요하면 `print()` 를 세 번, 보여 줄 순서대로 위에서 아래로 쓰면 돼요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Red\nGreen\nBlue"
+    }
+  ]
+}

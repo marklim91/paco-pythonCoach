@@ -1,0 +1,29 @@
+{
+  "id": "l12_05",
+  "kind": "core",
+  "type": "실습",
+  "title": "인덱스 오류 고치기",
+  "level": "입문",
+  "minutes": 8,
+  "description": "사물함이 3개뿐인데 4번 사물함을 열려고 하면 어떻게 될까요? 코드에서도 비슷한 일이 벌어졌어요.\n입력받은 정수들을 각각 2배로 만들어 한 줄씩 출력하려는 코드예요. 마지막에 `IndexError` 가 나요. 원인을 찾아 고쳐주세요.\n\n```python\nnums = list(map(int, input().split()))\nfor i in range(len(nums) + 1):\n    print(nums[i] * 2)\n```",
+  "input": "정수 여러 개가 공백으로 구분되어 입력됩니다.",
+  "output": "각 수의 2배를 한 줄씩 출력합니다.",
+  "starter": "nums = list(map(int, input().split()))\nfor i in range(len(nums) + 1):\n    print(nums[i] * 2)",
+  "solution": "nums = list(map(int, input().split()))\nfor i in range(len(nums)):\n    print(nums[i] * 2)",
+  "hints": [
+    "오류 메시지의 마지막 줄 `list index out of range` 는 리스트에 없는 칸을 꺼내려 했다는 뜻이에요. 위쪽에 적힌 줄 번호로 어느 줄인지 찾아보세요.",
+    "원소가 3개인 리스트는 인덱스가 0, 1, 2 까지만 있어요. `i` 가 마지막 칸 다음 번호까지 가고 있지는 않은지 따져 보세요.",
+    "원소가 3개일 때 `range()` 안의 식은 어떤 수들을 만들어 줄까요? 직접 하나씩 써 보면 어디서 넘치는지 보일 거예요."
+  ],
+  "explanation": "원소가 n 개인 리스트의 마지막 인덱스는 n-1 이에요. `range(len(nums) + 1)` 은 n 까지 포함해 없는 칸을 꺼내려다 `IndexError` 가 나요. 인덱스가 필요 없다면 `for n in nums:` 로 쓰는 것이 더 안전해요.",
+  "tests": [
+    {
+      "input": "1 2 3\n",
+      "output": "2\n4\n6"
+    },
+    {
+      "input": "5\n",
+      "output": "10"
+    }
+  ]
+}

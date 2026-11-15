@@ -1,0 +1,42 @@
+{
+  "id": "l10_01",
+  "kind": "core",
+  "type": "실습",
+  "title": "메모 파일 줄 수 세기",
+  "level": "맛보기",
+  "minutes": 5,
+  "description": "쉬는 시간에 친구가 메모 파일을 하나 보내 줬어요. 줄이 몇 개나 되는지 컴퓨터에게 세어 달라고 해 봐요.\n같은 폴더에 있는 `memo.txt` 파일(UTF-8)을 읽어 모두 몇 줄인지 출력해주세요.",
+  "input": "표준 입력은 없습니다. memo.txt 파일이 주어집니다. (UTF-8)",
+  "output": "파일의 줄 수를 출력합니다.",
+  "starter": "# memo.txt 파일을 열어 읽어 보세요.\n# 파일에 줄이 모두 몇 개 있는지 세어서 출력해 보세요.\n",
+  "solution": "with open(\"memo.txt\", \"r\", encoding=\"utf-8\") as f:\n    lines = f.readlines()\nprint(len(lines))",
+  "hints": [
+    "파일을 열 때는 `open()` 을 써요. `with` 와 함께 쓰면 블록이 끝날 때 파일이 저절로 닫혀요.",
+    "`open()` 괄호 안에는 파일 이름, 모드(읽기는 `\"r\"`), `encoding=\"utf-8\"` 을 차례로 넣어요. `with open(...) as f:` 로 쓰면 `f` 로 파일을 다룰 수 있어요.",
+    "`f.readlines()` 는 파일의 줄들을 리스트로 돌려줘요. 리스트에 들어 있는 항목의 개수는 어떻게 셌죠?"
+  ],
+  "explanation": "`with` 블록을 쓰면 블록이 끝날 때 파일이 자동으로 닫혀서 `close()` 를 잊는 실수를 막아 줘요. 한글이 들어간 파일은 `encoding=\"utf-8\"` 을 지정해야 운영체제에 따라 글자가 깨지지 않아요. `readlines()` 결과 리스트의 길이가 곧 줄 수예요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "3",
+      "files": {
+        "memo.txt": "첫째 줄\n둘째 줄\n셋째 줄\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "5",
+      "files": {
+        "memo.txt": "a\nb\nc\nd\ne\n"
+      }
+    },
+    {
+      "input": "",
+      "output": "1",
+      "files": {
+        "memo.txt": "한 줄뿐인 메모\n"
+      }
+    }
+  ]
+}

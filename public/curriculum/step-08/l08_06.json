@@ -1,0 +1,29 @@
+{
+  "id": "l08_06",
+  "kind": "core",
+  "type": "실습",
+  "title": "단어 첫 글자만 대문자",
+  "level": "입문",
+  "minutes": 8,
+  "description": "책 제목은 단어마다 첫 글자를 크게 쓰면 멋져 보여요. 평범한 문장도 제목처럼 바꿔 봐요.\n영어 문장을 입력받아 각 단어의 첫 글자는 대문자, 나머지는 소문자로 바꿔 출력해주세요. 단어 사이의 공백은 한 칸으로 출력해요.",
+  "input": "영어 단어들이 공백 하나로 구분되어 입력됩니다.",
+  "output": "변환한 문장을 출력합니다.",
+  "starter": "sentence = input()\n\n# 문장을 단어로 나누고, 단어마다 모양을 바꾼 뒤 다시 합쳐 보세요.\n",
+  "solution": "words = input().split()\nprint(\" \".join(w.capitalize() for w in words))",
+  "hints": [
+    "문장 전체를 한꺼번에 바꾸기보다 단어를 하나씩 따로 바꿔야 해요. 문장을 단어들로 나누는 방법을 떠올려 보세요.",
+    "단어의 첫 글자만 대문자로, 나머지는 소문자로 바꿔 주는 `capitalize()` 메서드가 있어요. 단어마다 하나씩 적용해 보세요.",
+    "바꾼 단어들을 다시 한 문장으로 합치는 `join()` 을 기억하나요? 단어 사이에는 공백 한 칸이 들어가야 해요."
+  ],
+  "explanation": "문장을 단어로 나누고(`split`) → 단어마다 변환하고(`capitalize`) → 다시 합치는(`join`) 흐름은 문자열 처리의 기본 패턴이에요. `capitalize()` 는 첫 글자만 대문자로, 나머지는 모두 소문자로 바꿔 줘요.",
+  "tests": [
+    {
+      "input": "hello python world\n",
+      "output": "Hello Python World"
+    },
+    {
+      "input": "pYTHON iS fun\n",
+      "output": "Python Is Fun"
+    }
+  ]
+}

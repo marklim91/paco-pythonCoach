@@ -1,0 +1,36 @@
+{
+  "id": "c6057",
+  "kind": "practice",
+  "type": "연습",
+  "title": "서로 같을 때 참",
+  "level": "연습",
+  "minutes": 4,
+  "description": "짝꿍과 함께 투표를 했어요. 찬성은 1, 반대는 0 으로 적었다면 두 사람의 의견이 같은지 알아볼 수 있겠죠?\n0 또는 1 두 개를 입력받아 참/거짓이 서로 같을 때만 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "0 또는 1 인 두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "두 값의 참/거짓이 서로 같으면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 두 값의 참/거짓이 같은지 비교한 결과를 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(bool(a) == bool(b))",
+  "hints": [
+    "'서로 같다' 를 묻는 비교 연산자는 `==` 예요. `1` 과 `1`, `0` 과 `0` 일 때 `True` 가 나와야 해요.",
+    "숫자를 `bool()` 로 참/거짓 값으로 바꾼 뒤 `==` 로 비교하고, 그 결과를 `print()` 로 출력해 보세요."
+  ],
+  "explanation": "`==` 는 두 값이 같을 때 `True` 예요. 참/거짓 값끼리 비교하면 둘 다 참이거나 둘 다 거짓일 때 `True` 가 나와요.",
+  "tests": [
+    {
+      "input": "0 0",
+      "output": "True"
+    },
+    {
+      "input": "0 1",
+      "output": "False"
+    },
+    {
+      "input": "1 1",
+      "output": "True"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6057",
+    "label": "코드업 6057번 · 참/거짓이 서로 같을 때에만 참 출력하기"
+  }
+}

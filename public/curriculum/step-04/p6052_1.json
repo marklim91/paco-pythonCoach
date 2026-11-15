@@ -1,0 +1,32 @@
+{
+  "id": "p6052_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "곱이 0이 아니니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "곱셈에서는 둘 중 하나만 0 이어도 결과가 0 이 돼 버려요. 두 수를 곱한 결과가 0 이 아닌지 컴퓨터에게 물어봐요.\n정수 a, b 를 입력받아 `bool(a * b)` 의 값을 출력해주세요. 곱이 0 이면 `False`, 아니면 `True` 가 나와요.",
+  "input": "두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "a 와 b 의 곱을 bool 로 바꾼 값(True 또는 False)을 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 두 수를 곱한 값을 참/거짓으로 바꿔서 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(bool(a * b))",
+  "hints": [
+    "곱셈 기호는 `*` 예요. 먼저 두 수를 곱한 값을 구하는 식을 떠올려 봐요.",
+    "`bool()` 은 0 일 때만 `False` 를 돌려줘요. 곱셈 식을 괄호 안에 넣고, 그 결과를 `print()` 로 출력해 보세요."
+  ],
+  "explanation": "곱한 값을 `bool()` 로 바꾸면 0 일 때만 `False` 가 되고 나머지는 `True` 가 돼요. 그래서 두 수 중 하나라도 0 이면 결과가 `False` 예요.",
+  "tests": [
+    {
+      "input": "2 3",
+      "output": "True"
+    },
+    {
+      "input": "0 9",
+      "output": "False"
+    },
+    {
+      "input": "-1 4",
+      "output": "True"
+    }
+  ]
+}

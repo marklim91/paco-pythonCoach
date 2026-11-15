@@ -1,0 +1,28 @@
+{
+  "id": "p6013_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "세 단어 거꾸로",
+  "level": "연습",
+  "minutes": 3,
+  "description": "영상을 되감으면 마지막 장면부터 거꾸로 다시 나와요. 단어 세 개도 마지막 것부터 되감아 볼까요?\n단어 3개를 한 줄에 하나씩 입력받아, 입력의 반대 순서로 한 줄에 하나씩 출력해주세요.",
+  "input": "단어 세 개가 한 줄에 하나씩 입력됩니다.",
+  "output": "세 단어를 입력의 반대 순서로 한 줄에 하나씩 출력합니다.",
+  "starter": "first = input()\nsecond = input()\nthird = input()\n\n# 반대 순서로 한 줄에 하나씩 출력해 보세요.\n",
+  "solution": "a = input()\nb = input()\nc = input()\nprint(c)\nprint(b)\nprint(a)",
+  "hints": [
+    "세 단어가 각각 다른 변수에 담겨 있어요. 맨 첫 줄에 나올 단어는 몇 번째로 입력받은 단어일까요?",
+    "입력받은 순서의 반대로 변수 이름을 하나씩 짚으며 `print()` 를 세 번 써 보세요."
+  ],
+  "explanation": "단어를 변수에 하나씩 담아 두면 출력 순서를 자유롭게 바꿀 수 있어요. 입력받은 순서의 반대로 출력하면 거꾸로 나와요.",
+  "tests": [
+    {
+      "input": "a\nb\nc",
+      "output": "c\nb\na"
+    },
+    {
+      "input": "사과\n배\n감",
+      "output": "감\n배\n사과"
+    }
+  ]
+}

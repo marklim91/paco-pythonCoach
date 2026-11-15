@@ -1,0 +1,36 @@
+{
+  "id": "c6055",
+  "kind": "practice",
+  "type": "연습",
+  "title": "하나라도 참 (or)",
+  "level": "연습",
+  "minutes": 4,
+  "description": "전화나 문자가 하나라도 오면 스마트폰이 알림을 울려요. 알림이 울릴지 알려 주는 프로그램을 만들어봐요.\n0 또는 1 두 개를 입력받아 하나라도 참(1)이면 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "0 또는 1 인 두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "하나라도 참이면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# 둘 중 하나라도 참이면 True 가 나오게 만들어 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(bool(a) or bool(b))",
+  "hints": [
+    "'하나라도 참이면 참' 이 되는 논리 연산자는 `or` 예요. 둘 다 거짓일 때만 결과가 `False` 가 돼요.",
+    "숫자를 `bool()` 로 참/거짓 값으로 바꾼 뒤 `or` 로 이어 보세요. 바꾸지 않으면 `True` 대신 `1` 이나 `0` 이 출력될 수 있어요."
+  ],
+  "explanation": "`or` 는 둘 중 하나라도 참이면 참이에요. 둘 다 거짓인 `0 0` 일 때만 `False` 가 나와요.",
+  "tests": [
+    {
+      "input": "1 0",
+      "output": "True"
+    },
+    {
+      "input": "0 0",
+      "output": "False"
+    },
+    {
+      "input": "1 1",
+      "output": "True"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6055",
+    "label": "코드업 6055번 · 하나라도 참이면 참 출력하기"
+  }
+}

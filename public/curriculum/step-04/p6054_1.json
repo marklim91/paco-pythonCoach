@@ -1,0 +1,36 @@
+{
+  "id": "p6054_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "1~10 사이니?",
+  "level": "연습",
+  "minutes": 3,
+  "description": "엘리베이터 버튼은 1층부터 10층까지만 있어요. 눌린 층이 진짜 있는 층인지 컴퓨터가 알려 줄 수 있을까요?\n정수 n 을 입력받아 1 이상 10 이하이면 `True`, 아니면 `False` 를 출력해주세요. (`and` 를 사용해요.)",
+  "input": "정수 한 개가 한 줄에 입력됩니다.",
+  "output": "n 이 1 이상 10 이하이면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "n = int(input())\n\n# 두 가지 조건을 and 로 이어서 결과를 출력해 보세요.\n",
+  "solution": "n = int(input())\nprint(n >= 1 and n <= 10)",
+  "hints": [
+    "'1 이상' 과 '10 이하' 는 비교 연산자 `>=`, `<=` 로 각각 쓸 수 있어요. 둘 중 어느 것이 어디에 어울릴까요?",
+    "두 조건이 모두 참이어야 하니까 `and` 의 양쪽에 비교를 하나씩 써서 이어 보세요."
+  ],
+  "explanation": "`and` 는 양쪽 조건이 모두 참일 때만 참이 돼요. 그래서 1 이상이면서 10 이하인 수만 `True` 가 되고, 0 과 11 은 `False` 가 돼요.",
+  "tests": [
+    {
+      "input": "5",
+      "output": "True"
+    },
+    {
+      "input": "0",
+      "output": "False"
+    },
+    {
+      "input": "10",
+      "output": "True"
+    },
+    {
+      "input": "11",
+      "output": "False"
+    }
+  ]
+}

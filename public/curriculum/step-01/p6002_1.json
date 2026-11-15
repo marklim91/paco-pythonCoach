@@ -1,0 +1,24 @@
+{
+  "id": "p6002_1",
+  "kind": "practice",
+  "type": "연습",
+  "title": "띄어쓰기 있는 문장",
+  "level": "연습",
+  "minutes": 3,
+  "description": "동아리 첫 모임에서 처음 만난 친구에게 영어로 반갑다고 인사해 볼까요?\n화면에 `Nice to meet you` 를 한 줄로 출력해주세요. 단어 사이의 띄어쓰기도 똑같이 써야 해요.",
+  "input": "입력은 없습니다.",
+  "output": "Nice to meet you 를 한 줄에 출력합니다.",
+  "starter": "# 문장 전체를 따옴표 안에 적어 보세요.\nprint(\"\")\n",
+  "solution": "print('Nice to meet you')",
+  "hints": [
+    "단어가 여러 개여도 따옴표 한 쌍으로 문장 전체를 감쌀 수 있어요. 따옴표는 어디에서 열고 어디에서 닫아야 할까요?",
+    "단어 사이의 띄어쓰기는 따옴표 안에서 그대로 출력돼요. 대소문자와 띄어쓰기를 한 번 더 확인해 보세요."
+  ],
+  "explanation": "단어가 여러 개인 문장도 따옴표 한 쌍으로 감싸면 띄어쓰기까지 그대로 출력돼요.",
+  "tests": [
+    {
+      "input": "",
+      "output": "Nice to meet you"
+    }
+  ]
+}

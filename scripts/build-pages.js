@@ -34,8 +34,8 @@ function publicSnapshot(students, collectedAt) {
   };
 }
 
-// JSON 중에는 스튜디오가 문제를 열 때 불러오는 문제 본문(curriculum/step-NN/<문제ID>.json)만 공개합니다.
-const STUDIO_PROBLEM_FILE = /^curriculum[\\/]step-\d\d[\\/][a-z0-9_]+\.json$/;
+// JSON 중에는 스튜디오가 불러오는 문제 본문·레벨 정보(curriculum/step-NN/*.json)와 진단평가 문항(curriculum/placement.json)만 공개합니다.
+const STUDIO_PROBLEM_FILE = /^curriculum[\\/](?:step-\d\d[\\/][a-z0-9_]+|placement)\.json$/;
 
 function collectAssets(directory, relative = '') {
   const assets = [];

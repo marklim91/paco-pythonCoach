@@ -1,0 +1,36 @@
+{
+  "id": "c6056",
+  "kind": "practice",
+  "type": "연습",
+  "title": "서로 다를 때 참",
+  "level": "연습",
+  "minutes": 4,
+  "description": "복도 양 끝에 스위치가 하나씩 달린 전등이 있어요. 두 스위치가 서로 다른 상태일 때만 불이 켜진다고 해 봐요.\n0 또는 1 두 개를 입력받아 참/거짓이 서로 다를 때만 `True`, 아니면 `False` 를 출력해주세요.",
+  "input": "0 또는 1 인 두 정수가 공백으로 구분되어 한 줄에 입력됩니다.",
+  "output": "두 값의 참/거짓이 서로 다르면 True, 아니면 False 를 한 줄에 출력합니다.",
+  "starter": "a, b = map(int, input().split())\n\n# a 와 b 의 참/거짓을 비교한 결과를 출력해 보세요.\n",
+  "solution": "a, b = map(int, input().split())\nprint(bool(a) != bool(b))",
+  "hints": [
+    "'서로 다르다' 를 묻는 비교 연산자는 `!=` 예요. 같다를 묻는 `==` 의 반대죠.",
+    "숫자를 먼저 `bool()` 로 참/거짓 값으로 바꾼 뒤 비교하면 뜻이 분명해져요. 비교한 결과는 바로 `print()` 로 출력해도 돼요."
+  ],
+  "explanation": "`!=` 는 두 값이 다를 때 `True` 예요. 참/거짓 값끼리 비교하면 둘 중 한쪽만 참인 경우에 `True` 가 나와요.",
+  "tests": [
+    {
+      "input": "1 0",
+      "output": "True"
+    },
+    {
+      "input": "1 1",
+      "output": "False"
+    },
+    {
+      "input": "0 0",
+      "output": "False"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6056",
+    "label": "코드업 6056번 · 참/거짓이 서로 다를 때에만 참 출력하기"
+  }
+}

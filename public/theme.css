@@ -152,22 +152,41 @@ html[data-theme="dark"][data-pco-skin="studio"] {
   --muted-foreground: #98a0ad;
   --border: #2c333d;
   --ring: #4cc9a3;
+  --surface: #1a1f26;
+  --surface-2: #20262e;
+  --soft: #173329;
+  --soft-text: #6fd4b0;
+  --hero: #1b6f58;
+  --hero-track: #124a3b;
+  --amber-bg: #3a2f14;
+  --amber: #f0c36a;
+  --lock: #2c333d;
+  --lock-text: #7f8794;
+  --danger-bg: #3a2022;
+  --danger: #f08a8a;
   background: #12161b;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .btn-primary:hover {
-  background: #26a181;
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .btn-primary:not(.hero-cta),
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .level-chips li.now {
+  background: #177a5e;
+}
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .btn-primary:not(.hero-cta):hover {
+  background: #1d8566;
+}
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .pill,
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .hero-cta {
+  color: #19705b;
+}
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .top-tab.active,
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .tab-trigger[data-state="active"] {
+  color: var(--soft-text);
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .btn-outline,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .rail,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .progress-pill,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .lesson-bar,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step-number,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .panel,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .code-wrap,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .prompt-button,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-frame,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .dialog-content,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .roadmap-item {
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .dialog-content {
   background: #1a1f26;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .btn-outline:hover,
@@ -177,12 +196,6 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .badge {
   background: #173329;
   color: #6fd4b0;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .rail-button {
-  color: #9aa1ad;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .rail-button.active {
-  background: #1f3a31;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .site-nav a:hover,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .footer-links a:hover {
@@ -200,31 +213,18 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .topbar {
   background: #161a20cc;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .wordmark span {
-  color: #7f8794;
-}
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .top-right,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .breadcrumb,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .heading p,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .tab-trigger,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .tag,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .io-head,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .io-col label,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .constraint-list,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .problem-footer,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .hint p,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .editor-toolbar,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .case-detail,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-greeting p,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-frame-tools,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .dialog-description,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .track-card-header p,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .loading p,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .mobile-note,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .execution-note,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .panel-head svg,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .roadmap-item svg {
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .panel-head svg {
   color: #98a0ad;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .problem-number,
@@ -235,14 +235,12 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-section-label,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-note,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .workspace-footer,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .roadmap-item small,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .line-numbers {
-  color: #7d8591;
+  color: #8a93a1;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .empty-result svg {
   color: #5a626e;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .breadcrumb strong,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .prose,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .io-col pre,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .language,
@@ -255,52 +253,19 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .progress-track {
   background: #2c333d;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .track-select {
-  background: #1f2a27;
-  color: #7fd1b5;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step.current {
-  color: #8fe0c3;
-  background: #1b2e27;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step-number {
-  border-color: #2c333d;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step-number.done {
-  background: #1d3a2e;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .step-link {
-  background: #2c333d;
-}
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .panel {
   box-shadow: none;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .tag,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .concept-code,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .coach-note,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .case-detail pre {
   background: #232932;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .concept-callout {
-  border-color: #3a3560;
-  background: #231f3d;
-  color: #b3a6ee;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-banner,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-card {
-  border-color: #28463a;
-  background: #172a23;
-  color: #8fe0c3;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .practice-card p {
-  color: #98b8aa;
-}
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .io-head,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .editor-toolbar,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .line-numbers,
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .stdin,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .execution-bar,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .track-card-header {
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .execution-bar {
   background: #1d222a;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .editor-status {
@@ -309,8 +274,7 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .stdin {
   border-color: #2c333d;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .case-row,
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .roadmap-item {
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .case-row {
   border-bottom-color: #2c333d;
 }
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .python-logo {
@@ -368,12 +332,11 @@ html[data-theme="dark"][data-pco-skin="studio"] {
 :where(html[data-theme="dark"][data-pco-skin="studio"]) .dialog-content {
   box-shadow: 0 24px 90px #00000080;
 }
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .track-card-header .badge {
-  background: #1f2a3d;
-  color: #8fa9d6;
-}
-:where(html[data-theme="dark"][data-pco-skin="studio"]) .roadmap-item.selected {
-  background: #1f2a27;
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .md-code,
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .file-box pre,
+:where(html[data-theme="dark"][data-pco-skin="studio"]) .case-detail pre {
+  background: #20262e;
+  color: #cfd6df;
 }
 
 /* ── 대시보드 계열: dashboard.css 기반 페이지 (기본 다크, 라이트로 전환) ── */

@@ -1,0 +1,33 @@
+{
+  "id": "l09_02",
+  "kind": "core",
+  "type": "실습",
+  "title": "BMI 계산 함수",
+  "level": "입문",
+  "minutes": 8,
+  "description": "건강검진에서는 키와 몸무게로 BMI 라는 값을 구해요. 몸무게와 키만 넣으면 BMI 가 바로 나오는 계산기가 있으면 편하겠죠?\n몸무게(kg)와 키(cm)를 받아 BMI 를 소수 첫째 자리까지 반올림해 돌려주는 함수 `bmi(weight, height_cm)` 를 만들고, 입력받은 값으로 BMI 를 출력해주세요. (BMI = 몸무게 ÷ (키(m))²)",
+  "input": "몸무게와 키(cm)가 공백으로 구분되어 입력됩니다. (정수)",
+  "output": "BMI 를 소수 첫째 자리까지 출력합니다.",
+  "starter": "# 1) 몸무게와 키(cm)를 받아 BMI 를 돌려주는 bmi(weight, height_cm) 함수를 만들어 보세요.\n# 2) 입력받은 값으로 함수를 호출해 BMI 를 출력해 보세요.\n\nweight, height = map(int, input().split())\n",
+  "solution": "def bmi(weight, height_cm):\n    height_m = height_cm / 100\n    return round(weight / height_m ** 2, 1)\n\nweight, height = map(int, input().split())\nprint(bmi(weight, height))",
+  "hints": [
+    "키가 cm 단위라서 먼저 m 단위로 바꿔야 해요. cm 를 m 로 바꾸려면 어떤 수로 나눠야 할까요?",
+    "BMI 는 몸무게를 키(m)의 제곱으로 나눈 값이에요. 제곱은 `**` 연산자로 계산하고, 결과는 `return` 으로 돌려줘요.",
+    "소수 첫째 자리까지 반올림하려면 `round(값, 1)` 처럼 괄호 안 두 번째 값에 남길 소수 자릿수를 적어요."
+  ],
+  "explanation": "함수 안에서만 쓰는 변수 `height_m` 은 '지역 변수'로, 함수 밖에서는 보이지 않아요. `**` 가 `/` 보다 먼저 계산되므로 `weight / height_m ** 2` 는 weight ÷ (height_m²) 이에요. 단위 변환처럼 실수하기 쉬운 계산을 함수에 넣어 두면 여러 번 안전하게 재사용할 수 있어요.",
+  "tests": [
+    {
+      "input": "70 175\n",
+      "output": "22.9"
+    },
+    {
+      "input": "50 160\n",
+      "output": "19.5"
+    },
+    {
+      "input": "90 180\n",
+      "output": "27.8"
+    }
+  ]
+}

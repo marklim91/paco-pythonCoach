@@ -1,0 +1,32 @@
+{
+  "id": "c6013",
+  "kind": "practice",
+  "type": "연습",
+  "title": "문자 2개 순서 바꾸기",
+  "level": "연습",
+  "minutes": 4,
+  "description": "짝꿍과 자리를 서로 바꿔 앉기도 하죠? 이번에는 글자 두 개가 자리를 맞바꿔 앉게 해 봐요.\n문자 2개를 한 줄에 하나씩 입력받아, 순서를 바꿔 한 줄에 하나씩 출력해주세요.",
+  "input": "문자 두 개가 한 줄에 하나씩 입력됩니다.",
+  "output": "두 문자의 순서를 바꿔 한 줄에 하나씩 출력합니다.",
+  "starter": "first = input()\nsecond = input()\n\n# 입력받은 순서와 반대로 출력해 보세요.\n",
+  "solution": "a = input()\nb = input()\nprint(b)\nprint(a)",
+  "hints": [
+    "`print()` 는 한 번에 한 줄씩 출력해요. 첫 번째 줄에는 둘 중 어느 변수의 값이 나와야 할까요?",
+    "값은 변수에 이미 담겨 있어요. 변수 이름을 쓰는 순서만 바꿔서 `print()` 를 두 번 써 보세요."
+  ],
+  "explanation": "값을 변수에 따로 담아 두면 출력하는 순서를 마음대로 정할 수 있어요. 나중에 받은 값을 먼저 출력하면 순서가 바뀌어요.",
+  "tests": [
+    {
+      "input": "A\nB",
+      "output": "B\nA"
+    },
+    {
+      "input": "x\ny",
+      "output": "y\nx"
+    }
+  ],
+  "link": {
+    "url": "https://codeup.kr/problem.php?id=6013",
+    "label": "코드업 6013번 · 문자 2개 입력받아 순서 바꿔 출력하기1"
+  }
+}

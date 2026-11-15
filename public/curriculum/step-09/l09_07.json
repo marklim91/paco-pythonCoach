@@ -1,0 +1,33 @@
+{
+  "id": "l09_07",
+  "kind": "core",
+  "type": "실습",
+  "title": "소수 찾기 함수",
+  "level": "기초",
+  "minutes": 12,
+  "description": "소수는 1 과 자기 자신으로만 나누어떨어지는, 1 보다 큰 수예요. 소수를 알아보는 함수로 구간 속 소수를 찾아내 봐요.\nn 이 소수이면 `True`, 아니면 `False` 를 돌려주는 함수 `is_prime(n)` 을 만들고, 두 정수 a, b 사이(a 이상 b 이하)의 소수를 공백으로 구분해 한 줄에 출력해주세요. 소수가 하나도 없으면 `없음` 을 출력해주세요.",
+  "input": "정수 a b 가 공백으로 구분되어 입력됩니다. (1 ≤ a ≤ b)",
+  "output": "소수들 또는 없음 을 출력합니다.",
+  "starter": "# 1) n 이 소수이면 True, 아니면 False 를 돌려주는 is_prime(n) 함수를 만들어 보세요.\n# 2) a 이상 b 이하의 수 중 소수를 찾아 출력하고, 하나도 없으면 안내 문구를 출력해 보세요.\n\na, b = map(int, input().split())\n",
+  "solution": "def is_prime(n):\n    if n < 2:\n        return False\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            return False\n        d += 1\n    return True\n\na, b = map(int, input().split())\nprimes = [n for n in range(a, b + 1) if is_prime(n)]\nif primes:\n    print(*primes)\nelse:\n    print(\"없음\")",
+  "hints": [
+    "Lv.5 에서 만든 소수 판별 코드를 떠올려 보세요. 그 코드를 함수로 옮기고, 결과는 `print` 대신 `return` 으로 돌려줘요.",
+    "`a` 이상 `b` 이하를 모두 살펴보려면 `range()` 의 끝 값이 포함되지 않는다는 점에 주의해요. `True`/`False` 를 돌려주는 함수는 `if` 조건에 바로 쓸 수 있어요.",
+    "소수를 찾을 때마다 리스트에 모아 두면, 마지막에 리스트가 비었는지로 `없음` 출력 여부를 가릴 수 있어요. 공백으로 구분해 출력할 때는 `print(*리스트)` 를 써 봐요."
+  ],
+  "explanation": "`True`/`False` 를 돌려주는 함수는 `if is_prime(n):` 처럼 조건문에 바로 쓸 수 있어 코드가 문장처럼 읽혀요. 복잡한 판별 과정을 함수 안에 숨기고 이름만으로 무엇을 하는지 알 수 있게 하는 것이 함수의 가장 큰 장점이에요.",
+  "tests": [
+    {
+      "input": "1 10\n",
+      "output": "2 3 5 7"
+    },
+    {
+      "input": "14 16\n",
+      "output": "없음"
+    },
+    {
+      "input": "10 20\n",
+      "output": "11 13 17 19"
+    }
+  ]
+}

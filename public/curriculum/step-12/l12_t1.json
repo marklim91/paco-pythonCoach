@@ -1,0 +1,29 @@
+{
+  "id": "l12_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "버그 세 개 고치기",
+  "level": "기초",
+  "minutes": 10,
+  "description": "여러 날의 기온 중 가장 높은 기온을 찾아 주는 프로그램이 고장 났어요. 오류가 사라진 뒤에도 정말 맞는 답이 나오는지 끝까지 확인하는 게 중요해요.\n입력받은 정수들 중 가장 큰 값을 출력하려는 코드예요. 버그가 3개 있어요. 모두 고쳐주세요. (모든 수가 음수인 경우도 올바르게 동작해야 해요.)\n\n```python\nnums = input().split()\nbiggest = 0\nfor n in nums\n    if n > biggest:\n        biggest = n\nprint(\"최댓값:\", biggest)\n```",
+  "input": "정수 여러 개가 공백으로 구분되어 입력됩니다.",
+  "output": "최댓값: n 형식으로 출력합니다.",
+  "starter": "nums = input().split()\nbiggest = 0\nfor n in nums\n    if n > biggest:\n        biggest = n\nprint(\"최댓값:\", biggest)",
+  "solution": "nums = [int(x) for x in input().split()]\nbiggest = nums[0]\nfor n in nums:\n    if n > biggest:\n        biggest = n\nprint(\"최댓값:\", biggest)",
+  "hints": [],
+  "explanation": "① `for` 줄 끝에 콜론이 없어요(`SyntaxError`). ② `split()` 의 결과는 문자열이라 정수로 바꿔야 해요. 숫자와 문자열을 비교하면 `TypeError` 가 나고, 문자열끼리 비교하면 `\"9\"` 가 `\"10\"` 보다 크다고 판단해요. ③ 초깃값이 0 이면 모든 수가 음수일 때 0 이 출력돼요. 초깃값은 첫 번째 원소로 두어야 해요.",
+  "tests": [
+    {
+      "input": "3 9 2\n",
+      "output": "최댓값: 9"
+    },
+    {
+      "input": "-5 -2 -9\n",
+      "output": "최댓값: -2"
+    },
+    {
+      "input": "10 9\n",
+      "output": "최댓값: 10"
+    }
+  ]
+}

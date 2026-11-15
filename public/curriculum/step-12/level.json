@@ -1,0 +1,30 @@
+{
+  "level": 12,
+  "id": "t12",
+  "label": "디버깅 전문가",
+  "goal": "오류 메시지를 읽고 문법·자료형·논리 오류를 찾아 고치며, try-except 로 예외를 처리할 수 있다.",
+  "concepts": [
+    "SyntaxError",
+    "TypeError",
+    "논리 오류",
+    "try-except",
+    "ValueError",
+    "ZeroDivisionError"
+  ],
+  "origLevel": 12,
+  "path": [
+    "l12_01",
+    "l12_02",
+    "l12_03",
+    "l12_04",
+    "l12_05",
+    "l12_06",
+    "l12_07",
+    "l12_08"
+  ],
+  "exam": [
+    "l12_t1",
+    "l12_t2"
+  ],
+  "examTitle": "Lv.12 승급 시험"
+}

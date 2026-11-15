@@ -1,0 +1,683 @@
+{
+  "itemsPerLevel": 3,
+  "passPerLevel": 2,
+  "items": [
+    {
+      "id": "d01",
+      "level": 1,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(\"3 + 4\")",
+      "files": {},
+      "choices": [
+        "7",
+        "3 + 4",
+        "\"3 + 4\"",
+        "오류가 난다"
+      ],
+      "answer": 1,
+      "explanation": "따옴표로 감싼 내용은 계산하지 않고 글자 그대로 출력됩니다. 따옴표 자체는 출력되지 않습니다."
+    },
+    {
+      "id": "d02",
+      "level": 1,
+      "question": "다음 중 실행하면 오류가 나는 코드는?",
+      "code": null,
+      "files": {},
+      "choices": [
+        "print('Hello')",
+        "print(\"It's\")",
+        "print(Hello)",
+        "print(\"1\" + \"2\")"
+      ],
+      "answer": 2,
+      "explanation": "따옴표가 없는 Hello 는 변수 이름으로 해석되는데, 그런 변수가 없으므로 NameError 가 납니다."
+    },
+    {
+      "id": "d03",
+      "level": 1,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(\"Hi\" * 3)",
+      "files": {},
+      "choices": [
+        "Hi3",
+        "Hi Hi Hi",
+        "오류가 난다",
+        "HiHiHi"
+      ],
+      "answer": 3,
+      "explanation": "문자열에 정수를 곱하면 그만큼 반복해 이어 붙입니다. 사이에 공백은 들어가지 않습니다."
+    },
+    {
+      "id": "d04",
+      "level": 2,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "a = \"3\"\nb = \"4\"\nprint(a + b)",
+      "files": {},
+      "choices": [
+        "34",
+        "7",
+        "3 4",
+        "오류가 난다"
+      ],
+      "answer": 0,
+      "explanation": "a 와 b 는 숫자처럼 보여도 문자열입니다. 문자열끼리 더하면 이어 붙여집니다. 계산하려면 int() 로 바꿔야 합니다."
+    },
+    {
+      "id": "d05",
+      "level": 2,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(17 // 5, 17 % 5)",
+      "files": {},
+      "choices": [
+        "3.4 2",
+        "2 3",
+        "3 2",
+        "3 5"
+      ],
+      "answer": 2,
+      "explanation": "// 는 몫, % 는 나머지입니다. 17 을 5 로 나누면 몫 3, 나머지 2 입니다."
+    },
+    {
+      "id": "d06",
+      "level": 2,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "x = 5\nx = x + 2\nx *= 3\nprint(x)",
+      "files": {},
+      "choices": [
+        "15",
+        "21",
+        "7",
+        "17"
+      ],
+      "answer": 1,
+      "explanation": "x 는 5 → 7 → 21 로 바뀝니다. x *= 3 은 x = x * 3 과 같습니다."
+    },
+    {
+      "id": "d07",
+      "level": 3,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(1, 2, 3, sep=\"-\")",
+      "files": {},
+      "choices": [
+        "1 2 3",
+        "123-",
+        "1-2-3",
+        "-1-2-3"
+      ],
+      "answer": 2,
+      "explanation": "sep 은 값과 값 사이에 넣을 문자를 정합니다. 맨 앞이나 맨 뒤에는 붙지 않습니다."
+    },
+    {
+      "id": "d08",
+      "level": 3,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "x = 2.5\nprint(f\"{x:.2f}\")",
+      "files": {},
+      "choices": [
+        "2.50",
+        "2.5",
+        "3",
+        "2.50f"
+      ],
+      "answer": 0,
+      "explanation": ".2f 는 소수 둘째 자리까지 맞춰 보여 주며, 자릿수가 모자라면 0 을 채웁니다."
+    },
+    {
+      "id": "d09",
+      "level": 3,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(\"A\", end=\"\")\nprint(\"B\")\nprint(\"C\")",
+      "files": {},
+      "choices": [
+        "A, B, C 가 한 줄씩 세 줄",
+        "ABC 한 줄",
+        "A 한 줄, 다음 줄에 BC",
+        "AB 한 줄, 다음 줄에 C"
+      ],
+      "answer": 3,
+      "explanation": "end=\"\" 는 출력 뒤에 줄을 바꾸지 않게 합니다. 그래서 A 뒤에 B 가 붙고, B 를 출력한 뒤에는 줄이 바뀝니다."
+    },
+    {
+      "id": "d10",
+      "level": 4,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "score = 95\nif score >= 70:\n    print(\"C\")\nelif score >= 80:\n    print(\"B\")\nelif score >= 90:\n    print(\"A\")",
+      "files": {},
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "C, B, A 가 모두 출력된다"
+      ],
+      "answer": 2,
+      "explanation": "위에서부터 검사해 처음으로 참인 조건 하나만 실행합니다. 95 는 첫 조건 score >= 70 에서 이미 참이므로 C 가 출력되고 끝납니다."
+    },
+    {
+      "id": "d11",
+      "level": 4,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "a = 5\nb = 10\nprint(a > 3 and b < 10 or a == 5)",
+      "files": {},
+      "choices": [
+        "True",
+        "False",
+        "5",
+        "오류가 난다"
+      ],
+      "answer": 0,
+      "explanation": "a > 3 and b < 10 은 True and False 이므로 False 입니다. 여기에 or a == 5 (True) 가 붙어 전체는 True 입니다."
+    },
+    {
+      "id": "d12",
+      "level": 4,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "n = 15\nif n % 3 == 0:\n    if n % 2 == 0:\n        print(\"가\")\n    else:\n        print(\"나\")\nelse:\n    print(\"다\")",
+      "files": {},
+      "choices": [
+        "가",
+        "나",
+        "다",
+        "아무것도 출력되지 않는다"
+      ],
+      "answer": 1,
+      "explanation": "15 는 3 의 배수이므로 바깥 if 안으로 들어가고, 2 의 배수는 아니므로 안쪽 else 가 실행됩니다."
+    },
+    {
+      "id": "d13",
+      "level": 5,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "total = 0\nfor i in range(1, 5):\n    total += i\nprint(total)",
+      "files": {},
+      "choices": [
+        "15",
+        "4",
+        "5",
+        "10"
+      ],
+      "answer": 3,
+      "explanation": "range(1, 5) 는 1, 2, 3, 4 입니다. 끝 값 5 는 포함되지 않으므로 합은 10 입니다."
+    },
+    {
+      "id": "d14",
+      "level": 5,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "n = 10\ncount = 0\nwhile n > 1:\n    n = n // 2\n    count += 1\nprint(count)",
+      "files": {},
+      "choices": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "answer": 1,
+      "explanation": "n 은 10 → 5 → 2 → 1 로 바뀝니다. 세 번 반복한 뒤 n > 1 이 거짓이 되어 끝납니다."
+    },
+    {
+      "id": "d15",
+      "level": 5,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "for i in range(10, 0, -3):\n    print(i, end=\" \")",
+      "files": {},
+      "choices": [
+        "10 7 4 1",
+        "10 7 4 1 0",
+        "10 7 4",
+        "0 3 6 9"
+      ],
+      "answer": 0,
+      "explanation": "range(10, 0, -3) 은 10 에서 시작해 3 씩 줄어들며 0 보다 큰 동안 계속됩니다."
+    },
+    {
+      "id": "d19",
+      "level": 6,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "nums = [10, 20, 30, 40, 50]\nprint(nums[1:4])",
+      "files": {},
+      "choices": [
+        "[10, 20, 30, 40]",
+        "[20, 30, 40]",
+        "[20, 30, 40, 50]",
+        "[10, 20, 30]"
+      ],
+      "answer": 1,
+      "explanation": "인덱스는 0 부터 시작하고, 슬라이싱의 끝 인덱스는 포함되지 않습니다. 인덱스 1, 2, 3 의 값입니다."
+    },
+    {
+      "id": "d20",
+      "level": 6,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "a = [1, 2, 3]\nb = a\nb.append(4)\nprint(len(a))",
+      "files": {},
+      "choices": [
+        "3",
+        "7",
+        "4",
+        "오류가 난다"
+      ],
+      "answer": 2,
+      "explanation": "b = a 는 복사가 아니라 같은 리스트에 이름을 하나 더 붙이는 것입니다. b 에 추가하면 a 로 봐도 4개입니다."
+    },
+    {
+      "id": "d21",
+      "level": 6,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "nums = [3, 1, 2]\nnums.sort()\nnums.append(nums[0] + nums[-1])\nprint(nums)",
+      "files": {},
+      "choices": [
+        "[1, 2, 3, 4]",
+        "[3, 1, 2, 5]",
+        "[1, 2, 3, 3]",
+        "[1, 2, 3, 5]"
+      ],
+      "answer": 0,
+      "explanation": "sort() 로 [1, 2, 3] 이 된 뒤, 첫 값 1 과 마지막 값 3 의 합 4 를 뒤에 추가합니다."
+    },
+    {
+      "id": "d22",
+      "level": 7,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "d = {\"a\": 1, \"b\": 2}\nd[\"c\"] = d[\"a\"] + d[\"b\"]\nd[\"a\"] = 10\nprint(d[\"c\"], len(d))",
+      "files": {},
+      "choices": [
+        "12 3",
+        "3 2",
+        "12 2",
+        "3 3"
+      ],
+      "answer": 3,
+      "explanation": "c 에는 그 시점의 값 1 + 2 = 3 이 저장됩니다. 나중에 a 를 바꿔도 c 는 그대로입니다. 키는 a, b, c 세 개입니다."
+    },
+    {
+      "id": "d23",
+      "level": 7,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "count = {}\nfor ch in \"banana\":\n    count[ch] = count.get(ch, 0) + 1\nprint(count[\"a\"], count.get(\"z\", 0))",
+      "files": {},
+      "choices": [
+        "2 0",
+        "3 0",
+        "3 None",
+        "오류가 난다"
+      ],
+      "answer": 1,
+      "explanation": "banana 에 a 는 3번 나옵니다. get(\"z\", 0) 은 키가 없으면 오류 대신 기본값 0 을 돌려줍니다."
+    },
+    {
+      "id": "d24",
+      "level": 7,
+      "question": "다음 코드를 실행하면 어떻게 되는가?",
+      "code": "d = {\"a\": 1}\nprint(d[\"b\"])",
+      "files": {},
+      "choices": [
+        "None 이 출력된다",
+        "0 이 출력된다",
+        "KeyError 가 난다",
+        "IndexError 가 난다"
+      ],
+      "answer": 2,
+      "explanation": "대괄호로 없는 키를 꺼내면 KeyError 가 납니다. 오류 없이 꺼내려면 get() 을 씁니다."
+    },
+    {
+      "id": "d25",
+      "level": 8,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "s = \"Python\"\nprint(s[::-1][0], s[-2:])",
+      "files": {},
+      "choices": [
+        "n on",
+        "P Py",
+        "n ho",
+        "P on"
+      ],
+      "answer": 0,
+      "explanation": "s[::-1] 은 nohtyP 이므로 첫 글자는 n 입니다. s[-2:] 는 뒤에서 두 글자 on 입니다."
+    },
+    {
+      "id": "d26",
+      "level": 8,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "print(\"-\".join(\"a b c\".split()))",
+      "files": {},
+      "choices": [
+        "a b c",
+        "abc",
+        "['a', 'b', 'c']",
+        "a-b-c"
+      ],
+      "answer": 3,
+      "explanation": "split() 으로 ['a', 'b', 'c'] 로 나눈 뒤, join 으로 사이에 - 를 넣어 다시 합칩니다."
+    },
+    {
+      "id": "d27",
+      "level": 8,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "s = \"Hello World\"\nprint(s.lower().count(\"o\"), s.replace(\"l\", \"\"))",
+      "files": {},
+      "choices": [
+        "1 Heo Word",
+        "2 Heo Word",
+        "2 Helo World",
+        "2 Hello World"
+      ],
+      "answer": 1,
+      "explanation": "소문자로 바꾼 문자열에 o 는 2번 나옵니다. replace(\"l\", \"\") 는 모든 l 을 지웁니다."
+    },
+    {
+      "id": "d16",
+      "level": 9,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "def add(a, b=10):\n    return a + b\n\nprint(add(5), add(5, 1))",
+      "files": {},
+      "choices": [
+        "15 15",
+        "5 6",
+        "15 6",
+        "오류가 난다"
+      ],
+      "answer": 2,
+      "explanation": "인자를 하나만 주면 b 는 기본값 10 이 되어 15, 두 개를 주면 b 가 1 이 되어 6 입니다."
+    },
+    {
+      "id": "d17",
+      "level": 9,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "def double(x):\n    x * 2\n\nprint(double(4))",
+      "files": {},
+      "choices": [
+        "8",
+        "4",
+        "오류가 난다",
+        "None"
+      ],
+      "answer": 3,
+      "explanation": "함수 안에서 x * 2 를 계산만 하고 return 하지 않았습니다. return 이 없는 함수는 None 을 돌려줍니다."
+    },
+    {
+      "id": "d18",
+      "level": 9,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "x = 1\n\ndef change():\n    x = 100\n\nchange()\nprint(x)",
+      "files": {},
+      "choices": [
+        "1",
+        "100",
+        "None",
+        "오류가 난다"
+      ],
+      "answer": 0,
+      "explanation": "함수 안의 x 는 함수 안에서만 쓰이는 별개의 지역 변수입니다. 함수 밖의 x 는 바뀌지 않습니다."
+    },
+    {
+      "id": "d28",
+      "level": 10,
+      "question": "기존 내용을 지우지 않고 파일의 맨 끝에 이어서 쓰려면 어떤 모드로 열어야 하는가?",
+      "code": null,
+      "files": {},
+      "choices": [
+        "\"r\"",
+        "\"w\"",
+        "\"a\"",
+        "\"x\""
+      ],
+      "answer": 2,
+      "explanation": "r 은 읽기, w 는 새로 쓰기(기존 내용 삭제), a 는 이어 쓰기입니다."
+    },
+    {
+      "id": "d29",
+      "level": 10,
+      "question": "data.txt 의 내용이 아래와 같을 때(셋째 줄은 빈 줄), 코드를 실행하면 출력되는 것은?\n\n```\n3\n5\n\n7\n```",
+      "code": "total = 0\nwith open(\"data.txt\") as f:\n    for line in f:\n        line = line.strip()\n        if line:\n            total += int(line)\nprint(total)",
+      "files": {
+        "data.txt": "3\n5\n\n7\n"
+      },
+      "choices": [
+        "15",
+        "357",
+        "3",
+        "오류가 난다"
+      ],
+      "answer": 0,
+      "explanation": "줄마다 strip() 으로 줄바꿈을 지우고, 빈 줄은 if line: 에서 건너뜁니다. 3 + 5 + 7 = 15 입니다."
+    },
+    {
+      "id": "d30",
+      "level": 10,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "with open(\"out.txt\", \"w\") as f:\n    f.write(\"A\")\n    f.write(\"B\\n\")\n    f.write(\"C\")\n\nwith open(\"out.txt\") as f:\n    print(len(f.readlines()))",
+      "files": {},
+      "choices": [
+        "1",
+        "3",
+        "0",
+        "2"
+      ],
+      "answer": 3,
+      "explanation": "write() 는 줄바꿈을 자동으로 넣지 않습니다. 파일 내용은 AB 와 C 두 줄입니다."
+    },
+    {
+      "id": "d31",
+      "level": 11,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "import math\n\nprint(math.ceil(7 / 2), math.floor(7 / 2))",
+      "files": {},
+      "choices": [
+        "3 3",
+        "4 3",
+        "4 4",
+        "3.5 3.5"
+      ],
+      "answer": 1,
+      "explanation": "7 / 2 는 3.5 입니다. ceil 은 올림이라 4, floor 는 내림이라 3 입니다."
+    },
+    {
+      "id": "d32",
+      "level": 11,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "from collections import Counter\n\nc = Counter(\"banana\")\nprint(c.most_common(1)[0])",
+      "files": {},
+      "choices": [
+        "('a', 3)",
+        "('b', 1)",
+        "a",
+        "3"
+      ],
+      "answer": 0,
+      "explanation": "most_common(1) 은 가장 많이 나온 항목을 (값, 횟수) 튜플 하나가 든 리스트로 돌려줍니다. [0] 으로 그 튜플을 꺼냈습니다."
+    },
+    {
+      "id": "d33",
+      "level": 11,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "from datetime import date, timedelta\n\nd = date(2026, 12, 30) + timedelta(days=3)\nprint(d)",
+      "files": {},
+      "choices": [
+        "2026-12-33",
+        "2026-01-02",
+        "2027-01-02",
+        "2027-01-03"
+      ],
+      "answer": 2,
+      "explanation": "12월은 31일까지입니다. 30일에서 3일 뒤는 31일, 1월 1일, 1월 2일 순서이고 해도 바뀝니다."
+    },
+    {
+      "id": "d34",
+      "level": 12,
+      "question": "다음 코드를 실행하면 나는 오류는?",
+      "code": "nums = [1, 2, 3]\nprint(nums[3])",
+      "files": {},
+      "choices": [
+        "KeyError",
+        "TypeError",
+        "ValueError",
+        "IndexError"
+      ],
+      "answer": 3,
+      "explanation": "원소가 3개인 리스트의 인덱스는 0, 1, 2 까지입니다. 없는 인덱스를 꺼내면 IndexError 가 납니다."
+    },
+    {
+      "id": "d35",
+      "level": 12,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "try:\n    n = int(\"12a\")\n    print(\"A\")\nexcept ValueError:\n    print(\"B\")\nfinally:\n    print(\"C\")",
+      "files": {},
+      "choices": [
+        "A 한 줄, 다음 줄에 C",
+        "B 한 줄, 다음 줄에 C",
+        "B 한 줄만",
+        "A, B, C 세 줄"
+      ],
+      "answer": 1,
+      "explanation": "int(\"12a\") 에서 ValueError 가 나서 A 는 건너뛰고 except 의 B 가 출력됩니다. finally 는 오류 여부와 상관없이 항상 실행됩니다."
+    },
+    {
+      "id": "d36",
+      "level": 12,
+      "question": "1 부터 5 까지의 합 15 를 기대하고 작성한 코드입니다. 실제로 출력되는 값은?",
+      "code": "n = 5\ntotal = 0\nfor i in range(1, n):\n    total += i\nprint(total)",
+      "files": {},
+      "choices": [
+        "10",
+        "15",
+        "0",
+        "5"
+      ],
+      "answer": 0,
+      "explanation": "range(1, n) 은 n 을 포함하지 않아 1 부터 4 까지만 더합니다. range(1, n + 1) 로 고쳐야 합니다."
+    },
+    {
+      "id": "d37",
+      "level": 13,
+      "question": "오름차순으로 정렬된 100개의 수에서 이진 탐색으로 값 하나를 찾을 때, 가운데 값과의 비교는 최대 몇 번 필요한가?",
+      "code": null,
+      "files": {},
+      "choices": [
+        "100번",
+        "50번",
+        "7번",
+        "10번"
+      ],
+      "answer": 2,
+      "explanation": "한 번 비교할 때마다 범위가 절반으로 줄어듭니다. 100 → 50 → 25 → 12 → 6 → 3 → 1 이므로 최대 7번입니다."
+    },
+    {
+      "id": "d38",
+      "level": 13,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "nums = [5, 3, 8, 1]\nfor j in range(len(nums) - 1):\n    if nums[j] > nums[j + 1]:\n        nums[j], nums[j + 1] = nums[j + 1], nums[j]\nprint(nums)",
+      "files": {},
+      "choices": [
+        "[1, 3, 5, 8]",
+        "[3, 5, 8, 1]",
+        "[3, 1, 5, 8]",
+        "[3, 5, 1, 8]"
+      ],
+      "answer": 3,
+      "explanation": "이웃한 두 값을 차례로 비교합니다. 5 와 3 을 바꾸고, 5 와 8 은 그대로, 8 과 1 을 바꿉니다. 한 바퀴 돌면 가장 큰 8 이 맨 뒤로 갑니다."
+    },
+    {
+      "id": "d39",
+      "level": 13,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "a, b = 48, 18\nwhile b:\n    a, b = b, a % b\nprint(a)",
+      "files": {},
+      "choices": [
+        "6",
+        "18",
+        "12",
+        "2"
+      ],
+      "answer": 0,
+      "explanation": "(48, 18) → (18, 12) → (12, 6) → (6, 0) 으로 바뀌고, b 가 0 이 되면 a 가 최대공약수입니다."
+    },
+    {
+      "id": "d40",
+      "level": 14,
+      "question": "할 일 관리 프로그램에서 할 일 여러 개를 저장하려고 합니다. 할 일마다 '내용'과 '완료 여부'가 있습니다. 가장 알맞은 저장 방법은?",
+      "code": null,
+      "files": {},
+      "choices": [
+        "모든 내용을 이어 붙인 문자열 하나",
+        "{\"text\": ..., \"done\": ...} 딕셔너리를 원소로 가진 리스트",
+        "todo1, todo2, todo3 … 처럼 할 일마다 변수를 하나씩 만든다",
+        "완료 여부만 담은 정수 리스트"
+      ],
+      "answer": 1,
+      "explanation": "할 일 하나의 여러 정보는 딕셔너리로 묶고, 개수가 정해지지 않은 여러 개는 리스트에 담습니다."
+    },
+    {
+      "id": "d41",
+      "level": 14,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "items = []\nfor cmd in [\"add 사과\", \"add 배\", \"del 사과\", \"add 귤\"]:\n    action, name = cmd.split()\n    if action == \"add\":\n        items.append(name)\n    elif name in items:\n        items.remove(name)\nprint(items)",
+      "files": {},
+      "choices": [
+        "['사과', '배', '귤']",
+        "['배']",
+        "['배', '귤']",
+        "['귤', '배']"
+      ],
+      "answer": 2,
+      "explanation": "사과와 배를 추가하고, 사과를 지운 뒤, 귤을 추가합니다. 리스트는 추가한 순서를 유지합니다."
+    },
+    {
+      "id": "d42",
+      "level": 14,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "def grade(avg):\n    if avg >= 90:\n        return \"A\"\n    if avg >= 80:\n        return \"B\"\n    return \"C\"\n\nscores = {\"파코\": [90, 100], \"민희\": [70, 85]}\nprint([grade(sum(s) / len(s)) for s in scores.values()])",
+      "files": {},
+      "choices": [
+        "['A', 'B']",
+        "['B', 'C']",
+        "['A', 'A']",
+        "['A', 'C']"
+      ],
+      "answer": 3,
+      "explanation": "파코의 평균은 95 로 A, 민희의 평균은 77.5 로 80 미만이므로 C 입니다."
+    },
+    {
+      "id": "d43",
+      "level": 15,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def up(self):\n        self.count += 1\n\na = Counter()\nb = Counter()\na.up()\na.up()\nb.up()\nprint(a.count, b.count)",
+      "files": {},
+      "choices": [
+        "2 1",
+        "3 3",
+        "2 2",
+        "1 1"
+      ],
+      "answer": 0,
+      "explanation": "a 와 b 는 서로 다른 객체이고, self.count 는 객체마다 따로 저장됩니다."
+    },
+    {
+      "id": "d44",
+      "level": 15,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "class Animal:\n    def speak(self):\n        return \"...\"\n\n    def hello(self):\n        return \"소리: \" + self.speak()\n\nclass Dog(Animal):\n    def speak(self):\n        return \"멍멍\"\n\nprint(Dog().hello())",
+      "files": {},
+      "choices": [
+        "소리: ...",
+        "멍멍",
+        "소리: 멍멍",
+        "오류가 난다"
+      ],
+      "answer": 2,
+      "explanation": "hello() 는 부모 클래스에서 물려받지만, 그 안의 self.speak() 는 Dog 에서 다시 정의한 메서드가 호출됩니다."
+    },
+    {
+      "id": "d45",
+      "level": 15,
+      "question": "다음 코드를 실행하면 출력되는 것은?",
+      "code": "def withdraw(balance, amount):\n    if amount > balance:\n        raise ValueError(\"잔액 부족\")\n    return balance - amount\n\ntry:\n    b = withdraw(100, 30)\n    b = withdraw(b, 100)\n    print(b)\nexcept ValueError as e:\n    print(\"오류:\", e)",
+      "files": {},
+      "choices": [
+        "70",
+        "-30",
+        "오류: ValueError",
+        "오류: 잔액 부족"
+      ],
+      "answer": 3,
+      "explanation": "첫 출금으로 잔액이 70 이 되고, 두 번째 출금에서 ValueError 가 발생해 print(b) 는 건너뜁니다. e 를 출력하면 예외에 담은 메시지가 나옵니다."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "l09_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "윤년 세기 함수",
+  "level": "기초",
+  "minutes": 10,
+  "description": "달력에서 2월이 29일까지 있는 해를 윤년이라고 해요. 어떤 기간 안에 윤년이 몇 번 있는지 세어 봐요.\n연도가 윤년이면 `True` 를 돌려주는 함수 `is_leap(year)` 를 만들고, 두 연도 a, b 사이(a 이상 b 이하)에 윤년이 몇 번 있는지 출력해주세요. (윤년: 400 의 배수이거나, 4 의 배수이면서 100 의 배수가 아닌 해)",
+  "input": "연도 a b 가 공백으로 구분되어 입력됩니다. (a ≤ b)",
+  "output": "윤년의 개수를 출력합니다.",
+  "starter": "# 1) 윤년이면 True 를 돌려주는 is_leap(year) 함수를 만들어 보세요.\n# 2) a 이상 b 이하의 연도를 하나씩 확인하며 윤년이 몇 번인지 세어 출력해 보세요.\n\na, b = map(int, input().split())\n",
+  "solution": "def is_leap(year):\n    return year % 400 == 0 or (year % 4 == 0 and year % 100 != 0)\n\na, b = map(int, input().split())\ncount = 0\nfor year in range(a, b + 1):\n    if is_leap(year):\n        count += 1\nprint(count)",
+  "hints": [],
+  "explanation": "조건식 자체가 `True`/`False` 값이므로 `if` 없이 바로 `return` 할 수 있어요. 판별 규칙을 함수로 만들어 두면 반복문 안에서 이름만으로 사용할 수 있어 전체 코드가 간결해져요.",
+  "tests": [
+    {
+      "input": "2000 2024\n",
+      "output": "7"
+    },
+    {
+      "input": "1900 1900\n",
+      "output": "0"
+    },
+    {
+      "input": "1896 1904\n",
+      "output": "2"
+    }
+  ]
+}

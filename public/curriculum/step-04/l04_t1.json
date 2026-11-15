@@ -1,0 +1,37 @@
+{
+  "id": "l04_t1",
+  "kind": "exam",
+  "type": "승급시험",
+  "title": "놀이기구 탑승 검사",
+  "level": "입문",
+  "minutes": 10,
+  "description": "놀이기구마다 안전을 위한 키와 나이 기준이 있어요. 기준을 확인해서 탈 수 있는지 알려 주는 안전 요원 프로그램을 만들어봐요.\n키(cm)와 나이를 입력받아 놀이기구 탑승 여부를 출력해주세요. 키 120 이상, 나이 8 이상이어야 탈 수 있어요.\n- 둘 다 만족: `탑승 가능`\n- 키만 부족: `키가 부족합니다`\n- 나이만 부족: `나이가 부족합니다`\n- 둘 다 부족: `탑승 불가`",
+  "input": "키와 나이가 공백으로 구분되어 입력됩니다.",
+  "output": "네 가지 문구 중 하나를 출력합니다.",
+  "starter": "height, age = map(int, input().split())\n\n# 키와 나이가 각각 기준을 만족하는지 먼저 확인해 보세요.\n",
+  "solution": "height, age = map(int, input().split())\ntall = height >= 120\nold = age >= 8\nif tall and old:\n    print(\"탑승 가능\")\nelif old:\n    print(\"키가 부족합니다\")\nelif tall:\n    print(\"나이가 부족합니다\")\nelse:\n    print(\"탑승 불가\")",
+  "hints": [],
+  "explanation": "조건의 결과(`True`/`False`)를 변수에 담아 두면 조건문이 훨씬 읽기 쉬워져요. 첫 조건이 거짓이면 둘 중 하나 이상이 부족한 것이므로, `old` 만 참이면 키가 부족한 경우예요.",
+  "tests": [
+    {
+      "input": "130 10\n",
+      "output": "탑승 가능"
+    },
+    {
+      "input": "110 10\n",
+      "output": "키가 부족합니다"
+    },
+    {
+      "input": "130 5\n",
+      "output": "나이가 부족합니다"
+    },
+    {
+      "input": "100 5\n",
+      "output": "탑승 불가"
+    },
+    {
+      "input": "120 8\n",
+      "output": "탑승 가능"
+    }
+  ]
+}
