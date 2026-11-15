@@ -42,11 +42,26 @@
     loading = false;
     clearRecord();
   }
-  var STUDIO_KEY = "paco-studio-v2";
-  // 스튜디오가 이 브라우저에 저장한 해결 기록(solved)과 통과한 레벨(passed)만 읽습니다.
+  // 스튜디오는 기록을 학생마다 따로 저장합니다(studio-core.js 의 studentStorageKey 와 같은 규칙). 로그인 쿠키로 이 학생의 키를 찾습니다.
+  function cookie(name) {
+    var part = String(document.cookie || "").split(";").map(function (value) { return value.trim(); })
+      .find(function (value) { return value.indexOf(name + "=") === 0; });
+    if (!part) return "";
+    try { return decodeURIComponent(part.slice(name.length + 1)); } catch (error) { return ""; }
+  }
+  function studioKey() {
+    var school = cookie("school");
+    var studentId = cookie("studentId");
+    var name = cookie("studentName");
+    if (!(name.length > 0 && name.length <= 100 && /^\p{L}[\p{L}\p{M}]*$/u.test(name))) name = "";
+    return school && /^[0-9]{1,32}$/.test(studentId) ?
+      "paco-studio-v3:" + encodeURIComponent(school) + ":" + studentId + ":" + encodeURIComponent(name) : "";
+  }
+  // 스튜디오가 이 브라우저에 저장한 내 해결 기록(solved)과 통과한 레벨(passed)만 읽습니다.
   function readStudioRecord() {
     try {
-      var saved = JSON.parse(window.localStorage.getItem(STUDIO_KEY));
+      var key = studioKey();
+      var saved = key ? JSON.parse(window.localStorage.getItem(key)) : null;
       var isMap = function (value) { return value && typeof value === "object" && !Array.isArray(value); };
       return {
         completed: saved && isMap(saved.solved) ? Object.keys(saved.solved) : [],

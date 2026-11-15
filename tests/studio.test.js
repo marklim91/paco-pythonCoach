@@ -32,7 +32,7 @@ test('standalone studio modules, classic scripts and the Python worker have vali
     const result = spawnSync(process.execPath, ['--check', '--input-type=module'], { input: source, encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
   }
-  for (const name of ['studio-core', 'studio-progress', 'studio-markdown', 'studio-catalog']) {
+  for (const name of ['studio-core', 'studio-progress', 'studio-sync', 'studio-markdown', 'studio-catalog']) {
     const result = spawnSync(process.execPath, ['--check', '--input-type=commonjs'], { input: publicFile(`${name}.js`), encoding: 'utf8' });
     assert.equal(result.status, 0, `${name}: ${result.stderr}`);
   }
@@ -327,6 +327,130 @@ test('the coach and points addresses of the previous screen are carried over, bu
   assert.equal(read(null, '{broken').notice, undefined, 'unreadable old data is ignored');
 });
 
+// ---- 학생별 저장 ---------------------------------------------------------------
+const cookiesOf = (school, id, name = '테스트') => `school=${encodeURIComponent(school)}; studentId=${id}${name === null ? '' : `; studentName=${encodeURIComponent(name)}`}`;
+const hyeonpung = cookiesOf('현풍중학교', '30202');
+const awardKeyOf = (school, id, problem = 'l01_01') => JSON.stringify([school, id, problem]);
+// 브라우저 저장소를 흉내 내어 학생별 키로 읽습니다. records 의 값이 문자열이 아니면 JSON 으로 바꿔 넣습니다.
+const readStudent = (cookies, records = {}) => {
+  context.cookies = cookies;
+  context.records = Object.fromEntries(Object.entries(records).map(([key, value]) => [key, typeof value === 'string' ? value : JSON.stringify(value)]));
+  return evaluate('readStudioState({ getItem: key => records[key] ?? null }, studentStorageKey(cookies), studentFromCookies(cookies))');
+};
+const keyOf = cookies => { context.cookies = cookies; return evaluate('studentStorageKey(cookies)'); };
+
+test('every student gets their own storage key, names included, and a missing login falls back to a shared one', () => {
+  const mine = keyOf(hyeonpung);
+  assert.equal(mine, `paco-studio-v3:${encodeURIComponent('현풍중학교')}:30202:${encodeURIComponent('테스트')}`);
+  assert.notEqual(keyOf(cookiesOf('현풍중학교', '30203')), mine);
+  assert.notEqual(keyOf(cookiesOf('도원중학교', '30202')), mine);
+  assert.notEqual(keyOf(cookiesOf('현풍중학교', '30202', '다른학생')), mine, 'student numbers are reused every year, so the name is part of the key');
+  assert.equal(keyOf(cookiesOf('현풍중학교', '30202', null)), `paco-studio-v3:${encodeURIComponent('현풍중학교')}:30202:`, 'old logins without a name cookie get their own key');
+  assert.equal(keyOf(cookiesOf('현풍중학교', '30202', '테스트1')), `paco-studio-v3:${encodeURIComponent('현풍중학교')}:30202:`, 'a name the flow would reject is not used');
+  for (const cookies of ['', 'school=; studentId=30202', `school=${encodeURIComponent('현풍중학교')}; studentId=abc`, `school=${encodeURIComponent('현풍중학교')}`]) {
+    assert.equal(keyOf(cookies), 'paco-studio-v3:guest', cookies);
+  }
+  context.cookies = hyeonpung;
+  assert.deepEqual({ ...evaluate('studentFromCookies(cookies)') }, { school: '현풍중학교', studentId: '30202', studentName: '테스트' });
+  context.cookies = cookiesOf('현풍중학교', '30202', null);
+  assert.equal(evaluate('studentFromCookies(cookies)').studentName, '', 'no name: the screen does not sync with the server');
+  context.cookies = '';
+  assert.equal(evaluate('studentFromCookies(cookies)'), null);
+});
+
+test('one student never sees the record another student left on the same browser', () => {
+  const mine = keyOf(hyeonpung);
+  const other = keyOf(cookiesOf('현풍중학교', '30203'));
+  const records = { [other]: saved({ gems: 99, solved: { l01_01: solvedEntry }, passed: { 1: 'exam' } }), [mine]: saved({ gems: 7 }) };
+  assert.equal(readStudent(hyeonpung, records).state.gems, 7);
+  const neighbour = readStudent(cookiesOf('현풍중학교', '30203'), records);
+  assert.equal(neighbour.state.gems, 99);
+  assert.equal(neighbour.restored, true);
+  const stranger = readStudent(cookiesOf('현풍중학교', '30204'), records);
+  assert.equal(stranger.state.gems, progress.START_GEMS);
+  assert.deepEqual({ ...stranger.state.solved }, {});
+  assert.ok(!stranger.restored, 'nothing was restored for a first visit');
+  assert.equal(stranger.warning, '');
+  const nextYear = readStudent(cookiesOf('현풍중학교', '30203', '새학생'), records);
+  assert.equal(nextYear.state.gems, progress.START_GEMS, 'the same student number with another name is another student');
+  assert.ok(!nextYear.restored);
+});
+
+test('the old shared record moves to a student only when the points they received prove it is theirs', () => {
+  const mine = awardKeyOf('현풍중학교', '30202');
+  const shared = extra => ({ 'paco-studio-v2': saved({ gems: 31, solved: { l01_01: solvedEntry }, passed: { 1: 'exam' }, coachUrl: 'https://example.com/my-coach', ...extra }) });
+  const moved = readStudent(hyeonpung, shared({ awarded: [mine, awardKeyOf('현풍중학교', '30202', 'l01_02')] }));
+  assert.equal(moved.state.gems, 31);
+  assert.equal(moved.state.solved.l01_01.points, 5);
+  assert.deepEqual({ ...moved.state.passed }, { 1: 'exam' });
+  assert.equal(moved.restored, true);
+  assert.match(moved.notice, /내 계정/);
+  for (const [name, awarded] of [
+    ['someone else', [awardKeyOf('현풍중학교', '30203')]],
+    ['two students', [mine, awardKeyOf('현풍중학교', '30203')]],
+    ['no points received', []],
+    ['an unreadable entry', [mine, 'not json']],
+  ]) {
+    const result = readStudent(hyeonpung, shared({ awarded }));
+    assert.equal(result.state.gems, progress.START_GEMS, name);
+    assert.deepEqual({ ...result.state.solved }, {}, name);
+    assert.ok(!result.restored, name);
+    assert.equal(result.notice, undefined, name);
+    assert.equal(result.state.coachUrl, 'https://example.com/my-coach', `${name}: device settings are still inherited`);
+  }
+  const owner = readStudent(cookiesOf('현풍중학교', '30203'), shared({ awarded: [mine] }));
+  assert.equal(owner.state.gems, progress.START_GEMS, 'a different student does not take the record');
+});
+
+test('the shared record is left alone, a broken one is ignored and the previous screen still shows its notice', () => {
+  const flowUrl = 'https://x.api.powerplatform.com/a?sig=secret';
+  const inherited = readStudent(hyeonpung, { 'paco-studio-v2': saved({ pointsUrl: flowUrl, awarded: [] }) });
+  assert.equal(inherited.state.pointsUrl, flowUrl);
+  assert.equal(inherited.notice, undefined);
+  const broken = readStudent(hyeonpung, { 'paco-studio-v2': '{broken', 'paco-studio-v1': JSON.stringify({ coachUrl: 'https://example.com/old-coach' }) });
+  assert.equal(broken.warning, '', 'the shared record is not this student\'s record, so its damage is not their warning');
+  assert.match(broken.notice, /진단평가/);
+  assert.equal(broken.state.coachUrl, 'https://example.com/old-coach');
+  const own = readStudent(hyeonpung, { [keyOf(hyeonpung)]: '{broken' });
+  assert.ok(own.warning, 'a damaged record of this student still warns and is not overwritten');
+});
+
+test('the last synced record and the unconfirmed saves live in the same record as the student copy', () => {
+  const key = keyOf(hyeonpung);
+  const base = { revision: 3, progress: { ...progress.freshProgress(), gems: 12, solved: { l01_01: solvedEntry } } };
+  const restored = readStudent(hyeonpung, { [key]: saved({ gems: 14, sync: base, attempts: ['a', 'b', 'c', 'd', 7] }) });
+  assert.equal(restored.warning, '');
+  assert.equal(restored.state.gems, 14);
+  assert.equal(restored.sync.revision, 3);
+  assert.equal(restored.sync.progress.gems, 12);
+  assert.equal(restored.sync.progress.solved.l01_01.points, 5);
+  assert.deepEqual([...restored.attempts], ['b', 'c', 'd'], 'only the three latest texts are kept and non-text entries are dropped');
+  assert.equal(restored.state.sync, undefined, 'the sync bookkeeping is not part of the screen state');
+  assert.deepEqual([...readStudent(hyeonpung, { [key]: saved({}) }).attempts], []);
+  for (const sync of [{ revision: -1, progress: {} }, { revision: 1, progress: { gems: -3 } }, { revision: 1 }, 'x', null]) {
+    const broken = readStudent(hyeonpung, { [key]: saved({ gems: 14, sync }) });
+    assert.equal(broken.warning, '', JSON.stringify(sync));
+    assert.equal(broken.sync, null, JSON.stringify(sync));
+    assert.equal(broken.state.gems, 14, 'an unreadable base never discards the copy');
+  }
+  // 사본을 읽을 수 없으면 기준도 쓰지 않습니다. 어긋난 기준으로 합치면 서버의 보석이 줄어듭니다.
+  const unreadable = readStudent(hyeonpung, { [key]: '{broken' });
+  assert.ok(unreadable.warning);
+  assert.ok(!unreadable.sync);
+  assert.ok(!readStudent(hyeonpung, {}).sync, 'a first visit has no base');
+});
+
+test('the learning record goes to the points flow unless a separate state flow is configured', () => {
+  const pointsFlow = 'https://x.api.powerplatform.com/points?sig=p';
+  const stateFlow = 'https://x.api.powerplatform.com/state?sig=s';
+  const stateOf = (config, state) => { const studio = createStudio({ PcoConfig: config }); studio.state = state; return vm.runInContext('stateFlowUrl(state)', studio); };
+  assert.equal(stateOf({}, { pointsUrl: '' }), '', 'nothing configured: no server record');
+  assert.equal(stateOf({ pointsUrl: pointsFlow }, { pointsUrl: '' }), pointsFlow);
+  assert.equal(stateOf({ pointsUrl: pointsFlow }, { pointsUrl: 'https://x.api.powerplatform.com/mine?sig=m' }), 'https://x.api.powerplatform.com/mine?sig=m', 'an address typed into the settings wins');
+  assert.equal(stateOf({ pointsUrl: pointsFlow, stateUrl: stateFlow }, { pointsUrl: '' }), stateFlow);
+  assert.equal(stateOf({ stateUrl: stateFlow }, { pointsUrl: 'https://x.api.powerplatform.com/mine?sig=m' }), stateFlow, 'a deploy-time state flow is not replaced by a points override');
+});
+
 test('coach configuration rejects insecure schemes and embedded credentials', () => {
   for (const url of ['http://example.com', 'javascript:alert(1)', 'data:text/html,test', 'https://user:pass@example.com', 'not a URL']) {
     context.url = url;
@@ -364,6 +488,26 @@ test('logout ends the server session when possible and always clears the login c
   assert.equal(cleared.length, 3);
   assert.match(modules['studio-app'], /onClick: logout/);
   assert.match(modules['studio-app'], /window\.location\.replace\(new URL\("login\.html\?reverify=1"/);
+});
+
+test('the studio keeps the record per student, loads the server record first and saves it before the learner leaves', () => {
+  const app = modules['studio-app'];
+  assert.match(app, /studentStorageKey\(document\.cookie\)/);
+  assert.match(app, /localStorage\.setItem\(\s*initial\.key,/);
+  assert.doesNotMatch(app, /STORAGE_KEY/, 'the shared browser key is no longer used for the working copy');
+  assert.match(app, /sync: base[\s\S]*attempts/, 'the base and the unconfirmed saves are written into the same record as the copy');
+  assert.match(app, /initialBase: syncMeta\.current\.sync/);
+  assert.match(app, /onAttempts: \(attempts\) =>/);
+  assert.match(app, /student\.studentName !== initial\.owner\.studentName/, 'the server finds the student by school, number and name');
+  assert.match(app, /initial\.owner\.studentName && syncUrl/, 'without a name there is no server sync');
+  assert.match(app, /PcoSync\.createSync\(/);
+  assert.match(app, /await engine\.start\(\)/);
+  assert.match(app, /engine\.notify\(\)|syncRef\.current\.notify\(\)/);
+  assert.match(app, /flush\(\{ keepalive: true \}\)/);
+  assert.match(app, /addEventListener\("pagehide"/);
+  assert.match(app, /flush\(\{ timeoutMs: 4000 \}\)[\s\S]*endSession\(/, 'logging out saves first');
+  assert.match(app, /validatePointsUrl\(syncUrl\)/, 'the state flow address passes the same checks as the points flow');
+  assert.match(app, /setBooting\(syncOn && !initial\.restored\)|useState\(syncOn && !initial\.restored\)/, 'only a device without a copy waits for the server');
 });
 
 test('points flow address comes from the deploy-time runtime config, never from the source', () => {
@@ -474,7 +618,7 @@ test('new.html stays a thin shell: styles, code and problems live in their own f
   assert.ok(Buffer.byteLength(html) < 16 * 1024, 'new.html must not inline the curriculum or the UI code again');
   assert.doesNotMatch(html, /<style|id="curriculum"|application\/json/);
   assert.match(html, /<link rel="stylesheet" href="\.\/studio\.css" \/>/);
-  const order = ['studio-catalog', 'studio-progress', 'studio-markdown', 'studio-core'].map(name => html.indexOf(`<script src="./${name}.js"></script>`));
+  const order = ['studio-catalog', 'studio-progress', 'studio-sync', 'studio-markdown', 'studio-core'].map(name => html.indexOf(`<script src="./${name}.js"></script>`));
   assert.ok(order.every(index => index > 0) && order.every((index, i) => !i || index > order[i - 1]), 'plain scripts load in dependency order');
   assert.match(html, /<script type="module" src="\.\/studio-app\.js"><\/script>/);
 });

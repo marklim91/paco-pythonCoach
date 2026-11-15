@@ -21,6 +21,12 @@ const LEGACY_COACH_URLS = [
 // 배포 때 GitHub Actions가 만드는 runtime-config.js(PcoConfig.pointsUrl)에서 읽습니다. 소스에는 비밀 값을 두지 않습니다.
 const DEFAULT_POINTS_URL =
   (typeof PcoConfig !== "undefined" && PcoConfig.pointsUrl) || "";
+// 학습 기록(보석·진도) 저장도 기본적으로 포인트 적립과 같은 흐름을 씁니다. 따로 만든 흐름은 runtime-config.js 의 stateUrl 로 지정합니다.
+const DEFAULT_STATE_URL =
+  (typeof PcoConfig !== "undefined" && PcoConfig.stateUrl) || "";
+function stateFlowUrl(state) {
+  return DEFAULT_STATE_URL || state.pointsUrl || DEFAULT_POINTS_URL;
+}
 const POINTS_BY_LEVEL = {
   맛보기: 5,
   입문: 10,
@@ -82,6 +88,8 @@ function readCookie(cookies, name) {
     return "";
   }
 }
+const isStudentName = (name) =>
+  name.length > 0 && name.length <= 100 && /^\p{L}[\p{L}\p{M}]*$/u.test(name);
 // 로그인 때 저장한 쿠키(school, studentId, studentName)를 사용합니다. 이름 쿠키가 없는 이전 로그인은 /api/session으로 보완합니다.
 async function loadStudent(fetchImpl, cookies) {
   const school = readCookie(cookies, "school");
@@ -108,8 +116,7 @@ async function loadStudent(fetchImpl, cookies) {
   if (
     !school ||
     !/^[0-9]{1,32}$/.test(studentId) ||
-    studentName.length > 100 ||
-    !/^\p{L}[\p{L}\p{M}]*$/u.test(studentName)
+    !isStudentName(studentName)
   ) {
     throw new Error(
       "로그인한 학생 정보를 확인할 수 없어요. 로그아웃 후 다시 로그인해주세요.",
@@ -308,44 +315,107 @@ function readLegacySettings(storage, initial) {
       "학습 방식이 레벨 로드맵으로 바뀌었어요. 이전 기록은 옮기지 못했지만 진단평가로 내 레벨을 찾을 수 있어요.",
   };
 }
-function readStudioState(storage) {
-  const initial = initialState();
+// 저장된 학습 기록 하나를 읽습니다. 형식이 틀리면 오류를 던집니다.
+function parseSavedState(raw, initial) {
+  const parsed = JSON.parse(raw);
+  if (
+    !isRecord(parsed) ||
+    !isRecord(parsed.codes) ||
+    typeof parsed.coachUrl !== "string" ||
+    typeof parsed.selected !== "string"
+  )
+    throw new Error("저장 형식이 올바르지 않아요.");
+  const codes = {};
+  for (const [id, code] of Object.entries(parsed.codes)) {
+    if (typeof code !== "string") throw new Error("저장된 코드 형식이 올바르지 않아요.");
+    if (PROBLEM_BY_ID.has(id)) codes[id] = code;
+  }
+  const pointsUrl =
+    typeof parsed.pointsUrl === "string" && parsed.pointsUrl
+      ? validatePointsUrl(parsed.pointsUrl)
+      : "";
+  const awarded = Array.isArray(parsed.awarded)
+    ? [...new Set(parsed.awarded.filter((key) => typeof key === "string"))]
+    : [];
+  return {
+    state: {
+      selected: PROBLEM_BY_ID.has(parsed.selected) ? parsed.selected : initial.selected,
+      codes,
+      coachUrl: LEGACY_COACH_URLS.includes(parsed.coachUrl)
+        ? DEFAULT_COACH_URL
+        : validateCoachUrl(parsed.coachUrl),
+      pointsUrl,
+      awarded,
+      ...readProgress(parsed),
+    },
+    sync: readSyncMeta(parsed.sync),
+    attempts: readAttempts(parsed.attempts),
+  };
+}
+// 서버와 마지막으로 맞춘 기록입니다. 이 사본과 같은 JSON 에 함께 저장하므로 서로 어긋나지 않으며,
+// 읽을 수 없으면 쓰지 않고 처음 상태를 기준으로 합칩니다.
+function readSyncMeta(saved) {
+  try {
+    if (isRecord(saved) && isCount(saved.revision) && isRecord(saved.progress))
+      return { revision: saved.revision, progress: readProgress(saved.progress) };
+  } catch {
+    /* 읽을 수 없는 기준은 쓰지 않습니다. */
+  }
+  return null;
+}
+// 응답을 받지 못했을 수 있는 최근 저장 내용입니다. 창을 닫는 순간 보낸 저장이 서버에 반영됐는지 다시 열 때 알아보는 데 씁니다.
+function readAttempts(saved) {
+  return Array.isArray(saved) ? saved.filter((text) => typeof text === "string").slice(-3) : [];
+}
+// 학생 구분 없이 저장하던 이전 기록(paco-studio-v2)입니다. 읽을 수 없으면 없는 것으로 봅니다.
+function readSharedState(storage, initial) {
   try {
     const raw = storage.getItem(STORAGE_KEY);
-    if (!raw) return readLegacySettings(storage, initial);
-    const parsed = JSON.parse(raw);
-    if (
-      !isRecord(parsed) ||
-      !isRecord(parsed.codes) ||
-      typeof parsed.coachUrl !== "string" ||
-      typeof parsed.selected !== "string"
-    )
-      throw new Error("저장 형식이 올바르지 않아요.");
-    const codes = {};
-    for (const [id, code] of Object.entries(parsed.codes)) {
-      if (typeof code !== "string") throw new Error("저장된 코드 형식이 올바르지 않아요.");
-      if (PROBLEM_BY_ID.has(id)) codes[id] = code;
+    return raw ? parseSavedState(raw, initial).state : null;
+  } catch {
+    return null;
+  }
+}
+// awarded 의 항목은 [학교, 학번, 문제ID] 입니다. 포인트를 받은 학생이 이 학생 한 명뿐일 때만 이전 기록을 이 학생의 것으로 봅니다.
+function ownsSharedState(state, owner) {
+  const owners = new Set();
+  for (const key of state.awarded) {
+    try {
+      const [school, studentId] = JSON.parse(key);
+      owners.add(JSON.stringify([school, studentId]));
+    } catch {
+      return false;
     }
-    const pointsUrl =
-      typeof parsed.pointsUrl === "string" && parsed.pointsUrl
-        ? validatePointsUrl(parsed.pointsUrl)
-        : "";
-    const awarded = Array.isArray(parsed.awarded)
-      ? [...new Set(parsed.awarded.filter((key) => typeof key === "string"))]
-      : [];
+  }
+  return owners.size === 1 && owners.has(JSON.stringify([owner.school, owner.studentId]));
+}
+// 이 학생의 기록이 이 브라우저에 아직 없을 때입니다.
+function readFirstVisit(storage, initial, owner) {
+  const shared = readSharedState(storage, initial);
+  if (shared && owner && ownsSharedState(shared, owner)) {
     return {
-      state: {
-        selected: PROBLEM_BY_ID.has(parsed.selected) ? parsed.selected : initial.selected,
-        codes,
-        coachUrl: LEGACY_COACH_URLS.includes(parsed.coachUrl)
-          ? DEFAULT_COACH_URL
-          : validateCoachUrl(parsed.coachUrl),
-        pointsUrl,
-        awarded,
-        ...readProgress(parsed),
-      },
+      state: shared,
       warning: "",
+      restored: true,
+      notice: "이 브라우저에 저장돼 있던 학습 기록을 내 계정으로 옮겼어요.",
     };
+  }
+  // 다른 학생의 것일 수 있는 기록은 가져오지 않고, 코치·포인트 주소 같은 기기 설정만 이어받습니다.
+  if (shared)
+    return { state: { ...initial, coachUrl: shared.coachUrl, pointsUrl: shared.pointsUrl }, warning: "" };
+  return readLegacySettings(storage, initial);
+}
+// key 를 생략하면 이전 방식의 공용 키를 읽습니다. 학생별 키(studentStorageKey)로 읽을 때는 owner 로 로그인한 학생을 알려 주세요.
+function readStudioState(storage, key = STORAGE_KEY, owner = null) {
+  const initial = initialState();
+  try {
+    const raw = storage.getItem(key);
+    if (!raw)
+      return key === STORAGE_KEY
+        ? readLegacySettings(storage, initial)
+        : readFirstVisit(storage, initial, owner);
+    const saved = parseSavedState(raw, initial);
+    return { state: saved.state, warning: "", restored: true, sync: saved.sync, attempts: saved.attempts };
   } catch (error) {
     return {
       state: initial,
@@ -362,17 +432,39 @@ function browserStorage() {
     return null;
   }
 }
+
+// ---- 학생별 저장 ---------------------------------------------------------------
+// 코드·보석·진도는 로그인한 학생마다 따로 보관합니다. 학번은 해마다 다시 쓰이므로 키에 이름까지 넣어, 같은 학번의 다른 학생이
+// 공용 PC에서 이전 학생의 기록을 이어받지 않게 합니다. 학생을 알 수 없으면 공용 키를 쓰고 서버와 맞추지 않습니다.
+const STUDENT_KEY_PREFIX = "paco-studio-v3:";
+const GUEST_STORAGE_KEY = STUDENT_KEY_PREFIX + "guest";
+function studentFromCookies(cookies) {
+  const school = readCookie(cookies, "school");
+  const studentId = readCookie(cookies, "studentId");
+  if (!school || !/^[0-9]{1,32}$/.test(studentId)) return null;
+  const studentName = readCookie(cookies, "studentName");
+  return { school, studentId, studentName: isStudentName(studentName) ? studentName : "" };
+}
+function studentStorageKey(cookies) {
+  const student = studentFromCookies(cookies);
+  return student
+    ? `${STUDENT_KEY_PREFIX}${encodeURIComponent(student.school)}:${student.studentId}:${encodeURIComponent(student.studentName)}`
+    : GUEST_STORAGE_KEY;
+}
+function currentStorageKey() {
+  return typeof document === "undefined" ? STORAGE_KEY : studentStorageKey(document.cookie);
+}
 // 내 학습 현황의 추천 링크(new.html?problem=문제ID)로 열면 저장된 문제 대신 그 문제를 보여줍니다.
 function requestedProblemId(search) {
   const requested = new URLSearchParams(search).get("problem");
   return requested && PROBLEM_BY_ID.has(requested) ? requested : "";
 }
 // 화면 라이브러리를 내려받는 동안 미리 받아 둘 문제입니다: 링크가 가리키는 문제, 없으면 지금 풀 문제입니다.
-function startupProblemId(search, storage = browserStorage()) {
+function startupProblemId(search, storage = browserStorage(), key = currentStorageKey()) {
   const requested = requestedProblemId(search);
   if (requested) return requested;
   if (!storage) return PROBLEMS[0].id;
-  const { state } = readStudioState(storage);
+  const { state } = readStudioState(storage, key);
   const next = MODEL.nextStep(state, MODEL.currentLevel(state));
   return next.id && next.kind !== "exam" ? next.id : state.selected;
 }

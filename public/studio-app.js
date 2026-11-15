@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  Cloud,
+  CloudOff,
   Code2,
   Flame,
   Gem,
@@ -69,14 +71,29 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// 서버 저장 상태를 헤더 칩에 보여줄 말입니다. off·idle 은 서버 저장을 쓰지 않으므로 칩을 숨깁니다.
+const SYNC_VIEW = {
+  loading: { label: "불러오는 중", title: "서버에서 내 학습 기록을 불러오고 있어요.", Icon: Cloud },
+  synced: { label: "저장됨", title: "보석과 진도가 서버에 저장돼 있어요. 다른 기기에서도 이어서 학습할 수 있어요.", Icon: Cloud },
+  pending: { label: "저장 중", title: "바뀐 기록을 곧 서버에 저장해요.", Icon: Cloud },
+  saving: { label: "저장 중", title: "바뀐 기록을 서버에 저장하고 있어요.", Icon: Cloud },
+  offline: { label: "저장 대기", title: "서버에 연결하지 못했어요. 연결되면 자동으로 저장하니 그때까지 이 창을 닫지 마세요.", Icon: CloudOff },
+  local: { label: "이 브라우저에만 저장", title: "서버에 저장하지 못해요.", Icon: CloudOff },
+};
+const SERVER_STATUSES = ["loading", "synced", "pending", "saving", "offline"];
+
 function App() {
   const [initial] = useState(() => {
+    const owner = studentFromCookies(document.cookie);
+    const key = studentStorageKey(document.cookie);
     try {
-      return readStudioState(localStorage);
+      return { ...readStudioState(localStorage, key, owner), key, owner };
     } catch (error) {
       return {
         state: initialState(),
         warning: "브라우저 저장소에 접근할 수 없어 임시 모드로 시작했어요. " + error.message,
+        key,
+        owner,
       };
     }
   });
@@ -87,6 +104,16 @@ function App() {
   const storageDisabled = useRef(Boolean(initial.warning));
   const awarding = useRef(new Set());
   const switchRequest = useRef(0);
+  // 학습 기록(보석·진도)은 서버가 원본입니다. 이 브라우저에는 오프라인일 때를 위한 사본과 작성 중인 코드를 학생별로 둡니다.
+  const syncRef = useRef(null);
+  // 서버와 마지막으로 맞춘 기록, 응답을 받지 못했을 수 있는 최근 저장은 사본과 같은 JSON 에 함께 보관해 서로 어긋나지 않게 합니다.
+  const syncMeta = useRef({ sync: initial.sync || null, attempts: initial.attempts || [] });
+  const [syncUrl] = useState(() => stateFlowUrl(initial.state));
+  // 서버는 학교·학번·이름으로 학생 행을 찾으므로 이름까지 알 때만 서버와 맞춥니다.
+  const syncOn = Boolean(initial.owner && initial.owner.studentName && syncUrl);
+  const [sync, setSync] = useState({ status: syncOn ? "idle" : "off", detail: null });
+  // 이 브라우저에 사본이 없으면(처음 쓰는 기기) 서버 기록을 받을 때까지 잠깐 기다립니다.
+  const [booting, setBooting] = useState(syncOn && !initial.restored);
   const runner = usePythonRunner();
   const [view, setView] = useState({ name: "roadmap" });
   const [toasts, setToasts] = useState([]);
@@ -115,15 +142,99 @@ function App() {
     setTimeout(() => setToasts((list) => list.filter((item) => item.id !== id)), 3800);
   }
 
-  useEffect(() => {
+  // 사본은 상태가 바뀔 때마다, 그리고 서버와 맞춘 기록이 바뀔 때마다 한 번에 저장합니다.
+  function persist() {
     if (storageDisabled.current) return;
+    const { sync: base, attempts } = syncMeta.current;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(
+        initial.key,
+        JSON.stringify({ ...stateRef.current, ...(base ? { sync: base } : {}), ...(attempts.length ? { attempts } : {}) }),
+      );
     } catch (error) {
       storageDisabled.current = true;
       toast("브라우저에 저장하지 못했어요. 현재 작업은 유지되지만 새로고침하면 사라질 수 있어요. " + error.message);
     }
+  }
+  useEffect(persist, [state]);
+  // 보석·해결·승급 기록이 바뀌면 서버 저장을 예약합니다. 코드를 입력하는 동안에는 아무 일도 하지 않습니다.
+  useEffect(() => {
+    if (syncRef.current) syncRef.current.notify();
   }, [state]);
+  useEffect(() => {
+    if (!syncOn) return undefined;
+    let cancelled = false;
+    let engine = null;
+    // 서버가 느려도 화면은 8초 안에 열고, 불러오기는 뒤에서 이어갑니다.
+    const gate = setTimeout(() => setBooting(false), 8000);
+    (async () => {
+      try {
+        const student = await loadStudent(fetch, document.cookie);
+        if (
+          student.school !== initial.owner.school ||
+          student.studentId !== initial.owner.studentId ||
+          student.studentName !== initial.owner.studentName
+        )
+          throw new Error("로그인한 학생 정보가 달라졌어요. 화면을 새로고침해주세요.");
+        const url = validatePointsUrl(syncUrl);
+        if (cancelled) return;
+        engine = PcoSync.createSync({
+          url,
+          student,
+          fetchImpl: (...args) => fetch(...args),
+          getProgress: getState,
+          readProgress,
+          initialBase: syncMeta.current.sync,
+          initialAttempts: syncMeta.current.attempts,
+          applyRemote: (remote, before) =>
+            apply((previous) => ({
+              ...previous,
+              ...PcoSync.mergeProgress(PcoSync.pickProgress(previous), remote, before),
+            })),
+          onStatus: (status, detail) => {
+            if (!cancelled) setSync({ status, detail });
+          },
+          onBase: (base) => {
+            syncMeta.current.sync = base;
+            persist();
+          },
+          onAttempts: (attempts) => {
+            syncMeta.current.attempts = attempts;
+            persist();
+          },
+          onConflict: () => toast("다른 기기에서 학습한 기록을 합쳤어요."),
+        });
+        syncRef.current = engine;
+        await engine.start();
+      } catch (error) {
+        if (!cancelled) setSync({ status: "local", detail: { kind: "unsupported", message: error.message } });
+      } finally {
+        clearTimeout(gate);
+        if (!cancelled) setBooting(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      clearTimeout(gate);
+      if (engine) engine.stop();
+      syncRef.current = null;
+    };
+  }, []);
+  // 창을 닫거나 다른 탭으로 옮기기 전에 남은 변경을 바로 보냅니다.
+  useEffect(() => {
+    const leave = () => {
+      if (syncRef.current) syncRef.current.flush({ keepalive: true }).catch(() => {});
+    };
+    const hidden = () => {
+      if (document.visibilityState === "hidden") leave();
+    };
+    document.addEventListener("visibilitychange", hidden);
+    window.addEventListener("pagehide", leave);
+    return () => {
+      document.removeEventListener("visibilitychange", hidden);
+      window.removeEventListener("pagehide", leave);
+    };
+  }, []);
   useEffect(() => {
     let active = true;
     loadStudent(fetch, document.cookie)
@@ -140,6 +251,8 @@ function App() {
 
   async function logout() {
     setLoggingOut(true);
+    // 남은 변경을 서버에 저장한 뒤 나갑니다. 서버가 느리면 4초만 기다리고, 저장하지 못한 기록은 이 브라우저에 남습니다.
+    if (syncRef.current) await syncRef.current.flush({ timeoutMs: 4000 }).catch(() => false);
     await endSession({
       fetchImpl: fetch,
       setCookie: (value) => {
@@ -270,6 +383,13 @@ function App() {
     setSettings(true);
   }
 
+  if (booting)
+    return h(
+      "div",
+      { className: "loading", role: "status" },
+      h("div", null, h("strong", null, "내 학습 기록을 불러오고 있어요."), h("p", null, "이 기기에서 처음 열면 서버에 저장된 보석과 진도를 가져와요.")),
+    );
+
   const ctx = {
     state,
     getState,
@@ -317,8 +437,19 @@ function App() {
         "div",
         { className: "top-chips", "aria-label": "나의 기록" },
         h("span", { className: "stat-chip streak", title: "연속 학습일" }, icon(Flame, { size: 15 }), `${PcoProgress.liveStreak(state, today)}일 연속`),
-        h("span", { className: "stat-chip points", title: "이 브라우저에서 얻은 점수" }, icon(Star, { size: 15 }), `${MODEL.totalPoints(state)}점`),
+        h("span", { className: "stat-chip points", title: "얻은 점수" }, icon(Star, { size: 15 }), `${MODEL.totalPoints(state)}점`),
         h("span", { className: "stat-chip gems", title: "보석" }, icon(Gem, { size: 15 }), `${state.gems}`),
+        SYNC_VIEW[sync.status] &&
+          h(
+            "span",
+            {
+              className: `stat-chip sync ${sync.status}`,
+              role: "status",
+              title: sync.status === "local" && sync.detail ? `${SYNC_VIEW.local.title} ${sync.detail.message}` : SYNC_VIEW[sync.status].title,
+            },
+            icon(SYNC_VIEW[sync.status].Icon, { size: 15 }),
+            SYNC_VIEW[sync.status].label,
+          ),
       ),
       h(
         "div",
@@ -342,7 +473,7 @@ function App() {
     h(
       "footer",
       { className: "workspace-footer" },
-      h("span", null, "코드와 진도는 이 브라우저에만 저장돼요."),
+      h("span", null, SERVER_STATUSES.includes(sync.status) ? "보석과 진도는 서버에 저장되고, 작성 중인 코드는 이 브라우저에 자동 저장돼요." : "코드와 진도는 이 브라우저에만 저장돼요."),
       h(SiteNav, { className: "footer-links", label: "바로가기" }),
       h("span", null, `${TRACKS.length}개 레벨 · 핵심 ${PROBLEMS.filter((p) => p.kind === "core").length}문제`),
     ),
@@ -371,7 +502,7 @@ function App() {
       h(
         "p",
         { className: "prose" },
-        "문제를 해결하면 이 브라우저가 위 흐름 주소로 학교·학번·이름과 포인트를 직접 보냅니다. 주소의 서명은 비밀이므로 다른 사람과 공유하지 마세요. 페이지는 AI API를 호출하지 않으며, 코치 대화는 외부 서비스의 정책을 따릅니다. 코치 화면이 차단되면 새 창으로 열어주세요.",
+        "문제를 해결하면 이 브라우저가 위 흐름 주소로 학교·학번·이름과 포인트를 직접 보내고, 보석·진도 같은 학습 기록도 같은 흐름에 저장합니다(배포 설정에 학습 기록용 흐름이 따로 있으면 그 주소를 씁니다). 주소의 서명은 비밀이므로 다른 사람과 공유하지 마세요. 페이지는 AI API를 호출하지 않으며, 코치 대화는 외부 서비스의 정책을 따릅니다. 코치 화면이 차단되면 새 창으로 열어주세요.",
       ),
       h(
         "div",

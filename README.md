@@ -34,7 +34,7 @@ npm run build:new    # dist-new/ 에 정적 파일 생성
 npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 ```
 
-- 화면은 얇은 [`public/new.html`](./public/new.html)(약 6KB)에 스타일 [`studio.css`](./public/studio.css), 일반 스크립트 — 문제 목록 [`studio-catalog.js`](./public/studio-catalog.js), 승급 규칙 [`studio-progress.js`](./public/studio-progress.js), 문제 설명 해석기 [`studio-markdown.js`](./public/studio-markdown.js), 설정·저장·포인트·문제 불러오기 [`studio-core.js`](./public/studio-core.js) — 와 React 화면 모듈([`studio-app.js`](./public/studio-app.js) 시작점·상단 바, [`studio-roadmap.js`](./public/studio-roadmap.js) 로드맵, [`studio-learn.js`](./public/studio-learn.js) 학습 화면, [`studio-quiz.js`](./public/studio-quiz.js) 승급 시험·진단평가, [`studio-code.js`](./public/studio-code.js) 에디터·채점, [`studio-coach.js`](./public/studio-coach.js) 코치, [`studio-runner.js`](./public/studio-runner.js) Python 실행, [`studio-ui.js`](./public/studio-ui.js) 공용 구성 요소), 문제 본문 [`curriculum/`](./public/curriculum)을 연결해 구성합니다(설정: [`vite.config.js`](./vite.config.js)). React와 shadcn/ui의 Button·Tabs·Dialog 구성 방식을 CSS에 맞게 적용하며, 접근성 동작은 Radix UI를 사용합니다. 화면 라이브러리는 npm 의존성으로 설치됩니다.
+- 화면은 얇은 [`public/new.html`](./public/new.html)(약 6KB)에 스타일 [`studio.css`](./public/studio.css), 일반 스크립트 — 문제 목록 [`studio-catalog.js`](./public/studio-catalog.js), 승급 규칙 [`studio-progress.js`](./public/studio-progress.js), 서버 저장·충돌 병합 [`studio-sync.js`](./public/studio-sync.js), 문제 설명 해석기 [`studio-markdown.js`](./public/studio-markdown.js), 설정·저장·포인트·문제 불러오기 [`studio-core.js`](./public/studio-core.js) — 와 React 화면 모듈([`studio-app.js`](./public/studio-app.js) 시작점·상단 바, [`studio-roadmap.js`](./public/studio-roadmap.js) 로드맵, [`studio-learn.js`](./public/studio-learn.js) 학습 화면, [`studio-quiz.js`](./public/studio-quiz.js) 승급 시험·진단평가, [`studio-code.js`](./public/studio-code.js) 에디터·채점, [`studio-coach.js`](./public/studio-coach.js) 코치, [`studio-runner.js`](./public/studio-runner.js) Python 실행, [`studio-ui.js`](./public/studio-ui.js) 공용 구성 요소), 문제 본문 [`curriculum/`](./public/curriculum)을 연결해 구성합니다(설정: [`vite.config.js`](./vite.config.js)). React와 shadcn/ui의 Button·Tabs·Dialog 구성 방식을 CSS에 맞게 적용하며, 접근성 동작은 Radix UI를 사용합니다. 화면 라이브러리는 npm 의존성으로 설치됩니다.
 - **레벨 로드맵과 승급(듀오링고 방식)**: 모든 문제를 한꺼번에 보여주지 않고 **15개 레벨**(Lv.1 Python 입문자 … Lv.15 Python Junior Developer)을 앞에서부터 엽니다. 레벨은 핵심 문제 8개(실습 7 + 도전 1, Lv.14는 프로젝트 7 + 도전 1), 핵심 문제 사이의 **연습 칸**(코드업 기초 100제의 개념에 맞춘 짧은 문제, 현재 Lv.1~6·8에만 있음), 그리고 **승급 시험**(코딩 2문제)으로 이루어집니다. 규칙은 다음과 같습니다. 코드는 [`studio-progress.js`](./public/studio-progress.js)에 있고 `tests/studio-progress.test.js`가 확인합니다.
   - 레벨 안에서는 핵심 문제를 순서대로 풉니다. 앞 핵심 문제를 풀어야 다음 핵심 문제가 열리고, 잠긴 칸은 화면에서 두 칸까지만 보여줍니다.
   - **한 번에 통과**(첫 제출, 힌트·예시 정답 없이)하면 그 핵심 문제 뒤의 연습 칸은 건너뛸 수 있고 언제든 풀 수 있습니다. **틀린 뒤 통과하거나 힌트·예시 정답을 썼다면** 같은 칸의 연습 문제 한 개를 풀어야 다음 핵심 문제가 열립니다. 레벨의 마지막 핵심 문제 뒤 연습은 필수가 아닙니다.
@@ -53,9 +53,9 @@ npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 - **문제를 추가·수정하는 방법**: 문제 파일(그리고 순서를 바꿀 때는 `level.json`)을 고친 뒤 `npm run build:catalog`로 [`studio-catalog.js`](./public/studio-catalog.js)를 다시 만드세요. 이 파일은 [`scripts/build-studio-catalog.js`](./scripts/build-studio-catalog.js)가 문제 파일에서 생성하므로 직접 고치지 않습니다. 대시보드·내 학습·학습 가이드가 같은 목록을 쓰며, 문제 파일과 목록이 다르면 테스트가 실패합니다. 새 문제는 위 **파코 스타일**로 쓰세요. 코드업 등 외부 문제는 설명을 그대로 옮기지 말고 개념만 참고해 새로 쓴 뒤 `link`로 연결하세요. `tests/studio.test.js`가 **모든 `solution`을 실제 Python으로 실행해** 테스트 케이스(파일 포함)를 모두 통과하는지, 시작 코드는 그대로 통과하지 않는지 확인하고 파코 스타일·힌트·형식·진단평가 문항도 점검하므로 문제를 바꾼 뒤 `npm test`를 실행하세요. `solution`은 해결하거나 '세 번 틀린 뒤 코치와 이야기해 본' 학생에게만 화면에 보이지만, 문제 파일 자체는 그대로 공개되므로 정답 노출을 완전히 막는 장치는 아닙니다.
 - **실행**은 직접 입력한 값으로 Python을 실행하고, **제출하기**는 해당 문제의 전체 테스트를 실행합니다. 모두 통과해야 해결 처리됩니다. 줄 끝 공백·마지막 개행만 무시하며 출력의 대소문자와 줄 내부 공백은 비교합니다. 오류로 끝나면 출력이 맞아도 통과하지 않습니다.
 - Python은 Pyodide Web Worker에서 실행됩니다. 각 실행·제출은 새 실행기를 사용하며 로딩 제한은 90초, 테스트별 실행 제한은 5초, 출력 스트림별 한도는 20,000자입니다. 파일 처리 문제(Lv.10)는 실행할 때마다 임시 폴더에 문제의 파일을 만들고 끝나면 지웁니다. 중지 버튼으로 종료할 수 있습니다. 브라우저 안의 학습용 채점이므로 보안 격리 서버나 부정행위 방지용 채점기는 아닙니다.
-- 코드·해결 기록·통과한 레벨·보석·연속 학습·실수 노트·코치 주소는 전용 `localStorage` 키 `paco-studio-v2`에 저장됩니다. 다른 브라우저·기기로 동기화하지 않습니다. 저장소 접근·용량·데이터 오류는 화면에 경고하고 임시 모드로 전환합니다. 이전 화면(10단계 목록)의 키 `paco-studio-v1`에서는 **코치·포인트 주소만** 이어받고, 이전 해결 기록은 새 문제 구성과 달라 옮기지 않습니다(진단평가로 내 레벨을 찾을 수 있습니다). 서버에 적립된 점수는 그대로입니다.
+- **학습 기록은 서버(Dataverse)가 원본**입니다. 보석·해결 기록·통과한 레벨·연속 학습·실수 노트는 `StudentLearningRecord`의 학생 행에 저장되어 다른 기기에서도 이어서 학습할 수 있고(저장·충돌 규칙과 흐름 설정은 [학습 기록 저장용 흐름 확장](#학습-기록보석진도-저장용-흐름-확장)), 같은 브라우저를 여러 학생이 써도 기록이 섞이지 않습니다. 이 브라우저에는 **학생별** `localStorage` 키 `paco-studio-v3:<학교>:<학번>:<이름>`에 작성 중인 코드·열어 본 문제·코치·포인트 주소와 오프라인일 때를 위한 기록 사본을 두고(학번은 해마다 다시 쓰이므로 이름까지 키에 넣어 같은 학번의 다음 학생이 이전 학생의 사본을 이어받지 않습니다), 서버와 마지막으로 맞춘 기록(`sync`)과 응답을 받지 못했을 수 있는 최근 저장(`attempts`)도 **같은 레코드에** 함께 넣어 서로 어긋나지 않게 합니다. 헤더의 저장 상태 칩(저장됨·저장 중·저장 대기·이 브라우저에만 저장)으로 상태를 알려 줍니다. 흐름이 아직 이 기능을 지원하지 않거나 학생 행이 없거나 이름 쿠키가 없는 이전 로그인이면 이 브라우저에만 저장하며 그 이유를 칩에 마우스를 올리면 보여 줍니다. 저장소 접근·용량·데이터 오류는 화면에 경고하고 임시 모드로 전환합니다. 학생 구분 없이 저장하던 이전 키 `paco-studio-v2`의 기록은 **그 안의 포인트 적립 기록으로 한 학생의 것임이 확인될 때만** 그 학생에게 한 번 옮기고(다른 학생이 로그인하면 가져가지 않으며, 이전 키는 지우지 않습니다) 코치·포인트 주소만 이어받습니다. 이전 화면(10단계 목록)의 키 `paco-studio-v1`에서는 **코치·포인트 주소만** 이어받고, 이전 해결 기록은 새 문제 구성과 달라 옮기지 않습니다(진단평가로 내 레벨을 찾을 수 있습니다). 서버에 적립된 점수는 그대로입니다.
 - 코치는 기존 메인 화면의 외부 iframe 주소를 사용하며 **코치 연결하기**를 눌러야 로드합니다. 설정에서 주소를 변경할 수 있습니다. 문제·코드는 자동 전송하지 않고 질문 버튼으로 복사하여 채팅에 직접 붙여넣습니다. 외부 서비스의 인증·iframe 허용 정책이 적용되며, 연결이 막히면 새 창 링크를 사용합니다.
-- 학습 결과는 브라우저에 저장하며, **해결 시 포인트 적립**만 브라우저가 Power Automate 흐름을 직접 호출합니다(서버·환경 변수 불필요). 흐름 주소는 설정(톱니바퀴)에서 입력하며 [해결 포인트 적립용 Power Automate 흐름](#해결-포인트-적립용-power-automate-흐름)을 참고하세요. 학교·학번·이름은 로그인 쿠키(`school`, `studentId`, `studentName`)에서 가져오므로 로그인한 `/new`에서만 적립됩니다(서버가 없는 정적 환경에서도 동작). 이름 쿠키가 없는 이전 로그인은 `/api/session`으로 보완하고, 그것도 없으면 다시 로그인 안내가 표시됩니다. Python 런타임(Pyodide)은 jsDelivr에서 받으므로 **인터넷 연결이 필요**합니다. 첫 Python 실행은 다운로드로 시간이 걸릴 수 있습니다. 외부 코치 역시 인터넷이 필요하며 완전 오프라인 기능은 제공하지 않습니다.
+- 학습 기록은 서버에 저장하고, **해결 시 포인트 적립**과 **학습 기록(보석·진도) 저장·불러오기**는 브라우저가 Power Automate 흐름을 직접 호출합니다(서버·환경 변수 불필요). 흐름 주소는 설정(톱니바퀴)에서 입력하며 [해결 포인트 적립용 Power Automate 흐름](#해결-포인트-적립용-power-automate-흐름)을 참고하세요. 학교·학번·이름은 로그인 쿠키(`school`, `studentId`, `studentName`)에서 가져오므로 로그인한 `/new`에서만 적립·저장됩니다(서버가 없는 정적 환경에서도 동작). 이름 쿠키가 없는 이전 로그인은 `/api/session`으로 보완하고, 그것도 없으면 다시 로그인 안내가 표시됩니다. Python 런타임(Pyodide)은 jsDelivr에서 받으므로 **인터넷 연결이 필요**합니다. 첫 Python 실행은 다운로드로 시간이 걸릴 수 있습니다. 외부 코치 역시 인터넷이 필요하며 완전 오프라인 기능은 제공하지 않습니다.
 
 ---
 
@@ -323,7 +323,7 @@ new.html (제출 통과) → 브라우저가 Power Automate HTTP 트리거를 �
 
 #### 1. HTTP 트리거
 
-로그인 흐름과 같은 방식으로 **When an HTTP request is received**를 만들고(`Anyone`, POST, 전체 URL은 비밀 관리) 본문 스키마를 입력합니다.
+로그인 흐름과 같은 방식으로 **When an HTTP request is received**를 만들고(`Anyone`, POST, 전체 URL은 비밀 관리) 본문 스키마를 입력합니다. 학습 기록(보석·진도) 저장 기능을 쓰는 흐름은 이 스키마 대신 [학습 기록 저장용 흐름 확장](#학습-기록보석진도-저장용-흐름-확장)의 스키마를 씁니다.
 
 ```json
 {
@@ -431,6 +431,316 @@ setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', tru
 
 ---
 
+## 학습 기록(보석·진도) 저장용 흐름 확장
+
+보석·해결 기록·통과한 레벨·연속 학습·실수 노트를 학생 행(`StudentLearningRecord`)에 저장하고 불러옵니다. 만드는 방법은 두 가지이며 **방법 B(별도 흐름)를 권장**합니다.
+
+- **방법 B — 별도 흐름(권장, 쉬움)**: 적립 흐름을 사본으로 저장해 사본에서 적립 로직을 지우고 불러오기·저장만 처리합니다. 운영 중인 적립 흐름은 한 장도 바뀌지 않으며, 사본의 주소를 `STATE_FLOW_URL` 시크릿으로 등록합니다. 아래 [방법 B](#방법-b-별도-흐름으로-만들기-권장)를 보세요.
+- **방법 A — 같은 흐름 확장**: 적립 흐름 자체에 `action` 분기를 더합니다(아래 2~5단계). `action`이 없는 요청(포인트 적립)은 이전과 똑같이 동작합니다.
+
+어느 방법이든 흐름을 고치기 전에 화면을 배포해도 포인트 적립은 깨지지 않습니다.
+
+```text
+new.html 열기   → { action:"load", school, studentId, studentName }
+                → { revision, points, state }          (state: 저장된 기록 문자열, 없으면 "")
+기록이 바뀌면   → { action:"save", school, studentId, studentName, baseRevision, gems, state }
+                → { saved:true, revision }              (baseRevision 이 현재 revision 과 같을 때만 저장)
+                → { saved:false, revision, state }      (그새 다른 기기가 저장했다면 서버 기록을 돌려줌)
+```
+
+- `state`는 보석·해결·승급·힌트·연속 학습 등 학습 기록 전체를 담은 **JSON 문자열 하나**입니다. 흐름은 내용을 해석하지 않고 열에 그대로 저장하고 그대로 돌려줍니다. 코드 초안·열어 본 문제·코치·포인트 주소는 보내지 않습니다.
+- 저장은 기록이 바뀐 뒤 **3초 동안 변화가 없으면 한 번**(계속 학습해도 최대 20초마다), 창을 닫거나 탭을 옮기거나 로그아웃할 때는 바로 보냅니다. 연결이 안 되면 5초·15초·45초·2분 간격으로 다시 시도하고 그동안 화면은 그대로 동작합니다.
+- `revision`은 저장할 때마다 1씩 올라가는 번호입니다. 다른 기기가 먼저 저장해 번호가 어긋나면 화면이 서버 기록을 받아 **내 기록과 합친 뒤** 다시 저장합니다. 해결·승급·힌트처럼 쌓이기만 하는 값은 합치고, 보석과 연속 학습 보호는 각 기기가 마지막으로 서버와 맞춘 뒤 바꾼 만큼을 서버 값에 더합니다. 충돌이 3번 이어지면 5초·15초·45초·2분으로 간격을 늘려 가며 기다립니다.
+- **응답을 받지 못한 저장**(연결이 끊겼거나, 페이지를 떠나는 순간 `keepalive`로 보낸 저장)은 서버에 이미 반영됐을 수 있습니다. 화면은 보낸 내용을 사본에 남겨 두고 서버 기록과 같은지 확인해 **두 번 더하지 않습니다**. 같은 번호인데 `saved:false`로 거절하는 흐름(번호 비교 조건이 잘못된 경우)은 같은 요청을 반복하지 않고 "이 브라우저에만 저장"으로 전환합니다.
+- 서버 기록을 읽을 수 없거나 이 화면보다 새로운 형식이면 **덮어쓰지 않고** 그 브라우저에만 저장합니다. 충돌 응답에 `state`가 없어도 덮어쓰지 않습니다.
+- 응답 처리: `200`은 위 형식이어야 하고, `404`(학생 행 없음)·`400/401/403/405`(흐름이 아직 이 요청을 받지 않음)는 "이 브라우저에만 저장"으로 전환하며 다시 시도하지 않습니다. `408/429/5xx`와 연결 오류는 다시 시도합니다.
+
+#### 1. Dataverse 열 추가
+
+`StudentLearningRecord` 테이블에 **필수 항목이 아닌** 열 3개를 추가합니다(필수로 만들면 이 테이블에 행을 만드는 다른 흐름이 실패합니다). 스키마 이름은 기존 열(`crbf2_StudentName` 등)과 같은 규칙이며, 식과 **열 선택**에는 소문자 논리 이름을 씁니다.
+
+| 표시 이름 | 스키마 이름 → 논리 이름 | 데이터 형식 | 설정 | 용도 |
+|---|---|---|---|---|
+| Studio State | `crbf2_StudioState` → `crbf2_studiostate` | 여러 줄 텍스트(일반 텍스트) | 최대 길이 **1,048,576**(최소 100,000), 검색 가능 아니요 | 학습 기록 전체(JSON). 366문제를 모두 풀어도 약 50KB |
+| State Revision | `crbf2_StateRevision` → `crbf2_staterevision` | 정수 | 최솟값 0, 비어 있으면 0으로 처리 | 저장할 때마다 +1, 충돌 판단 |
+| Gems | `crbf2_Gems` → `crbf2_gems` | 정수 | 최솟값 0 | 보석 개수. 대시보드·Power BI 등 보고용 사본(화면은 `Studio State`를 원본으로 씀) |
+
+#### 2. 트리거 스키마 바꾸기
+
+**When an HTTP request is received**의 **요청 본문 JSON 스키마**를 아래로 **통째로 교체**합니다. 기존 점수 적립 스키마(위 1단계)에서 바뀐 곳은 세 가지입니다.
+
+1. `required`에서 `problemId`·`points`를 뺍니다. `load`·`save` 요청에는 없는 값이라 남겨 두면 트리거가 `400 TriggerInputSchemaMismatch`로 거절합니다.
+2. `action`·`baseRevision`·`gems`·`state`를 `properties`에 추가합니다. `additionalProperties: false`라서 선언하지 않은 필드는 거절됩니다.
+3. 비정상적으로 큰 값을 트리거에서 거르도록 `gems`에 최댓값, `state`에 최소 길이를 둡니다. 보석은 Dataverse 정수 열에 들어가므로 범위를 넘으면 행 업데이트가 실패하고, 빈 문자열 `state`는 기록을 비우는 요청이 되기 때문입니다.
+
+요청 종류별로 꼭 있어야 하는 필드(적립은 `problemId`·`points`, 저장은 `baseRevision`·`gems`·`state`)는 스키마로 구분하지 않고 아래 4·5단계의 조건으로 확인합니다. `school` 목록은 [`public/auth.js`](./public/auth.js)·[`login-api.js`](./login-api.js)의 `SCHOOLS`와 같아야 합니다.
+
+```json
+{
+    "type": "object",
+    "properties": {
+        "school": {
+            "type": "string",
+            "enum": [
+                "현풍중학교",
+                "대구체육중학교",
+                "경북여자고등학교",
+                "함양여자중학교",
+                "도원중학교"
+            ]
+        },
+        "studentId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+        },
+        "studentName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "problemId": {
+            "type": "string",
+            "maxLength": 32
+        },
+        "points": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+        },
+        "action": {
+            "type": "string",
+            "enum": [
+                "load",
+                "save"
+            ]
+        },
+        "baseRevision": {
+            "type": "integer",
+            "minimum": 0
+        },
+        "gems": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+        },
+        "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 900000
+        }
+    },
+    "required": [
+        "school",
+        "studentId",
+        "studentName"
+    ],
+    "additionalProperties": false
+}
+```
+
+`oneOf` 같은 조건부 스키마로 요청 종류별 필수 필드를 트리거에서 강제할 수도 있지만, 이 트리거의 스키마 검증이 해당 구문을 지원하는지 확인할 수 없어(잘못 지원되면 포인트 적립까지 거절됩니다) 쓰지 않았습니다.
+
+#### 3. 학생 행 찾기에 열 추가
+
+`Find_student`의 **Select columns / 열 선택**을 아래로 바꿉니다. 필터·정렬·행 수는 그대로입니다(같은 학생의 가장 최근 수정 행을 씁니다).
+
+```text
+crbf2_studentlearningrecordid,crbf2_learningpoints,crbf2_solvedproblems,crbf2_staterevision,crbf2_studiostate
+```
+
+#### 4. action 분기
+
+운영 중인 포인트 적립 로직(`조건 2`와 그 안의 카드)은 **옮기지 않고 그대로 둡니다**. 대신 그 **위**, `Find_student`와 `조건 2` 사이(두 카드 사이의 동그란 **+** 버튼 → 작업 추가)에 아래 둘을 새로 끼워 넣습니다. 클래식 디자이너는 분기(예/아니요)의 첫 카드 위에 **+** 가 없어서 `Already_solved` 위에 직접 넣을 수 없습니다.
+
+1. **Condition / 조건**(이름 `Student_found`)을 넣고 기존 `조건 2`와 똑같이 만듭니다(왼쪽 값 식 `length(outputs('Find_student')?['body/value'])`, **다음보다 큼**, `0`).
+   - **아니요**: 기존 `Response-NoData`와 같은 응답(상태 `404`, 본문 `{"updated":false}`)과 **Terminate / 종료**(상태 **성공**). `Response-NoData` 카드를 복사해 붙여넣으면 편합니다. 학생 행이 없을 때 `load`가 빈 기록(`revision 0`)을 돌려주거나 `save`가 없는 행을 업데이트하려다 실패를 반복하지 않도록 먼저 거릅니다.
+   - **예**: 아래 `Action_switch`를 넣습니다.
+2. **Control → Switch / 전환**(이름 `Action_switch`)을 `Student_found`의 **예** 칸의 **작업 추가**로 넣습니다.
+
+- **On**(식): `coalesce(triggerBody()?['action'], 'award')`
+- 사례(Case)는 `load`, `save` 두 개를 만듭니다. 각 사례의 **Equals / 같음** 칸에는 식이 아니라 **글자 그대로** 입력합니다. 앱이 요청에 담아 보내는 `action` 값과 같아야 하며 `load`는 저장된 기록 불러오기, `save`는 새 기록 저장을 뜻합니다. 두 번째 사례는 Case와 Default 사이의 동그란 **+** 로 추가합니다. **Default**에는 5단계의 입력 확인만 넣습니다.
+- `action`이 없는 포인트 적립 요청은 어느 사례에도 걸리지 않고 Switch를 지나, 아래의 기존 `조건 2` 이하로 이전과 똑같이 흘러갑니다.
+- **`load`·`save` 사례는 응답을 보낸 뒤 반드시 Control → Terminate / 종료(상태 성공)로 끝냅니다.** Response를 보낸 뒤에도 흐름은 계속 실행되므로, 종료하지 않으면 응답 뒤에 아래의 포인트 적립 로직이 `problemId` 없이 이어서 실행됩니다.
+- 신형 디자이너처럼 `조건 2`의 **예** 분기 맨 위에 Switch를 직접 넣을 수 있다면 `Student_found` 없이 그렇게 해도 같은 결과입니다(학생이 없을 때의 `404`는 `조건 2`가 처리합니다). 기존 적립 로직을 **Default 사례 안으로 옮기는** 방법도 가능하며 이때는 Terminate가 필요 없지만, 운영 중인 적립 경로를 건드리게 되므로 권장하지 않습니다.
+
+완성 모양:
+
+```text
+Find student
+Student_found  [length(...) > 0]
+├ 예       → Action_switch
+│             ├ load  → Response-LoadState → Terminate
+│             ├ save  → Revision_matches ─ 예: 행 업데이트 → Response-Saved
+│             │                          └ 아니요: Response-Conflict
+│             │         → Terminate
+│             └ 기본값 → Award_input_ok ─ 아니요: Response-BadRequest → Terminate
+└ 아니요   → Response-NoData(404) → Terminate
+조건 2  (기존 그대로)
+├ 예      → Already solved … (그대로)
+└ 아니요  → Response-NoData (그대로)
+```
+
+**Case `load`** → ① **Response**(이름 `Response-LoadState`, 상태 `200`, `Content-Type: application/json`) ② **Terminate / 종료**(상태 **성공**). ①의 본문(식):
+
+```text
+setProperty(setProperty(setProperty(json('{}'), 'revision', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_staterevision'], 0)), 'points', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_learningpoints'], 0)), 'state', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_studiostate'], ''))
+```
+
+**Case `save`** → **Condition / 조건**(이름 `Revision_matches`). 왼쪽 값(식)이 **다음과 같음** `true`:
+
+```text
+and(equals(coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_staterevision'], 0), triggerBody()?['baseRevision']), not(empty(triggerBody()?['state'])))
+```
+
+앞 조건은 번호 비교이고, 뒤 조건은 `state`가 빠진 요청을 거릅니다. 트리거 스키마는 `save`에만 `state`를 필수로 만들 수 없어서, 이 조건이 없으면 `state` 없는 요청이 번호만 맞아도 `Studio State`를 빈 값으로 덮어써 기록을 지웁니다. 거른 요청은 저장하지 않고 아래 **아니오**의 충돌 응답(현재 기록)을 받습니다.
+
+- **예**: 아래 두 작업을 차례로 추가합니다.
+  1. **Update a row / 행 업데이트**(테이블 **StudentLearningRecord**, 카드 이름은 바꾸지 않아도 됩니다): Row ID(식) `first(outputs('Find_student')?['body/value'])?['crbf2_studentlearningrecordid']`, **Studio State**(식) `triggerBody()?['state']`, **Gems**(식) `triggerBody()?['gems']`, **State Revision**(식)은 아래와 같습니다. 다른 열은 비워 둡니다.
+
+     ```text
+     add(coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_staterevision'], 0), 1)
+     ```
+
+  2. **Response**(상태 `200`, `Content-Type: application/json`) 본문(식). 번호는 위 State Revision에 방금 쓴 값과 같아서 행 업데이트 카드의 이름을 식에서 부르지 않습니다. 이 Response는 반드시 행 업데이트 **아래**(같은 예 분기)에 둡니다:
+
+     ```text
+     setProperty(setProperty(json('{}'), 'saved', true), 'revision', add(coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_staterevision'], 0), 1))
+     ```
+
+- **아니오(번호가 어긋남)**: **Response**(상태 `200`)에 서버의 현재 기록을 돌려줍니다. 기록이 비어 있어도 `state`에 `''`를 넣어야 합니다(없으면 화면이 덮어쓰기를 막으려고 저장을 거부합니다).
+
+  ```text
+  setProperty(setProperty(setProperty(json('{}'), 'saved', false), 'revision', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_staterevision'], 0)), 'state', coalesce(first(outputs('Find_student')?['body/value'])?['crbf2_studiostate'], ''))
+  ```
+
+- 조건 **아래**(사례의 맨 끝)에 **Terminate / 종료**(상태 **성공**)를 한 개 붙입니다. 예·아니오 어느 쪽 응답 뒤에도 실행됩니다.
+
+#### 5. 포인트 적립 입력 확인 — 권장
+
+트리거에서 `problemId`·`points`를 필수로 요구하지 않게 되었으므로(이전에는 트리거가 보장했습니다), Switch의 **Default** 사례에 **Condition**(이름 `Award_input_ok`)을 추가해 왼쪽 값(식)이 **다음과 같음** `true`인지 확인합니다. **아니오** 분기에는 **Response**(상태 `400`, 본문 `{"updated":false}`)와 **Terminate**(성공)를 넣고, **예** 분기는 비워 둡니다. `true`이면 Switch 아래의 기존 적립 로직으로 이어집니다.
+
+```text
+and(not(empty(triggerBody()?['problemId'])), greater(coalesce(triggerBody()?['points'], 0), 0))
+```
+
+#### 6. 확인하고 적용하기
+
+1. 열을 추가하고 흐름을 저장한 뒤 **켜짐** 상태인지 확인합니다. 저장할 때 **Flow 검사기**에 `Correct to include a valid reference to '…'`가 나오면 식이 부르는 카드를 찾지 못한다는 뜻입니다. 이 문서의 식이 부르는 카드는 `Find_student`(카드 이름의 공백은 식에서 밑줄) 하나뿐이니, 그 카드의 이름과 위치(응답 카드보다 위)를 확인하고 오류가 난 응답의 본문을 이 문서의 식으로 다시 붙여 넣으세요. 아래 확인은 실제 학생 행을 바꾸므로 **시험용 학생 행**으로 하세요.
+2. 흐름 주소(서명 포함 전체 URL)를 환경 변수에 넣고 PowerShell로 확인합니다. 주소는 채팅·Git에 붙이지 마세요.
+
+   ```powershell
+   $url = $env:FLOW_URL
+   $student = @{ school = '현풍중학교'; studentId = '99999'; studentName = '테스트' }
+   function Send($extra) {
+     $json = ($student + $extra) | ConvertTo-Json -Compress
+     Invoke-RestMethod -Method Post -Uri $url -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($json))
+   }
+   Send @{ action = 'load' }                                                        # revision 0, state ''
+   Send @{ action = 'save'; baseRevision = 0; gems = 12; state = '{"v":1,"gems":12}' } # saved True, revision 1
+   Send @{ action = 'save'; baseRevision = 0; gems = 13; state = '{"v":1,"gems":13}' } # saved False, revision 1, 위 state
+   Send @{ problemId = 'l01_01'; points = 5 }                                       # 포인트 적립은 이전과 같음
+   ```
+
+3. 확인이 끝나면 시험용 행의 `Studio State`·`State Revision`·`Gems`를 비웁니다.
+4. 사이트를 배포합니다. 흐름을 **고치기 전에 배포해도** 화면은 요청이 거절되는 것을 보고 "이 브라우저에만 저장"으로 동작하므로 학습 기록을 잃지 않습니다. 이 흐름을 고친 뒤에는 화면을 다시 열면 이 브라우저의 기록이 서버로 올라갑니다.
+5. [방법 B](#방법-b-별도-흐름으로-만들기-권장)로 기록 저장용 흐름을 따로 만들었다면 저장소 **Settings → Secrets and variables → Actions**에 `STATE_FLOW_URL` 시크릿을 추가하고 다시 배포하세요. 없으면 `POINTS_FLOW_URL`과 같은 흐름을 씁니다. 로컬에서는 `public/runtime-config.js`에 `window.PcoConfig = { pointsUrl: "<URL>", stateUrl: "<URL>" };`처럼 씁니다(이 파일은 커밋되지 않습니다).
+
+#### 방법 B: 별도 흐름으로 만들기 (권장)
+
+운영 중인 포인트 적립 흐름은 **그대로 두고**, 그 사본에 불러오기·저장만 하는 흐름을 만듭니다. 적립 로직을 옮기거나 `Terminate`·`Student_found`·입력 확인을 넣을 필요가 없고, 적립 흐름의 스키마·카드를 건드리지 않으므로 포인트 적립이 깨질 위험이 없습니다. 먼저 위 1단계의 Dataverse 열 3개를 추가합니다.
+
+1. **사본 만들기**: 편집 화면에서 나와 흐름 상세(또는 내 흐름 목록)의 `⋯` → **다른 이름으로 저장**으로 사본(예: `학습 기록 저장 API`)을 만듭니다. 메뉴가 없으면(솔루션 안의 흐름) **복제**를 씁니다. 이후 작업은 **사본에서만** 합니다.
+2. **트리거 스키마**: 사본의 **When an HTTP request is received** → **요청 본문 JSON 스키마**를 아래로 교체합니다. 적립 필드(`problemId`·`points`)가 없고 `action`이 필수라서, 불러오기·저장이 아닌 요청은 트리거가 거절합니다.
+
+   ```json
+   {
+       "type": "object",
+       "properties": {
+           "school": {
+               "type": "string",
+               "enum": [
+                   "현풍중학교",
+                   "대구체육중학교",
+                   "경북여자고등학교",
+                   "함양여자중학교",
+                   "도원중학교"
+               ]
+           },
+           "studentId": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 32
+           },
+           "studentName": {
+               "type": "string",
+               "minLength": 1,
+               "maxLength": 100
+           },
+           "action": {
+               "type": "string",
+               "enum": [
+                   "load",
+                   "save"
+               ]
+           },
+           "baseRevision": {
+               "type": "integer",
+               "minimum": 0
+           },
+           "gems": {
+               "type": "integer",
+               "minimum": 0,
+               "maximum": 1000000
+           },
+           "state": {
+               "type": "string",
+               "minLength": 2,
+               "maxLength": 900000
+           }
+       },
+       "required": [
+           "school",
+           "studentId",
+           "studentName",
+           "action"
+       ],
+       "additionalProperties": false
+   }
+   ```
+
+3. **열 선택**: 사본의 `Find_student` **열 선택** 끝에 `,crbf2_staterevision,crbf2_studiostate`를 붙입니다(3단계와 같음).
+4. **적립 로직 삭제**: `조건 2`의 **예** 분기에서 `Already_solved` 카드를 삭제합니다. 안의 `Response-Already solved`·`Update points`·`Response-UpdatePoints`도 함께 사라집니다. **아니요** 분기의 `Response-NoData`(404)는 그대로 둡니다(학생 행이 없으면 `load`·`save` 모두 404).
+5. **Switch**: 비어 있는 **예** 분기의 **작업 추가**로 **Switch**(이름 `Action_switch`)를 넣습니다. **On**(식): `triggerBody()?['action']`(칩에는 `triggerBody()`처럼 함수 이름만 보일 수 있으니 칩을 눌러 전체 식을 확인합니다). 사례는 `load`·`save` 두 개이며 각 사례의 **Equals / 같음** 칸에 식이 아니라 **글자 그대로** 입력합니다(앱이 보내는 `action` 값. `load`는 저장된 기록 불러오기, `save`는 새 기록 저장). 두 번째 사례는 Case와 Default 사이의 동그란 **+** 로 추가합니다. **Default는 비워 둡니다**(스키마가 이 두 값만 허용합니다). 사례 안의 카드는 위 4단계의 **Case `load`**·**Case `save`**와 같습니다. 단, Switch 뒤에 이어지는 카드가 없으므로 **Terminate는 넣지 않습니다**.
+6. **저장**: 사본을 저장하고 **켜짐**인지 확인한 뒤 트리거 카드에 나온 **HTTP POST URL**(서명 포함)을 복사합니다. 원본 흐름에 병렬도 1 같은 동시성 제어를 켜 두었다면 사본의 트리거 설정에서 병렬도를 20 정도로 올립니다.
+7. **시험**: 위 6단계의 PowerShell 스크립트에서 `$env:FLOW_URL`을 사본의 주소로 하고 `load`·`save`·충돌 세 줄을 확인합니다. 마지막 포인트 적립 줄은 이 흐름이 받지 않으므로 `400`이 나오는 것이 정상입니다.
+8. **연결**: 위 6단계 5번대로 `STATE_FLOW_URL` 시크릿을 추가하고 다시 배포합니다. `STATE_FLOW_URL`이 없으면 화면은 `POINTS_FLOW_URL`로 요청해 `400`을 받고 "이 브라우저에만 저장"으로 동작합니다.
+
+완성 모양(사본):
+
+```text
+HTTP 요청을 수신하는 경우   (스키마: 위 2번)
+Find_student                (열 선택 + 2열)
+조건 2  [length(...) > 0]
+├ 예      → Action_switch
+│            ├ load → Response-LoadState
+│            └ save → Revision_matches ─ 예: 행 업데이트 → Response-Saved
+│                                       └ 아니요: Response-Conflict
+└ 아니요  → Response-NoData (404, 그대로)
+```
+
+#### 알아 둘 점
+
+- **행이 여러 개인 테이블**: 포인트 적립처럼 학생의 가장 최근 수정 행에 저장합니다. 새 학습 세션마다 행을 새로 만드는 흐름이 있다면 `Solved Problems`처럼 `Studio State`·`State Revision`·`Gems`도 새 행으로 **복사**하세요. 복사하지 않으면 새 행은 기록이 없는 것으로 보입니다(이 브라우저에 사본이 있는 학생은 사본이 다시 올라가지만, 사본이 없는 새 기기는 빈 기록으로 시작합니다).
+- **동시성 제어(Degree of parallelism 1)** 를 켠 흐름은 반 전체의 불러오기·저장이 한 줄로 서서 느려집니다. 같은 흐름(방법 A)을 쓴다면 끄고, 켜 둬야 하면 방법 B로 따로 만드세요(사본의 병렬도는 20 정도로 올립니다).
+- **요청량**: 불러오기는 화면을 열 때 한 번, 저장은 기록이 바뀐 뒤 쉬었을 때 한 번입니다. 코드를 입력하는 동안에는 요청이 없습니다. 흐름 1회 실행은 약 7개 작업이므로 Power Automate의 일일 요청 한도를 확인하세요.
+- **보안(프로젝트 한계)**: 포인트 적립과 같은 구조라 흐름 주소가 배포된 사이트에서 보이고 학교·학번·이름은 쿠키에서 오므로 누구든 다른 학생의 기록을 읽거나 덮어쓸 수 있습니다. 저장은 점수 적립과 달리 덮어쓰기이므로 더 민감합니다. 신뢰할 수 있는 기록이 필요하면 서버 경유 방식이 필요합니다.
+- **드문 경우의 오차**: 보석은 늘고 줄 수 있는 값이라, 응답을 받지 못한 저장과 다른 기기의 저장이 겹치는 아주 드문 경우 한 번 더 더해지거나 빠질 수 있습니다(해결·승급 기록은 영향이 없습니다). 같은 학생이 두 기기에서 정확히 같은 순간 저장하면 흐름의 조건 확인과 행 업데이트 사이로 두 요청이 모두 통과해 한쪽 변경이 서버에서 잠시 빠질 수 있으며, 그 기기가 다음에 저장하거나 화면을 다시 열면 합쳐져 복구됩니다.
+- **초기화**: 서버의 `Studio State`를 비워도 사본이 있는 브라우저는 그 기록을 다시 올립니다(사본이 없는 기기는 빈 기록으로 시작). 학생 기록을 완전히 초기화하려면 별도 기능이 필요합니다.
+- 내 학습 화면의 "이 브라우저에서 해결한 문제"는 이 브라우저에 있는 학생별 사본을 읽으므로, 스튜디오를 한 번 열어 서버 기록을 받은 기기에서 가장 정확합니다.
+
+---
+
 ## 📂 디렉터리 및 페이지 구조
 
 - **[`PWA-HANDSON-GUIDE.md`](./PWA-HANDSON-GUIDE.md)** — **PWA 강의용 6단계 Step-by-Step Hands-on 가이드**
@@ -442,7 +752,7 @@ setProperty(setProperty(setProperty(json('{}'), 'updated', true), 'awarded', tru
   - Step 6: 크로스 브라우징([CanIUse](https://caniuse.com/), [BrowserStack](https://www.browserstack.com/)) 및 스토어 패키징([PWA Builder](https://www.pwabuilder.com/))
 - `public/` — 정적 배포(GitHub Pages) 및 로컬 실행 가능한 PWA 리소스
   - `/index.html` (`/파코v3`): 파코 v3 통합 메인 페이지 (홈 + AI 코치 + 레벨 로드맵). 첫 페이지는 `/new.html`(파코 스튜디오)입니다.
-  - `/new.html` (`/스튜디오`): 파코 스튜디오. 스타일(`studio.css`)·일반 스크립트(`studio-catalog.js`, `studio-progress.js`, `studio-markdown.js`, `studio-core.js`)·React 모듈(`studio-app.js` 외 `studio-*.js`)을 불러오고, 문제 본문은 학생이 문제를 열 때 `curriculum/step-01`~`step-15/<문제ID>.json`에서 한 문제씩, 진단평가 문항은 `curriculum/placement.json`에서 불러옵니다(서비스 워커는 이 파일들을 캐시하지 않습니다).
+  - `/new.html` (`/스튜디오`): 파코 스튜디오. 스타일(`studio.css`)·일반 스크립트(`studio-catalog.js`, `studio-progress.js`, `studio-sync.js`, `studio-markdown.js`, `studio-core.js`)·React 모듈(`studio-app.js` 외 `studio-*.js`)을 불러오고, 문제 본문은 학생이 문제를 열 때 `curriculum/step-01`~`step-15/<문제ID>.json`에서 한 문제씩, 진단평가 문항은 `curriculum/placement.json`에서 불러옵니다(서비스 워커는 이 파일들을 캐시하지 않습니다).
   - `/dashboard.html` (`/대시보드`): Dataverse 전체 학생 성장·랭킹·접속 현황
   - `/my-learning.html` (`/내학습`): 로그인 학생의 실제 레벨·점수와 로드맵 기반 학습 가이드
   - `/v3_4/roadmap.html` (`/파코v3_4/레벨-로드맵`): 15단계 레벨 로드맵 페이지 (기존 메인 화면용, 레벨 순서는 스튜디오와 같고 내 학습도 스튜디오 15레벨 로드맵을 사용)

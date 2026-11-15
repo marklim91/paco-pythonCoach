@@ -41,11 +41,12 @@ jobs:
           mkdir _site
           cp -r public/. _site/
           touch _site/.nojekyll
-      - name: Inject the points flow address from the POINTS_FLOW_URL secret
+      - name: Inject the flow addresses from the POINTS_FLOW_URL and optional STATE_FLOW_URL secrets
         env:
           POINTS_FLOW_URL: ${{ secrets.POINTS_FLOW_URL }}
+          STATE_FLOW_URL: ${{ secrets.STATE_FLOW_URL }}
         run: |
-          node -e 'require("fs").writeFileSync("_site/runtime-config.js", "window.PcoConfig = " + JSON.stringify({ pointsUrl: process.env.POINTS_FLOW_URL || "" }) + ";\n")'
+          node -e 'require("fs").writeFileSync("_site/runtime-config.js", "window.PcoConfig = " + JSON.stringify({ pointsUrl: process.env.POINTS_FLOW_URL || "", stateUrl: process.env.STATE_FLOW_URL || "" }) + ";\n")'
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

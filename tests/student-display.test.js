@@ -38,8 +38,11 @@ const fixtureStudent = (changes = {}) => ({
   ...changes,
 });
 const settled = () => new Promise(resolve => setImmediate(resolve));
+// The studio keeps each student's record under its own key (studentStorageKey in studio-core.js): school and student number come from the login cookies.
+const studentCookie = `school=${encodeURIComponent('현풍중학교')}; studentId=30202; studentName=${encodeURIComponent('가상하나')}`;
+const studioKey = `paco-studio-v3:${encodeURIComponent('현풍중학교')}:30202:${encodeURIComponent('가상하나')}`;
 
-function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt, solved, passed } = {}) {
+function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt, solved, passed, cookie = studentCookie } = {}) {
   const nodes = new Map();
   const errors = [];
   const requests = [];
@@ -52,7 +55,7 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
   };
   node('learning-template').content = { cloneNode: () => new Element() };
   const document = {
-    currentScript: { src: 'https://example.test/paco-pythonCoach/' + script }, hidden: false,
+    currentScript: { src: 'https://example.test/paco-pythonCoach/' + script }, hidden: false, cookie,
     getElementById: node, createElement: tag => new Element(tag),
     createElementNS: (namespace, tag) => new Element(tag), addEventListener() {},
   };
@@ -80,10 +83,10 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
     document, URL, Intl, AbortController,
     window: {
       addEventListener() {}, PcoStudio: require('../public/studio-catalog'),
-      // The studio saves its record under paco-studio-v2 in this browser: solved problems and passed levels.
+      // The studio saves each student's record in this browser: solved problems and passed levels.
       ...(solved || passed ? {
         localStorage: {
-          getItem: key => (key === 'paco-studio-v2'
+          getItem: key => (key === studioKey
             ? JSON.stringify({ solved: Object.fromEntries((solved || []).map(id => [id, { clean: true, points: 5 }])), passed: passed || {} })
             : null),
         },
@@ -257,6 +260,22 @@ test('personal page without a studio record still recommends problems from the s
   await settled();
   assert.match(app.node('studio-progress-text').textContent, /해결한 스튜디오 문제 기록이 아직 없어요/);
   assert.equal(app.node('next-problems').children[0].children[0].href.endsWith('?problem=l03_01'), true);
+});
+
+test('personal page never reads the record another student left on the same browser', async () => {
+  const school = encodeURIComponent('현풍중학교');
+  const others = [
+    `school=${school}; studentId=30203; studentName=${encodeURIComponent('가상하나')}`,
+    `school=${school}; studentId=30202; studentName=${encodeURIComponent('다른학생')}`,
+    `school=${school}; studentId=30202`,
+    '',
+  ];
+  for (const cookie of others) {
+    const app = loadClient('my-learning.js', { solved: ['l01_01', 'l01_02'], passed: { 1: 'exam' }, cookie });
+    await settled();
+    assert.match(app.node('studio-progress-text').textContent, /해결한 스튜디오 문제 기록이 아직 없어요/, `cookie: ${cookie || 'none'}`);
+    assert.doesNotMatch(app.node('track-progress').children[0].children[0].textContent, /통과/);
+  }
 });
 
 test('personal page recommends from the first level this browser has not passed yet and marks passed levels', async () => {

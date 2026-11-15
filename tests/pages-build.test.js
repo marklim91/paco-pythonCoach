@@ -186,7 +186,7 @@ test('export from the real public folder contains everything the studio loads at
   const opts = options(t);
   await buildPages(opts);
   const output = files(opts.outputDir).map(file => file.split(path.sep).join('/'));
-  for (const file of ['new.html', 'studio.css', 'studio-catalog.js', 'studio-progress.js', 'studio-markdown.js', 'studio-core.js', 'studio-app.js',
+  for (const file of ['new.html', 'studio.css', 'studio-catalog.js', 'studio-progress.js', 'studio-sync.js', 'studio-markdown.js', 'studio-core.js', 'studio-app.js',
     'studio-ui.js', 'studio-runner.js', 'studio-code.js', 'studio-coach.js', 'studio-learn.js', 'studio-roadmap.js', 'studio-quiz.js']) {
     assert.ok(output.includes(file), file);
   }

@@ -19,7 +19,7 @@ test('the studio shell, its scripts and its problem files are served by the Node
     assert.equal(response.status, 200, route);
     assert.match(await response.text(), /<script src="\.\/studio-core\.js">/, route);
   }
-  for (const file of ['studio-catalog.js', 'studio-progress.js', 'studio-markdown.js', 'studio-core.js', 'studio-app.js', 'studio-learn.js', 'studio-quiz.js']) {
+  for (const file of ['studio-catalog.js', 'studio-progress.js', 'studio-sync.js', 'studio-markdown.js', 'studio-core.js', 'studio-app.js', 'studio-learn.js', 'studio-quiz.js']) {
     const response = await fetch(`${base}/${file}`);
     assert.equal(response.status, 200, file);
     assert.match(response.headers.get('content-type'), /javascript/, file);
