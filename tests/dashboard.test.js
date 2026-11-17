@@ -4,9 +4,12 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { createDashboardStore } = require('../dashboard-store');
-const { latestStudents, rankStudents } = require('../dashboard-api');
+const { latestStudents, rankStudents, studioLevel } = require('../dashboard-api');
 const { createLoginHandler } = require('../login-api');
 const { createServer } = require('../server');
+const studioCatalog = require('../public/studio-catalog');
+const studioProgress = require('../public/studio-progress');
+const studioSync = require('../public/studio-sync');
 
 const flowUrl = 'https://example.environment.api.powerplatform.com/test?sig=private-dashboard-secret';
 const school = '현풍중학교';
@@ -352,4 +355,92 @@ test('configured dashboard timeout aborts an in-flight upstream request', async 
   const response = await request('/api/dashboard');
   assert.equal(response.status, 504);
   assert.equal((await response.json()).code, 'DASHBOARD_TIMEOUT');
+});
+
+// 스튜디오가 Dataverse에 저장하는 기록(crbf2_studiostate)은 JSON 문자열이며, 통과한 레벨은 passed에 담깁니다.
+const studioState = (passed, extra = {}) => JSON.stringify({ v: 1, passed, ...extra });
+
+test('the level is the one the learner is working on in the studio, taken from the saved studio record', () => {
+  // 현풍중학교 30303 임재성: Dataverse 레벨은 1이지만 스튜디오에서는 1~3레벨을 통과해 Lv.4를 학습 중입니다.
+  const [shown] = latestStudents({ value: [row({
+    crbf2_currentlevel: 1, crbf2_learningpoints: 565,
+    crbf2_studiostate: studioState({ 1: 'exam', 2: 'quiz', 3: 'quiz' }),
+  })] });
+  assert.equal(shown.level, 4);
+  assert.equal(shown.levelSource, 'studio');
+  assert.equal(shown.points, 565);
+});
+
+test('without a readable studio record the level stays as Dataverse stores it', () => {
+  const unreadable = [undefined, null, '', '   ', 'not json', '[]', '"text"', '123', 'null', '{"passed":[]}', '{"passed":"1"}', 7, {}];
+  for (const state of unreadable) {
+    const [shown] = latestStudents({ value: [row({ crbf2_currentlevel: 2, crbf2_studiostate: state })] });
+    assert.deepEqual([shown.level, shown.levelSource], [2, 'dataverse'], JSON.stringify(state));
+  }
+  const [stored] = latestStudents({ value: [row({ crbf2_currentlevel: 16 })] });
+  assert.deepEqual([stored.level, stored.levelSource], [16, 'dataverse'], 'a recorded level is shown as stored');
+});
+
+test('the studio level is the first level that has not been passed and stops at the last level', () => {
+  const levels = studioCatalog.tracks.length;
+  const passedThrough = count => Object.fromEntries(Array.from({ length: count }, (_, i) => [i + 1, 'quiz']));
+  const cases = [
+    [{}, 1], [{ 1: 'exam' }, 2], [{ 1: 'exam', 2: 'quiz', 3: 'quiz' }, 4],
+    [{ 1: 'placement', 2: 'placement', 3: 'jump', 4: 'jump', 5: 'quiz' }, 6],
+    [{ 1: 'exam', 2: 'exam', 4: 'exam' }, 3],
+    [{ 2: 'exam' }, 1],
+    [passedThrough(levels - 1), levels],
+    [passedThrough(levels), levels],
+    [passedThrough(levels + 5), levels],
+  ];
+  for (const [passed, level] of cases) assert.equal(studioLevel(studioState(passed)), level, JSON.stringify(passed));
+  assert.equal(studioLevel('{"v":1}'), 1, 'a record that passed nothing starts at level 1');
+});
+
+test('the dashboard reads the same level the studio shows for every kind of saved record', () => {
+  const model = studioProgress.createModel(studioCatalog.tracks);
+  let state = studioProgress.freshProgress();
+  const check = () => {
+    const saved = studioSync.encodeState(studioSync.pickProgress(state));
+    assert.equal(studioLevel(saved), Math.min(model.currentLevel(state), model.levelCount));
+  };
+  check();
+  const how = ['exam', 'quiz', 'jump', 'placement'];
+  for (let level = 1; level <= model.levelCount; level++) {
+    state = model.passLevel(state, level, how[level % how.length], '2026-11-14').state;
+    check();
+  }
+  assert.equal(model.currentLevel(state), model.levelCount + 1);
+});
+
+test('the newest row decides the level and rows that disagree at the same time are rejected', () => {
+  const early = row({ modifiedon: '2026-10-30T01:00:00Z', crbf2_studiostate: studioState({ 1: 'exam' }) });
+  const later = row({ modifiedon: '2026-10-31T01:00:00Z', crbf2_studiostate: studioState({ 1: 'exam', 2: 'quiz' }) });
+  assert.equal(latestStudents({ value: [early, later] })[0].level, 3);
+  assert.equal(latestStudents({ value: [later, early] })[0].level, 3);
+  const withoutRecord = row({ modifiedon: '2026-11-01T01:00:00Z', crbf2_currentlevel: 2 });
+  const [newest] = latestStudents({ value: [later, withoutRecord] });
+  assert.deepEqual([newest.level, newest.levelSource], [2, 'dataverse'], 'a newer row without a studio record is not replaced by an older one');
+  assert.throws(
+    () => latestStudents({ value: [row(), row({ crbf2_studiostate: studioState({ 1: 'exam' }) })] }),
+    error => error.code === 'AMBIGUOUS_STUDENT_RECORD',
+  );
+});
+
+test('the dashboard API shows the studio level and its source without exposing the saved studio record', async t => {
+  const secret = 'private-mistake-reason';
+  const state = studioState({ 1: 'exam', 2: 'quiz', 3: 'quiz' }, { mistakes: { l04_01: { reason: secret, coach: false } } });
+  const { request } = await setup(t, {
+    dashboardOptions: {
+      fetchImpl: async () => Response.json({ value: [
+        row({ crbf2_currentlevel: 1, crbf2_studiostate: state }),
+        row({ crbf2_studentnumber: '00456', crbf2_currentlevel: 1 }),
+      ] }),
+    },
+  });
+  const body = await (await request('/api/dashboard')).json();
+  assert.deepEqual(body.students.map(s => [s.level, s.levelSource]).sort(), [[1, 'dataverse'], [4, 'studio']]);
+  assert.equal(body.summary.averageLevel, 2.5);
+  const text = JSON.stringify(body);
+  for (const hidden of [secret, 'studiostate', 'mistakes', 'passed']) assert.equal(text.includes(hidden), false, hidden);
 });

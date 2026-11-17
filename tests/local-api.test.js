@@ -221,3 +221,44 @@ test('non-API requests pass through untouched and clearAll removes every stored 
   env.window.PcoLocalApi.clearAll();
   assert.equal(env.store.size, 0);
 });
+
+test('the level is the one the learner is working on in the studio, the guide follows it and the record stays private', async () => {
+  const secret = 'private-mistake-reason';
+  const state = JSON.stringify({ v: 1, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz' }, mistakes: { l04_01: { reason: secret, coach: false } } });
+  const env = createEnvironment();
+  // 565점이면 점수로는 5단계지만 스튜디오에서는 1~3레벨을 통과해 Lv.4를 학습 중입니다.
+  env.window.PcoLocalApi.importRows(JSON.stringify({ value: [
+    row({ crbf2_currentlevel: 1, crbf2_learningpoints: 565, crbf2_studiostate: state }), rows[1],
+  ] }));
+  const dashboard = (await env.call('dashboard')).body;
+  assert.deepEqual(dashboard.students.map(s => [s.name, s.level, s.levelSource]), [['가상하나', 4, 'studio'], ['가상둘', 5, 'dataverse']]);
+  assert.equal(dashboard.summary.averageLevel, 4.5);
+  await env.call('login/verify', post({ school: '가상학교', studentId: '00123', studentName: '가상하나' }));
+  const mine = (await env.call('me/learning')).body;
+  assert.deepEqual([mine.student.level, mine.student.levelSource, mine.guide.current.stage], [4, 'studio', 4]);
+  const text = JSON.stringify([dashboard, mine]);
+  for (const hidden of [secret, 'studiostate', 'mistakes']) assert.equal(text.includes(hidden), false, hidden);
+});
+
+test('the browser level rule gives the Node result for every kind of saved studio record', async () => {
+  const { studioLevel } = require('../dashboard-api');
+  const levels = require('../public/studio-catalog').tracks.length;
+  const passedThrough = count => JSON.stringify({ v: 1, passed: Object.fromEntries(Array.from({ length: count }, (_, i) => [i + 1, 'quiz'])) });
+  const states = [
+    ...Array.from({ length: levels + 3 }, (_, count) => passedThrough(count)),
+    JSON.stringify({ v: 1, passed: { 1: 'exam', 3: 'exam' } }), 'not json', '[]', '{"passed":"1"}', '', null,
+  ];
+  const env = createEnvironment();
+  env.window.PcoLocalApi.importRows(JSON.stringify(states.map((state, i) => row({
+    crbf2_studentlearningrecordid: `00000000-0000-4000-8000-${String(i + 1).padStart(12, '0')}`,
+    crbf2_studentnumber: String(1000 + i), crbf2_studentname: `가상${i}`, crbf2_currentlevel: 2, crbf2_studiostate: state,
+  }))));
+  const { body } = await env.call('dashboard');
+  assert.equal(body.students.length, states.length);
+  states.forEach((state, i) => {
+    const student = body.students.find(s => s.name === `가상${i}`);
+    assert.equal(student.level, studioLevel(state) ?? 2, String(state));
+    assert.equal(student.levelSource, studioLevel(state) === null ? 'dataverse' : 'studio', String(state));
+  });
+  assert.equal(Math.max(...body.students.map(s => s.level)), levels, 'a learner who passed every level stays on the last one');
+});

@@ -2,11 +2,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { fetchDashboardStudents } = require('../dashboard-api');
-const { getLearningGuide, stageForPoints } = require('../learning-guide');
+const { getLearningGuide, stageForStudent } = require('../learning-guide');
 
 function learningGuides(students) {
   const guides = {};
-  for (const stage of new Set(students.map(student => stageForPoints(student.points)))) guides[stage] = getLearningGuide(stage);
+  for (const stage of new Set(students.map(stageForStudent))) guides[stage] = getLearningGuide(stage);
   return { mode: 'static', guides };
 }
 
@@ -17,6 +17,7 @@ function publicSnapshot(students, collectedAt) {
   const sorted = students.map(student => ({
     id: crypto.randomUUID(),
     name: student.name, school: student.school, points: student.points, level: student.level,
+    levelSource: student.levelSource,
     modifiedAt: student.modifiedAt,
     history: [{ at: collectedAt, points: student.points, level: student.level }],
     observedGrowth: null,

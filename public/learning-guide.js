@@ -2,7 +2,7 @@
 const studio = typeof module === 'object' && module.exports ? require('./studio-catalog.js') : root.PcoStudio;
 const docs = page => `https://docs.python.org/ko/3/${page}`;
 
-// 스튜디오 레벨(Lv.1~15)과 같은 순서입니다. 단계는 누적 학습 점수가 속한 레벨로 정합니다.
+// 스튜디오 레벨(Lv.1~15)과 같은 순서입니다. 단계는 스튜디오에서 지금 학습 중인 레벨로 정하고, 스튜디오 기록이 없으면 누적 학습 점수가 속한 레벨로 정합니다.
 const curriculum = [
   {
     focus: '코드를 실행하고 print와 input의 기본 흐름을 익혀요.',
@@ -106,6 +106,12 @@ const curriculum = [
 });
 if (curriculum.length !== studio.tracks.length) throw new Error('학습 가이드와 스튜디오 레벨 수가 달라요.');
 
+// 학생의 현재 단계입니다. 스튜디오 기록으로 정한 레벨(levelSource가 'studio')이 있으면 그 레벨, 없으면 누적 점수가 속한 레벨입니다.
+function stageForStudent(student) {
+  if (student && student.levelSource === 'studio' && Number.isInteger(student.level)) return student.level;
+  return studio.stageForPoints(student && student.points);
+}
+
 function getLearningGuide(stage) {
   const mapped = Number.isInteger(stage) && stage >= 1 && stage <= curriculum.length;
   const current = mapped ? curriculum[stage - 1] : null;
@@ -114,12 +120,12 @@ function getLearningGuide(stage) {
     status: !mapped ? 'unmapped' : next ? 'next-stage' : 'last-stage',
     current, next, practice: (next || current)?.practice || null,
     roadmap: curriculum.map(entry => ({ stage: entry.stage, title: entry.title })),
-    recommendationNote: `스튜디오 ${curriculum.length}레벨 로드맵에 따른 권장 학습 가이드입니다. 누적 학습 점수가 속한 레벨을 현재 단계로 안내하며, 개인 오답이나 취약점을 분석한 결과는 아닙니다.`,
-    promotionNote: '실제 레벨 승급은 파코 스튜디오의 승급 시험과 진단평가로 정해집니다. 이 가이드의 단계는 누적 점수를 레벨별 필수 점수(핵심 문제 + 승급 시험)에 견줘 안내하는 값이며, 아래 과제는 권장 연습이라 완료만으로 점수가 변경되지 않습니다.',
+    recommendationNote: `스튜디오 ${curriculum.length}레벨 로드맵에 따른 권장 학습 가이드입니다. 스튜디오에서 지금 학습 중인 레벨(스튜디오 기록이 없으면 누적 학습 점수가 속한 레벨)을 현재 단계로 안내하며, 개인 오답이나 취약점을 분석한 결과는 아닙니다.`,
+    promotionNote: '실제 레벨 승급은 파코 스튜디오의 승급 시험과 진단평가로 정해집니다. 이 가이드는 승급을 심사하지 않으며, 스튜디오 기록이 없을 때는 누적 점수를 레벨별 필수 점수(핵심 문제 + 승급 시험)에 견줘 단계를 안내합니다. 아래 과제는 권장 연습이라 완료만으로 점수가 변경되지 않습니다.',
   });
 }
 
-const api = { getLearningGuide, stageForPoints: studio.stageForPoints };
+const api = { getLearningGuide, stageForPoints: studio.stageForPoints, stageForStudent };
 if (typeof module === 'object' && module.exports) module.exports = api;
 else root.PcoLearningGuide = api;
 })(typeof window !== 'undefined' ? window : globalThis);

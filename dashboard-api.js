@@ -1,6 +1,7 @@
 const MAX_ROWS = 100000;
 const MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
 const GUID = /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
+const STUDIO_LEVELS = require('./public/studio-catalog.js').tracks.length;
 
 class DashboardError extends Error {
   constructor(status, code, message) {
@@ -31,6 +32,22 @@ function invalidResponse() {
     'Dataverse 응답 형식이 올바르지 않습니다. 필수 열, 값 형식과 modifiedon을 확인해 주세요.');
 }
 
+const isMap = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+// 스튜디오가 서버에 저장한 학습 기록(crbf2_studiostate)에서 지금 학습 중인 레벨, 즉 승급하지 않은 첫 레벨을 구합니다.
+// 스튜디오의 currentLevel과 같은 규칙이며, 모든 레벨을 통과해도 마지막 레벨에 둡니다.
+// 열이 없거나 읽을 수 없는 기록은 null이라 Dataverse에 기록된 레벨(crbf2_currentlevel)을 그대로 씁니다.
+function studioLevel(value) {
+  if (typeof value !== 'string' || !value) return null;
+  let state;
+  try { state = JSON.parse(value); } catch { return null; }
+  if (!isMap(state) || (state.passed !== undefined && !isMap(state.passed))) return null;
+  const passed = state.passed || {};
+  let level = 1;
+  while (level < STUDIO_LEVELS && passed[level]) level += 1;
+  return level;
+}
+
 function latestStudents(body) {
   if (!body || !Array.isArray(body.value)) throw invalidResponse();
   if (body['@odata.nextLink'] || body['@Microsoft.Dynamics.CRM.totalrecordcountlimitexceeded'] === true ||
@@ -56,10 +73,12 @@ function latestStudents(body) {
       throw new DashboardError(502, 'STUDENT_NAME_REQUIRED',
         '학생 이름이 없습니다. Power Automate 행 나열의 열 선택에 crbf2_studentname을 추가하고 이름 값을 확인해 주세요.');
     }
+    const fromStudio = studioLevel(row.crbf2_studiostate);
     const student = {
       school: row.crbf2_schoolname, studentId: row.crbf2_studentnumber,
       name: row.crbf2_studentname.trim(),
-      points: row.crbf2_learningpoints, level: row.crbf2_currentlevel,
+      points: row.crbf2_learningpoints,
+      level: fromStudio ?? row.crbf2_currentlevel, levelSource: fromStudio === null ? 'dataverse' : 'studio',
       active: row.crbf2_isactive, modifiedAt: row.modifiedon,
       recordId: row.crbf2_studentlearningrecordid,
     };
@@ -67,6 +86,7 @@ function latestStudents(body) {
     const previous = latest.get(key);
     if (previous && Date.parse(previous.modifiedAt) === Date.parse(student.modifiedAt) &&
         (previous.points !== student.points || previous.level !== student.level ||
+          previous.levelSource !== student.levelSource ||
           previous.active !== student.active || previous.name !== student.name)) {
       throw new DashboardError(502, 'AMBIGUOUS_STUDENT_RECORD',
         '동일 학생의 최신 기록을 구분할 수 없습니다. 중복 레코드의 modifiedon과 누적 점수 구조를 확인해 주세요.');
@@ -82,7 +102,7 @@ function rankStudents(students, store, school = '') {
     const id = store.studentKey(s.school, s.studentId);
     const history = histories.get(id) || [];
     return {
-      ...store.publicStudent(id, s.school, s.name), points: s.points, level: s.level,
+      ...store.publicStudent(id, s.school, s.name), points: s.points, level: s.level, levelSource: s.levelSource,
       modifiedAt: s.modifiedAt, history,
       observedGrowth: history.length > 1 ? s.points - history[0].points : null,
     };
@@ -198,7 +218,7 @@ function createDashboardHandlers({
             school: schoolStudents.filter(entry => entry.points > student.points).length + 1,
             schoolStudents: schoolStudents.length,
           },
-          guide: getLearningGuide(stageForPoints(student.points)),
+          guide: getLearningGuide(stageForStudent(student)),
           historyNote: '이 서버가 수집한 최근 90일 점수 관측값입니다. 최초 수집 이전의 성장이나 실제 학습 횟수는 포함하지 않습니다.',
         });
       } else {
@@ -246,5 +266,5 @@ async function fetchDashboardStudents({ flowUrl, fetchImpl = globalThis.fetch, t
   return latestStudents(await readBoundedJson(response));
 }
 
-module.exports = { createDashboardHandlers, latestStudents, rankStudents, fetchDashboardStudents };
-const { getLearningGuide, stageForPoints } = require('./learning-guide');
+module.exports = { createDashboardHandlers, latestStudents, rankStudents, fetchDashboardStudents, studioLevel };
+const { getLearningGuide, stageForStudent } = require('./learning-guide');

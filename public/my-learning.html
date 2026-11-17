@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="./theme.css" />
     <script src="./local-api.js"></script>
     <script src="./studio-catalog.js"></script>
+    <script src="./learning-guide.js"></script>
     <script src="./app-shell.js" defer></script>
     <script src="./my-learning.js" defer></script>
   </head>
@@ -57,15 +58,15 @@
       <div id="learning-content" hidden></div>
       <noscript><p class="error">내 학습 기록을 조회하려면 JavaScript를 켜 주세요.</p></noscript>
       <footer class="footer">
-        <span>실제 점수는 Dataverse에서, 학습 제안은 파코 스튜디오 15레벨 로드맵에서 가져옵니다.</span>
+        <span>실제 점수는 Dataverse에서, 레벨은 스튜디오 학습 기록에서, 학습 제안은 파코 스튜디오 15레벨 로드맵에서 가져옵니다.</span>
         <a href="./new.html">스튜디오에서 문제 풀기</a>
       </footer>
     </main>
 
     <template id="learning-template">
       <section class="panel learner-hero" aria-labelledby="learner-name">
-        <div class="level-emblem" aria-label="현재 기록된 레벨">
-          <span>RECORDED LEVEL</span>
+        <div class="level-emblem" aria-label="지금 학습 중인 레벨">
+          <span>CURRENT LEVEL</span>
           <strong id="my-level"></strong>
           <span id="my-tier"></span>
         </div>
@@ -74,6 +75,7 @@
           <h2 id="learner-name"></h2>
           <p id="my-level-title" class="level-title"></p>
           <p id="my-focus" class="intro"></p>
+          <p id="my-level-note" class="caption"></p>
           <p id="my-modified" class="caption"></p>
         </div>
       </section>
@@ -155,7 +157,7 @@
           <p class="eyebrow">LEVEL ROADMAP</p>
           <h2 id="roadmap-heading">15단계 중 지금의 위치</h2>
           <ol id="my-roadmap" class="personal-roadmap"></ol>
-          <p class="caption">강조된 숫자는 누적 학습 점수가 속한 현재 단계입니다. 각 단계의 문제를 얼마나 풀었는지는 위의 문제 진도에서 확인하세요.</p>
+          <p class="caption">강조된 숫자는 지금 학습 중인 현재 단계입니다. 각 단계의 문제를 얼마나 풀었는지는 위의 문제 진도에서 확인하세요.</p>
         </section>
       </div>
       <p id="recommendation-note" class="notice"></p>

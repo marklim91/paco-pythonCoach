@@ -205,7 +205,9 @@
       school.className = "student-school";
       school.textContent = student.school;
       name.append(button, school);
-      cell(tr, "Lv." + number(student.level));
+      var levelCell = cell(tr, "Lv." + number(student.level));
+      levelCell.title = student.levelSource === "studio" ? "스튜디오에서 지금 학습 중인 레벨" :
+        "Dataverse에 기록된 레벨 · 스튜디오 학습 기록이 아직 반영되지 않았어요";
       pointsCell(tr, student.points);
       hintGrowth(cell(tr, growth(student.observedGrowth), student.observedGrowth > 0 ? "growth-positive" :
         student.observedGrowth < 0 ? "growth-negative" : ""), student.observedGrowth);

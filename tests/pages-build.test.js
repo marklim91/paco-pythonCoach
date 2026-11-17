@@ -68,7 +68,7 @@ test('Pages export publishes only allowlisted student fields and no signed URL, 
   assert.equal(report.collectedAt, at);
   assert.deepEqual(report.students.map(student => student.rank), [1, 1, 3]);
   assert.deepEqual(Object.keys(report.students[0]).sort(), [
-    'id', 'name', 'school', 'points', 'level', 'modifiedAt', 'history', 'observedGrowth', 'rank',
+    'id', 'name', 'school', 'points', 'level', 'levelSource', 'modifiedAt', 'history', 'observedGrowth', 'rank',
   ].sort());
   for (const student of report.students) {
     assert.equal(student.observedGrowth, null);
@@ -107,6 +107,30 @@ test('every generated HTML loads mode before auth/scripts, including nested repo
   assert.equal(mode.PcoDeployment.mode, 'static');
   assert.equal(Object.isFrozen(mode.PcoDeployment), true);
   assert.equal(fs.readFileSync(path.join(opts.outputDir, '.nojekyll'), 'utf8'), '');
+});
+
+test('Pages export shows the studio level and its guide without publishing the saved studio record', async t => {
+  const secret = 'private-mistake-reason';
+  const state = JSON.stringify({ v: 1, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz' }, mistakes: { l04_01: { reason: secret, coach: false } } });
+  const opts = options(t, {
+    fetchImpl: async () => Response.json({ value: [
+      // 565점이면 점수로는 5단계지만 스튜디오에서는 Lv.4를 학습 중입니다.
+      row({ crbf2_currentlevel: 1, crbf2_learningpoints: 565, crbf2_studiostate: state }),
+      row({ crbf2_studentnumber: '00456', crbf2_studentname: '가상둘', crbf2_currentlevel: 1, crbf2_learningpoints: 300 }),
+    ] }),
+  });
+  await buildPages(opts);
+  const report = JSON.parse(fs.readFileSync(path.join(opts.outputDir, 'reports', 'dashboard.json'), 'utf8'));
+  assert.deepEqual(report.students.map(student => [student.name, student.level, student.levelSource]),
+    [['가상하나', 4, 'studio'], ['가상둘', 1, 'dataverse']]);
+  const guides = JSON.parse(fs.readFileSync(path.join(opts.outputDir, 'reports', 'learning-guides.json'), 'utf8'));
+  assert.deepEqual(Object.keys(guides.guides), ['3', '4'], 'the studio learner gets the guide of the level, the other the guide of the points');
+  for (const asset of files(opts.outputDir).filter(asset => /\.(html|js|json|css)$/.test(asset))) {
+    assert.equal(fs.readFileSync(path.join(opts.outputDir, asset), 'utf8').includes(secret), false, asset);
+  }
+  for (const file of ['dashboard.json', 'learning-guides.json']) {
+    assert.equal(fs.readFileSync(path.join(opts.outputDir, 'reports', file), 'utf8').includes('studiostate'), false, file);
+  }
 });
 
 test('export requires explicit publication consent before fetching or writing any data', async t => {

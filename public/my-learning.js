@@ -63,11 +63,35 @@
       var key = studioKey();
       var saved = key ? JSON.parse(window.localStorage.getItem(key)) : null;
       var isMap = function (value) { return value && typeof value === "object" && !Array.isArray(value); };
-      return {
-        completed: saved && isMap(saved.solved) ? Object.keys(saved.solved) : [],
-        passed: saved && isMap(saved.passed) ? saved.passed : {},
-      };
-    } catch (error) { return { completed: [], passed: {} }; }
+      var completed = saved && isMap(saved.solved) ? Object.keys(saved.solved) : [];
+      var passed = saved && isMap(saved.passed) ? saved.passed : {};
+      return { completed: completed, passed: passed, exists: completed.length > 0 || Object.keys(passed).length > 0 };
+    } catch (error) { return { completed: [], passed: {}, exists: false }; }
+  }
+  // 스튜디오에서 지금 학습 중인 레벨, 즉 통과하지 않은 첫 레벨입니다(studio-progress.js 의 currentLevel 과 같은 규칙이며 마지막 레벨에서 멈춥니다).
+  function firstUnpassedLevel(passed, levelCount) {
+    var level = 1;
+    while (passed[level] && level < levelCount) level += 1;
+    return level;
+  }
+  // 학습 가이드의 단계입니다(learning-guide.js 의 stageForStudent 와 같은 규칙).
+  function stageFor(student) {
+    return student.levelSource === "studio" && Number.isInteger(student.level) ?
+      student.level : window.PcoStudio.stageForPoints(student.points);
+  }
+  // 레벨은 스튜디오에서 지금 학습 중인 레벨입니다. 서버가 스튜디오 기록으로 정해 준 값(levelSource 가 "studio")을 쓰되,
+  // 서버에 스튜디오 기록이 반영되지 않았거나 이 브라우저의 기록이 더 앞서 있으면 이 브라우저의 스튜디오 기록을 따릅니다.
+  // 정적 리포트는 로그인한 학생이 아니라 고른 학생을 보여 주므로 이 브라우저의 기록을 쓰지 않습니다.
+  function currentLevel(student, guide, record) {
+    var studio = window.PcoStudio;
+    var guides = window.PcoLearningGuide;
+    if (!staticMode && record.exists && studio && guides) {
+      var local = firstUnpassedLevel(record.passed, studio.tracks.length);
+      if (student.levelSource !== "studio" || local > student.level) {
+        return { level: local, guide: guides.getLearningGuide(local), fromStudio: true };
+      }
+    }
+    return { level: student.level, guide: guide, fromStudio: student.levelSource === "studio" };
   }
   function meterBar(percent, label) {
     var bar = document.createElement("div");
@@ -79,7 +103,7 @@
     bar.appendChild(fill);
     return bar;
   }
-  function renderStudio(student, guide) {
+  function renderStudio(student, guide, record) {
     var studio = window.PcoStudio;
     if (!studio) return;
     var percent = student.points > 0 ? Math.min(100, Math.max(1, Math.floor(student.points / studio.maxPoints * 100))) : 0;
@@ -107,7 +131,6 @@
       scoring.appendChild(row);
     });
 
-    var record = readStudioRecord();
     var completed = record.completed;
     var progress = studio.progress(completed);
     text("studio-progress-text", progress.solved || progress.practiceSolved ?
@@ -131,10 +154,8 @@
     var next = byId("next-problems");
     next.replaceChildren();
     // 이 브라우저의 스튜디오 기록이 있으면 실제로 열린 레벨에서, 없으면 점수가 가리키는 단계에서 추천합니다.
-    var hasRecord = completed.length > 0 || Object.keys(record.passed).length > 0;
-    var localStage = 1;
-    while (record.passed[localStage] && localStage < studio.tracks.length) localStage += 1;
-    var stage = hasRecord ? localStage : (guide.current ? guide.current.stage : 1);
+    var localStage = firstUnpassedLevel(record.passed, studio.tracks.length);
+    var stage = record.exists ? localStage : (guide.current ? guide.current.stage : 1);
     var picks = studio.nextProblems(completed, 3, stage);
     if (!picks.length) {
       var done = document.createElement("li");
@@ -157,13 +178,17 @@
     var content = byId("learning-content");
     if (!content.firstElementChild) content.appendChild(byId("learning-template").content.cloneNode(true));
     var student = data.student;
-    var guide = data.guide;
+    var record = readStudioRecord();
+    var current = currentLevel(student, data.guide, record);
+    var guide = current.guide;
     text("learner-name", student.name + "님의 학습 현황");
     text("my-identity", student.school);
-    text("my-level", "Lv." + number.format(student.level));
+    text("my-level", "Lv." + number.format(current.level));
     text("my-tier", !guide.current ? "단계 확인 필요" : guide.current.stage + "단계 / " + guide.roadmap.length + "단계");
     text("my-level-title", guide.current ? guide.current.title : "단계를 계산할 수 없는 점수");
     text("my-focus", guide.current ? guide.current.focus : "점수 기준을 담당자에게 확인해 주세요.");
+    text("my-level-note", current.fromStudio ? "스튜디오에서 지금 학습 중인 레벨이에요." :
+      "스튜디오 학습 기록이 아직 반영되지 않아 Dataverse에 기록된 레벨을 보여 줘요.");
     text("my-modified", "Dataverse 마지막 수정: " + time(student.modifiedAt) + " (마지막 학습 시각을 의미하지 않습니다.)");
     text("my-points", number.format(student.points) + "점");
     text("my-rank", number.format(data.ranking.overall) + "위");
@@ -185,7 +210,7 @@
     byId("unmapped-level").hidden = guide.status !== "unmapped";
     byId("learning-guide").hidden = guide.status === "unmapped";
     text("recommendation-note", guide.recommendationNote);
-    renderStudio(student, guide);
+    renderStudio(student, guide, record);
     if (guide.current) {
       var target = guide.next || guide.current;
       text("next-heading", guide.next ? "다음 목표 · " + target.stage + "단계 " + target.title : guide.current.stage + "단계 · 로드맵 마지막 단계");
@@ -331,7 +356,7 @@
   function staticRecord(student) {
     var students = staticReport.students;
     var mates = students.filter(function (s) { return s.school === student.school; });
-    var guide = staticGuides[window.PcoStudio.stageForPoints(student.points)];
+    var guide = staticGuides[stageFor(student)];
     if (!guide) throw new TypeError("단계 가이드가 리포트에 없습니다.");
     return {
       student: student, guide: guide, collectedAt: staticReport.collectedAt,

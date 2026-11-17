@@ -315,6 +315,43 @@ test('the guide follows points while recorded levels are shown as stored, withou
   }
 });
 
+test('the level and guide follow the studio record the learner is working on, not the points', async t => {
+  const app = await setup(t);
+  const cookie = await app.signIn();
+  // 565점이면 점수로는 5단계지만 스튜디오에서는 1~3레벨을 통과해 Lv.4를 학습 중입니다.
+  app.source.rows[0].crbf2_currentlevel = 1;
+  app.source.rows[0].crbf2_learningpoints = 565;
+  app.source.rows[0].crbf2_studiostate = JSON.stringify({
+    v: 1, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz' }, mistakes: { l04_01: { reason: 'private-mistake-reason', coach: false } },
+  });
+  let body = await (await app.personal(cookie)).json();
+  assert.equal(body.student.level, 4);
+  assert.equal(body.student.levelSource, 'studio');
+  assert.equal(body.guide.current.stage, 4);
+  assert.equal(body.guide.current.title, '조건문 도전자');
+  assert.equal(body.guide.next.stage, 5);
+  assert.match(body.guide.recommendationNote, /스튜디오에서 지금 학습 중인 레벨/);
+  for (const hidden of ['private-mistake-reason', 'studiostate', 'mistakes']) assert.equal(JSON.stringify(body).includes(hidden), false, hidden);
+
+  app.clock.value += 61000;
+  delete app.source.rows[0].crbf2_studiostate;
+  app.source.rows[0].modifiedon = new Date(app.clock.value).toISOString();
+  body = await (await app.personal(cookie)).json();
+  assert.deepEqual([body.student.level, body.student.levelSource, body.guide.current.stage], [1, 'dataverse', 5],
+    'without a studio record the level is the recorded one and the guide follows the points');
+});
+
+test('the guide stage comes from the studio level when there is one and from the points otherwise', () => {
+  const { stageForStudent } = require('../learning-guide');
+  assert.equal(stageForStudent({ level: 4, levelSource: 'studio', points: 565 }), 4);
+  assert.equal(stageForStudent({ level: 1, levelSource: 'dataverse', points: 565 }), 5);
+  assert.equal(stageForStudent({ level: 4, points: 565 }), 5);
+  assert.equal(stageForStudent({ level: '4', levelSource: 'studio', points: 565 }), 5);
+  assert.equal(stageForStudent({ level: 4, levelSource: 'studio', points: -1 }), 4);
+  assert.equal(stageForStudent({ level: 1, levelSource: 'dataverse', points: -1 }), 0);
+  assert.equal(stageForStudent(null), 0);
+});
+
 test('personal page and aliases serve a static shell without embedding student data', async t => {
   const app = await setup(t);
   for (const route of ['/my-learning.html', '/my-learning', '/' + encodeURIComponent('내학습')]) {

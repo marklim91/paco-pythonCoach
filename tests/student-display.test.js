@@ -42,7 +42,7 @@ const settled = () => new Promise(resolve => setImmediate(resolve));
 const studentCookie = `school=${encodeURIComponent('현풍중학교')}; studentId=30202; studentName=${encodeURIComponent('가상하나')}`;
 const studioKey = `paco-studio-v3:${encodeURIComponent('현풍중학교')}:30202:${encodeURIComponent('가상하나')}`;
 
-function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt, solved, passed, cookie = studentCookie } = {}) {
+function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure = false, collectedAt, solved, passed, cookie = studentCookie, guides = false, stage = 3 } = {}) {
   const nodes = new Map();
   const errors = [];
   const requests = [];
@@ -64,7 +64,7 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
       mode: 'static', students, schools: students.map(student => student.school),
       collectedAt: collectedAt || new Date().toISOString(), historyNote: '이번 배포의 단일 관측값입니다.',
     },
-    '/reports/learning-guides.json': { mode: 'static', guides: { 3: getLearningGuide(3) } },
+    '/reports/learning-guides.json': { mode: 'static', guides: { 3: getLearningGuide(3), 4: getLearningGuide(4) } },
     '/api/dashboard': {
       students, schools: students.map(student => student.school), collectedAt: students[0].modifiedAt,
     },
@@ -76,13 +76,15 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
     '/api/me/learning': {
       student: students[0], collectedAt: students[0].modifiedAt,
       ranking: { overall: 1, overallStudents: 2, school: 1, schoolStudents: 1 },
-      guide: getLearningGuide(3), historyNote: '서버의 관측 기록입니다.',
+      guide: getLearningGuide(stage), historyNote: '서버의 관측 기록입니다.',
     },
   };
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'public', script), 'utf8'), {
     document, URL, Intl, AbortController,
     window: {
       addEventListener() {}, PcoStudio: require('../public/studio-catalog'),
+      // my-learning.html loads learning-guide.js as well; most tests leave it out to show the page does not depend on it.
+      ...(guides ? { PcoLearningGuide: require('../learning-guide') } : {}),
       // The studio saves each student's record in this browser: solved problems and passed levels.
       ...(solved || passed ? {
         localStorage: {
@@ -285,6 +287,86 @@ test('personal page recommends from the first level this browser has not passed 
   assert.match(app.node('track-progress').children[3].children[0].textContent, /Lv\.4 · 조건문 도전자 · 통과/);
   assert.doesNotMatch(app.node('track-progress').children[4].children[0].textContent, /통과/);
   assert.match(app.node('studio-progress-text').textContent, /해결한 스튜디오 문제 기록이 아직 없어요/, 'no solved problem is invented for levels passed by a test');
+});
+
+test('the ranking tells where each level comes from', async () => {
+  const app = loadClient();
+  app.students[0].levelSource = 'studio';
+  await settled();
+  const rows = app.node('ranking-body').children;
+  assert.equal(rows[0].children[2].title, '스튜디오에서 지금 학습 중인 레벨');
+  assert.match(rows[1].children[2].title, /^Dataverse에 기록된 레벨/);
+});
+
+test('personal page shows the level the learner is working on in the studio', async () => {
+  const app = loadClient('my-learning.js', { stage: 4 });
+  Object.assign(app.students[0], { level: 4, levelSource: 'studio', points: 565 });
+  await settled();
+  assert.equal(app.node('my-level').textContent, 'Lv.4');
+  assert.equal(app.node('my-tier').textContent, '4단계 / 15단계');
+  assert.equal(app.node('my-level-title').textContent, '조건문 도전자');
+  assert.match(app.node('my-level-note').textContent, /스튜디오에서 지금 학습 중인 레벨/);
+  assert.equal(app.errors.length, 0);
+});
+
+test('personal page without any studio record says the level is the one Dataverse recorded', async () => {
+  const app = loadClient('my-learning.js', { guides: true });
+  await settled();
+  assert.equal(app.node('my-level').textContent, 'Lv.5');
+  assert.equal(app.node('my-tier').textContent, '3단계 / 15단계');
+  assert.match(app.node('my-level-note').textContent, /Dataverse에 기록된 레벨/);
+});
+
+test('personal page follows this browser studio record when the server has none, even if Dataverse says Lv.1', async () => {
+  const app = loadClient('my-learning.js', { guides: true, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz' } });
+  Object.assign(app.students[0], { level: 1, points: 565 });
+  await settled();
+  assert.equal(app.node('my-level').textContent, 'Lv.4');
+  assert.equal(app.node('my-tier').textContent, '4단계 / 15단계');
+  assert.equal(app.node('my-level-title').textContent, '조건문 도전자');
+  assert.match(app.node('my-level-note').textContent, /스튜디오에서 지금 학습 중인 레벨/);
+  assert.match(app.node('track-progress').children[3].children[0].textContent, /Lv\.4 · 조건문 도전자 \(현재\)/);
+  assert.match(app.node('track-progress').children[2].children[0].textContent, /Lv\.3 · 출력 마스터 · 통과/);
+  assert.equal(app.errors.length, 0);
+});
+
+test('the studio level from the server is only moved up by this browser record, never down', async () => {
+  const older = loadClient('my-learning.js', { guides: true, passed: { 1: 'exam', 2: 'quiz' }, stage: 6 });
+  Object.assign(older.students[0], { level: 6, levelSource: 'studio' });
+  await settled();
+  assert.equal(older.node('my-level').textContent, 'Lv.6');
+  assert.equal(older.node('my-tier').textContent, '6단계 / 15단계');
+
+  const ahead = loadClient('my-learning.js', { guides: true, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz', 4: 'jump' }, stage: 3 });
+  Object.assign(ahead.students[0], { level: 3, levelSource: 'studio' });
+  await settled();
+  assert.equal(ahead.node('my-level').textContent, 'Lv.5');
+  assert.equal(ahead.node('my-tier').textContent, '5단계 / 15단계');
+});
+
+test('static personal page shows the chosen learner, not the record of whoever is signed in on this browser', async () => {
+  const app = loadClient('my-learning.js', { staticMode: true, guides: true, passed: { 1: 'exam', 2: 'quiz', 3: 'quiz' } });
+  await settled();
+  app.node('static-school').value = '현풍중학교';
+  app.node('static-school').listeners.change();
+  app.node('static-student').value = 'student-a';
+  app.node('static-student').listeners.change();
+  assert.equal(app.node('my-level').textContent, 'Lv.5');
+  assert.match(app.node('my-level-note').textContent, /Dataverse에 기록된 레벨/);
+});
+
+test('static personal page uses the guide of the studio level when the report says the level came from the studio', async () => {
+  const app = loadClient('my-learning.js', { staticMode: true });
+  Object.assign(app.students[0], { level: 4, levelSource: 'studio' });
+  await settled();
+  app.node('static-school').value = '현풍중학교';
+  app.node('static-school').listeners.change();
+  app.node('static-student').value = 'student-a';
+  app.node('static-student').listeners.change();
+  assert.equal(app.node('my-level').textContent, 'Lv.4');
+  assert.equal(app.node('my-tier').textContent, '4단계 / 15단계');
+  assert.equal(app.node('my-level-title').textContent, '조건문 도전자');
+  assert.equal(app.errors.length, 0);
 });
 
 test('static report uses the repository-relative snapshot, hides presence and preserves ranking selection', async () => {
