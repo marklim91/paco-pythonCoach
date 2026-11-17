@@ -165,12 +165,14 @@ async function requestPoints({
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (response.status === 404)
-    throw new Error(
-      "활성 학생 기록을 찾을 수 없어요. 학교·학번·이름을 확인해주세요.",
+    throw Object.assign(
+      new Error("활성 학생 기록을 찾을 수 없어요. 학교·학번·이름을 확인해주세요."),
+      { status: 404 },
     );
   if (!response.ok)
-    throw new Error(
-      "포인트 적립 흐름 실행에 실패했어요. (" + response.status + ")",
+    throw Object.assign(
+      new Error("포인트 적립 흐름 실행에 실패했어요. (" + response.status + ")"),
+      { status: response.status },
     );
   const result = await response.json().catch(() => null);
   if (
@@ -182,6 +184,37 @@ async function requestPoints({
     throw new Error("포인트 적립 응답 형식이 올바르지 않아요.");
   }
   return { points: result.points, awarded: result.awarded !== false };
+}
+// 흐름은 점수를 읽어 더한 뒤 저장하므로, 같은 학생의 요청이 겹치면 한쪽이 지워져요(승급 시험은 문제 두 개의 요청이 거의 동시에 나가요).
+// 작업을 들어온 순서대로 한 번에 하나씩 실행하고, 앞 작업이 실패해도 뒤 작업은 이어서 실행합니다.
+function createSerialQueue() {
+  let tail = Promise.resolve();
+  return (task) => {
+    const run = tail.then(task);
+    tail = run.catch(() => {});
+    return run;
+  };
+}
+// 연결이 끊겼거나 시간이 초과됐거나 서버가 잠시 바쁜 경우(408·429·5xx)만 다시 시도할 만한 오류입니다.
+function isRetryablePointsError(error) {
+  if (error && typeof error.status === "number")
+    return error.status === 408 || error.status === 429 || error.status >= 500;
+  return Boolean(error) && ["TypeError", "TimeoutError", "AbortError"].includes(error.name);
+}
+const POINTS_RETRY_MS = [2000, 8000];
+// 흐름은 문제 ID로 중복을 막으므로, 응답을 받지 못한 요청을 다시 보내도 점수가 두 번 더해지지 않습니다.
+async function requestPointsWithRetry(
+  options,
+  { delays = POINTS_RETRY_MS, wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {},
+) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await requestPoints(options);
+    } catch (error) {
+      if (attempt >= delays.length || !isRetryablePointsError(error)) throw error;
+      await wait(delays[attempt]);
+    }
+  }
 }
 
 // ---- 저장된 학습 상태 -------------------------------------------------------
@@ -458,6 +491,15 @@ function currentStorageKey() {
 function requestedProblemId(search) {
   const requested = new URLSearchParams(search).get("problem");
   return requested && PROBLEM_BY_ID.has(requested) ? requested : "";
+}
+// 추천 링크의 ?problem= 은 열 때 한 번만 씁니다. 주소에 남겨 두면 새로고침할 때마다 처음 그 문제로 되돌아가요.
+// 다른 매개변수와 #는 그대로 두고, 지울 것이 없으면 null 을 돌려줍니다.
+function withoutRequestedProblem(location) {
+  const params = new URLSearchParams(location.search);
+  if (!params.has("problem")) return null;
+  params.delete("problem");
+  const rest = params.toString();
+  return location.pathname + (rest ? "?" + rest : "") + location.hash;
 }
 // 화면 라이브러리를 내려받는 동안 미리 받아 둘 문제입니다: 링크가 가리키는 문제, 없으면 지금 풀 문제입니다.
 function startupProblemId(search, storage = browserStorage(), key = currentStorageKey()) {

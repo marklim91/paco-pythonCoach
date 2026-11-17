@@ -510,6 +510,20 @@ test('the studio keeps the record per student, loads the server record first and
   assert.match(app, /setBooting\(syncOn && !initial\.restored\)|useState\(syncOn && !initial\.restored\)/, 'only a device without a copy waits for the server');
 });
 
+// 상태 이름이 그대로 클래스가 되면 같은 이름의 화면 전체 규칙(.loading 은 높이 60vh 칸)이 칩에 적용돼 헤더가 세로로 늘어납니다.
+test('the header save-status chip carries no class that the page already styles on its own', () => {
+  const app = modules['studio-app'];
+  const styles = [publicFile('studio.css'), publicFile('theme.css')].join('\n');
+  const statuses = [...app.matchAll(/^ {2}(\w+): \{ label:/gm)].map(match => match[1]);
+  const chipClasses = app.match(/className: `(stat-chip sync[^`]*)`/);
+  assert.ok(statuses.includes('loading') && chipClasses, 'the chip statuses and class list are found');
+  for (const status of statuses) {
+    for (const name of chipClasses[1].replace('${sync.status}', status).split(' ').filter(name => name !== 'stat-chip')) {
+      assert.doesNotMatch(styles, new RegExp(`(^|[\\s,)])\\.${name}(?![\\w-])`, 'm'), `.${name} (chip status ${status}) is styled on its own elsewhere`);
+    }
+  }
+});
+
 test('points flow address comes from the deploy-time runtime config, never from the source', () => {
   assert.match(html, /<script src="\.\/runtime-config\.js"><\/script>/);
   assert.equal(evaluate('DEFAULT_POINTS_URL'), '');
@@ -599,6 +613,77 @@ test('points request sends the student identity and accepts only a well-formed u
   const before = calls.length;
   await assert.rejects(() => attempt(flowReply(200, { updated: true, points: 1 }), 'https://evil.example.com/a'), /Power Automate/);
   assert.equal(calls.length, before, 'invalid addresses must never be called');
+});
+
+// 포인트 흐름은 점수를 읽어 더한 뒤 저장해서, 같은 학생의 요청이 겹치면 한쪽이 지워집니다(승급 시험은 문제 두 개의 요청이 거의 동시에 나가요).
+test('point requests go out one at a time and in order, and a failed one does not block the next', async () => {
+  const queue = evaluate('createSerialQueue()');
+  const events = [];
+  const task = (name, ms, fail = false) => () => new Promise((resolve, reject) => {
+    events.push(`start ${name}`);
+    setTimeout(() => { events.push(`end ${name}`); if (fail) reject(new Error(name)); else resolve(name); }, ms);
+  });
+  const settled = await Promise.allSettled([queue(task('a', 30)), queue(task('b', 5, true)), queue(task('c', 1))]);
+  assert.deepEqual(events, ['start a', 'end a', 'start b', 'end b', 'start c', 'end c'], 'no two requests overlap');
+  assert.deepEqual(settled.map(result => result.status), ['fulfilled', 'rejected', 'fulfilled']);
+});
+
+test('a points request is sent again after a passing failure, but never after a refusal or a bad answer', async () => {
+  const retry = vm.runInContext('requestPointsWithRetry', context);
+  const attempt = async (replies, delays = [10, 20]) => {
+    const calls = [];
+    const waits = [];
+    const fetchImpl = async () => {
+      const next = replies[Math.min(calls.length, replies.length - 1)];
+      calls.push(next);
+      if (next instanceof Error) throw next;
+      return next();
+    };
+    const outcome = await retry({ url: flowUrl, student, problemId: 'l01_01', points: 10, fetchImpl }, { delays, wait: async ms => { waits.push(ms); } })
+      .then(value => ({ value }), error => ({ error }));
+    return { ...outcome, calls: calls.length, waits };
+  };
+  const ok = flowReply(200, { updated: true, points: 30 });
+  const named = (name, message) => Object.assign(new Error(message), { name });
+
+  const busy = await attempt([flowReply(503, {}), ok]);
+  assert.deepEqual([busy.calls, busy.waits, busy.value.points], [2, [10], 30], 'a busy server is asked again after a pause');
+  const mixed = await attempt([flowReply(429, {}), new TypeError('Failed to fetch'), ok]);
+  assert.deepEqual([mixed.calls, mixed.waits, mixed.value.points], [3, [10, 20], 30], 'throttling and lost connections are retried');
+  const slow = await attempt([named('TimeoutError', 'timeout'), ok]);
+  assert.equal(slow.value.points, 30, 'a timeout is retried');
+
+  const giveUp = await attempt([flowReply(503, {})]);
+  assert.deepEqual([giveUp.calls, giveUp.waits], [3, [10, 20]], 'it stops after the last pause');
+  assert.match(giveUp.error.message, /\(503\)/);
+  for (const reply of [flowReply(404, {}), flowReply(400, {}), flowReply(200, { updated: true, points: '1' })]) {
+    const refused = await attempt([reply]);
+    assert.equal(refused.calls, 1, 'a refusal or a malformed answer is not repeated');
+    assert.ok(refused.error);
+  }
+  assert.equal((await attempt([ok])).calls, 1, 'a success is sent once');
+});
+
+test('the recommended-problem parameter is removed from the address once it has been used', () => {
+  const clean = (search, hash = '') => evaluate(`withoutRequestedProblem(${JSON.stringify({ pathname: '/paco/new.html', search, hash })})`);
+  assert.equal(clean('?problem=l01_04'), '/paco/new.html');
+  assert.equal(clean('?problem=l01_04&utm=a', '#top'), '/paco/new.html?utm=a#top', 'other parameters and the fragment stay');
+  assert.equal(clean('?utm=a'), null, 'nothing to remove');
+  assert.equal(clean(''), null);
+});
+
+test('moving to another screen cancels a problem that is still downloading, and the pass card follows the latest record', () => {
+  const app = modules['studio-app'];
+  assert.match(app, /function go\(next\) \{[^}]*switchRequest\.current \+= 1;/, 'every move cancels a pending open, not only the problem opens');
+  assert.doesNotMatch(app, /switchRequest\.current \+= 1;\s*go\(/, 'the cancel lives in go() alone');
+  assert.match(app, /return enqueueAward\(\(\) => sendAward\(solvedProblem, points\)\)/, 'point requests go through the queue');
+  assert.match(app, /requestPointsWithRetry\(\{/);
+  assert.doesNotMatch(app, /[^\w.]requestPoints\(/, 'nothing sends a point request around the queue and the retry');
+  assert.match(modules['studio-quiz'], /for \(const award of outcome\.awards\) ctx\.award\(/, 'an exam sends one request per problem, through the queue');
+  assert.match(app, /withoutRequestedProblem\(window\.location\)/, 'the link parameter is dropped after it opened the problem');
+  assert.match(app, /if \(!bootingRef\.current && \(MODEL\.totalPoints\(next\) !== MODEL\.totalPoints\(was\)[\s\S]*?toast\("서버에 저장된 학습 기록을 불러와 합쳤어요\."\)/, 'a record that arrives after the screen opened is announced');
+  assert.match(modules['studio-learn'], /const fork = MODEL\.afterSolve\(ctx\.state, problem\.id\)/, 'the pass card reads the current record');
+  assert.doesNotMatch(modules['studio-learn'], /setPass\(\{ result, fork/, 'the fork is not frozen at the moment of solving');
 });
 
 test('saved studio state without the points fields still loads and invalid flow addresses are not trusted', () => {

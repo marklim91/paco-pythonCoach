@@ -297,8 +297,8 @@ code {
   background: var(--amber-bg);
   color: var(--amber);
 }
-.stat-chip.sync.offline,
-.stat-chip.sync.local {
+.stat-chip.sync-offline,
+.stat-chip.sync-local {
   background: var(--amber-bg);
   color: var(--amber);
 }

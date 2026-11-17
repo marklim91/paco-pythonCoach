@@ -226,7 +226,9 @@ function ProblemPanel({ ctx, problem, track }) {
 
 // 통과한 직후의 갈림길입니다: 깔끔하게 풀었으면 연습을 건너뛰거나 한 번 더 할 수 있고, 아니면 연습 한 문제를 풀어야 해요.
 function PassCard({ ctx, problem, pass }) {
-  const { result, fork } = pass;
+  const { result } = pass;
+  // 서버 기록이 늦게 합쳐지는 등 통과한 뒤에 기록이 바뀌어도 '다음'이 지금 기록을 따르도록 그릴 때마다 계산합니다.
+  const fork = MODEL.afterSolve(ctx.state, problem.id);
   const level = MODEL.info[problem.id].level;
   const go = (step) => {
     if (!step || step.kind === "done" || step.kind === "locked") ctx.openRoadmap();
@@ -298,7 +300,7 @@ export function LearnView({ ctx, problem }) {
     const result = MODEL.solve(ctx.getState(), problem.id, PcoProgress.dayKey(new Date()));
     ctx.commit(result.state);
     setOutcome({ error: "", wrong: false });
-    setPass({ result, fork: MODEL.afterSolve(result.state, problem.id) });
+    setPass({ result });
     ctx.announce(result);
     if (result.firstTime && result.points > 0) ctx.award(problem, result.points);
   }

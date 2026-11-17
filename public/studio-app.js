@@ -103,6 +103,8 @@ function App() {
   const [storageWarning] = useState(initial.warning);
   const storageDisabled = useRef(Boolean(initial.warning));
   const awarding = useRef(new Set());
+  // 서버 흐름은 점수를 읽어 더한 뒤 저장하므로 요청이 겹치면 한쪽이 지워집니다. 포인트 요청은 한 번에 하나씩 차례로 보냅니다.
+  const [enqueueAward] = useState(createSerialQueue);
   const switchRequest = useRef(0);
   // 학습 기록(보석·진도)은 서버가 원본입니다. 이 브라우저에는 오프라인일 때를 위한 사본과 작성 중인 코드를 학생별로 둡니다.
   const syncRef = useRef(null);
@@ -114,6 +116,8 @@ function App() {
   const [sync, setSync] = useState({ status: syncOn ? "idle" : "off", detail: null });
   // 이 브라우저에 사본이 없으면(처음 쓰는 기기) 서버 기록을 받을 때까지 잠깐 기다립니다.
   const [booting, setBooting] = useState(syncOn && !initial.restored);
+  const bootingRef = useRef(booting);
+  bootingRef.current = booting;
   const runner = usePythonRunner();
   const [view, setView] = useState({ name: "roadmap" });
   const [toasts, setToasts] = useState([]);
@@ -186,11 +190,16 @@ function App() {
           readProgress,
           initialBase: syncMeta.current.sync,
           initialAttempts: syncMeta.current.attempts,
-          applyRemote: (remote, before) =>
-            apply((previous) => ({
+          applyRemote: (remote, before) => {
+            const was = stateRef.current;
+            const next = apply((previous) => ({
               ...previous,
               ...PcoSync.mergeProgress(PcoSync.pickProgress(previous), remote, before),
-            })),
+            }));
+            // 화면이 열린 뒤에 서버 기록이 도착해 점수나 레벨이 바뀌면 말없이 바뀌지 않도록 알려 줍니다.
+            if (!bootingRef.current && (MODEL.totalPoints(next) !== MODEL.totalPoints(was) || MODEL.currentLevel(next) !== MODEL.currentLevel(was)))
+              toast("서버에 저장된 학습 기록을 불러와 합쳤어요.");
+          },
           onStatus: (status, detail) => {
             if (!cancelled) setSync({ status, detail });
           },
@@ -244,6 +253,15 @@ function App() {
     // 내 학습 현황의 추천 링크(?problem=문제ID)로 열면 그 문제부터 보여줍니다.
     const requested = requestedProblemId(window.location.search);
     if (requested) openProblem(requested);
+    // 그 매개변수는 한 번만 쓰고 주소에서 지웁니다. 남겨 두면 새로고침할 때마다 처음 그 문제로 되돌아가요.
+    const cleaned = withoutRequestedProblem(window.location);
+    if (cleaned) {
+      try {
+        window.history.replaceState(null, "", cleaned);
+      } catch {
+        /* 주소를 바꿀 수 없어도 문제 열기에는 영향이 없습니다. */
+      }
+    }
     return () => {
       active = false;
     };
@@ -265,6 +283,8 @@ function App() {
 
   // ---- 화면 이동 ----
   function go(next) {
+    // 옮길 때마다 아직 문제 본문을 받는 중인 요청은 취소합니다. 그러지 않으면 다른 화면으로 옮긴 뒤에도 늦게 도착한 문제가 화면을 가로채요.
+    switchRequest.current += 1;
     runner.stop();
     setView(next);
     window.scrollTo(0, 0);
@@ -301,11 +321,9 @@ function App() {
       toast("아직 잠긴 레벨이에요. 앞 레벨을 먼저 통과하거나 ‘여기로 점프’를 써 보세요.");
       return;
     }
-    switchRequest.current += 1;
     go({ name: "exam", level });
   }
   function openPlacement(target) {
-    switchRequest.current += 1;
     go({ name: "placement", target });
   }
   // '학습하기': 지금 풀 문제(또는 승급 시험)를 바로 엽니다.
@@ -327,7 +345,10 @@ function App() {
     }
   }
   // 해결하면 브라우저가 Power Automate 흐름을 직접 호출합니다. 학생·문제당 한 번만 적립하며 기록은 이 브라우저에만 남습니다.
-  async function award(solvedProblem, points) {
+  function award(solvedProblem, points) {
+    return enqueueAward(() => sendAward(solvedProblem, points));
+  }
+  async function sendAward(solvedProblem, points) {
     const url = stateRef.current.pointsUrl || DEFAULT_POINTS_URL;
     if (!url || !points) {
       if (!url) toast("해결했어요! 포인트 적립 주소가 설정되지 않았어요. 설정(톱니바퀴)에서 입력해주세요.");
@@ -342,7 +363,7 @@ function App() {
         return;
       }
       awarding.current.add(key);
-      const result = await requestPoints({ url, student, problemId: solvedProblem.id, points, fetchImpl: fetch });
+      const result = await requestPointsWithRetry({ url, student, problemId: solvedProblem.id, points, fetchImpl: fetch });
       apply((previous) => ({ ...previous, awarded: [...new Set([...previous.awarded, key])] }));
       toast(
         result.awarded
@@ -443,7 +464,8 @@ function App() {
           h(
             "span",
             {
-              className: `stat-chip sync ${sync.status}`,
+              // 상태 이름을 그대로 클래스로 쓰면 부팅 화면용 .loading 같은 전역 규칙이 칩에 적용돼 헤더가 세로로 늘어납니다.
+              className: `stat-chip sync sync-${sync.status}`,
               role: "status",
               title: sync.status === "local" && sync.detail ? `${SYNC_VIEW.local.title} ${sync.detail.message}` : SYNC_VIEW[sync.status].title,
             },
