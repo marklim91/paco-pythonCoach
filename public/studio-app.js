@@ -71,8 +71,10 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// 서버 저장 상태를 헤더 칩에 보여줄 말입니다. off·idle 은 서버 저장을 쓰지 않으므로 칩을 숨깁니다.
+// 서버 저장 상태를 헤더 칩에 보여줄 말입니다. off 는 서버 저장을 쓰지 않으므로 칩을 숨깁니다.
+// idle 은 서버 기록을 불러오기 직전(서버 저장을 쓰는 학생의 첫 화면)이라 loading 과 똑같이 보여 줍니다. 칩이 한두 프레임 늦게 나타나면 헤더가 한 번 더 바뀌어요.
 const SYNC_VIEW = {
+  idle: { label: "불러오는 중", title: "서버에서 내 학습 기록을 불러오고 있어요.", Icon: Cloud },
   loading: { label: "불러오는 중", title: "서버에서 내 학습 기록을 불러오고 있어요.", Icon: Cloud },
   synced: { label: "저장됨", title: "보석과 진도가 서버에 저장돼 있어요. 다른 기기에서도 이어서 학습할 수 있어요.", Icon: Cloud },
   pending: { label: "저장 중", title: "바뀐 기록을 곧 서버에 저장해요.", Icon: Cloud },
@@ -80,7 +82,7 @@ const SYNC_VIEW = {
   offline: { label: "저장 대기", title: "서버에 연결하지 못했어요. 연결되면 자동으로 저장하니 그때까지 이 창을 닫지 마세요.", Icon: CloudOff },
   local: { label: "이 브라우저에만 저장", title: "서버에 저장하지 못해요.", Icon: CloudOff },
 };
-const SERVER_STATUSES = ["loading", "synced", "pending", "saving", "offline"];
+const SERVER_STATUSES = ["idle", "loading", "synced", "pending", "saving", "offline"];
 
 function App() {
   const [initial] = useState(() => {

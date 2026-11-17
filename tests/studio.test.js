@@ -517,6 +517,7 @@ test('the header save-status chip carries no class that the page already styles 
   const statuses = [...app.matchAll(/^ {2}(\w+): \{ label:/gm)].map(match => match[1]);
   const chipClasses = app.match(/className: `(stat-chip sync[^`]*)`/);
   assert.ok(statuses.includes('loading') && chipClasses, 'the chip statuses and class list are found');
+  assert.ok(statuses.includes('idle') && /const SERVER_STATUSES = \["idle", /.test(app), 'the chip and the footer text are right from the first frame, so the header does not change again when loading starts');
   for (const status of statuses) {
     for (const name of chipClasses[1].replace('${sync.status}', status).split(' ').filter(name => name !== 'stat-chip')) {
       assert.doesNotMatch(styles, new RegExp(`(^|[\\s,)])\\.${name}(?![\\w-])`, 'm'), `.${name} (chip status ${status}) is styled on its own elsewhere`);
